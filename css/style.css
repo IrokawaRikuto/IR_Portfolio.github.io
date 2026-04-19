@@ -370,6 +370,7 @@ section {
     position: relative;
     text-align: center;
     flex: 1;
+    cursor: pointer;
 }
 
 .timeline-year::before {
@@ -398,17 +399,49 @@ section {
     display: block;
     font-size: 0.75rem;
     color: var(--text-muted);
-    margin-bottom: 12px;
 }
 
-.timeline-items {
-    list-style: none;
+.timeline-tooltip {
+    position: absolute;
+    bottom: calc(100% + 16px);
+    left: 50%;
+    transform: translateX(-50%) translateY(8px);
+    background: var(--bg-card);
+    border: 1px solid var(--accent);
+    border-radius: var(--radius);
+    padding: 12px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s ease;
+    pointer-events: none;
+    box-shadow: 0 4px 20px var(--accent-glow);
 }
 
-.timeline-items li {
+/* 吹き出しの三角 */
+.timeline-tooltip::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 8px solid transparent;
+    border-top-color: var(--accent);
+}
+
+.timeline-year:hover .timeline-tooltip {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+    pointer-events: auto;
+}
+
+.timeline-tooltip span {
     font-size: 0.8rem;
-    color: var(--text-muted);
-    padding: 2px 0;
+    color: var(--text);
 }
 
 /* ===== Works ===== */
