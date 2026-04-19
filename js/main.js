@@ -91,6 +91,7 @@ const workData = {
         },
         video: { type: 'placeholder', src: '' },
         screenshot: '',
+        download: '',
     },
     'circlestriker': {
         title: { ja: 'CIRCLESTRIKER', en: 'CIRCLESTRIKER' },
@@ -103,6 +104,7 @@ const workData = {
         },
         video: { type: 'placeholder', src: '' },
         screenshot: '',
+        download: '',
     },
     'gamma': {
         title: { ja: 'GAMMA', en: 'GAMMA' },
@@ -115,6 +117,7 @@ const workData = {
         },
         video: { type: 'placeholder', src: '' },
         screenshot: '',
+        download: '',
     },
     'sand-tetris': {
         title: { ja: 'Sand Tetris', en: 'Sand Tetris' },
@@ -127,6 +130,7 @@ const workData = {
         },
         video: { type: 'placeholder', src: '' },
         screenshot: '',
+        download: '',
     },
     'console-shooter': {
         title: { ja: 'コンソールシューティング', en: 'Console Shooter' },
@@ -139,6 +143,7 @@ const workData = {
         },
         video: { type: 'placeholder', src: '' },
         screenshot: '',
+        download: '',
     },
 };
 
@@ -175,9 +180,6 @@ function openModal(workId) {
         videoArea.appendChild(iframe);
     }
 
-    // 年号
-    modal.querySelector('.work-detail-year').textContent = data.year;
-
     // タグ
     const tagsEl = modal.querySelector('.work-detail-tags');
     tagsEl.innerHTML = data.tags.map(t => {
@@ -185,13 +187,32 @@ function openModal(workId) {
         return '<span class="tag">' + text + '</span>';
     }).join('');
 
-    // 受賞
+    // 作品情報：年号
+    modal.querySelector('.work-detail-year').textContent = data.year;
+
+    // 作品情報：受賞
     const awardEl = modal.querySelector('.work-detail-award');
     if (data.award) {
         awardEl.textContent = typeof data.award === 'object' ? data.award[lang] : data.award;
     } else {
         awardEl.textContent = '';
     }
+
+    // 作品配布：ダウンロードURL
+    const dlSection = modal.querySelector('.work-detail-download-section');
+    const dlLink = modal.querySelector('.work-detail-download');
+    if (data.download) {
+        dlSection.classList.add('has-link');
+        dlLink.href = data.download;
+        dlLink.textContent = 'Download';
+    } else {
+        dlSection.classList.remove('has-link');
+    }
+
+    // セクションタイトルの言語切替
+    modal.querySelectorAll('[data-ja][data-en]').forEach(el => {
+        el.textContent = el.getAttribute('data-' + lang);
+    });
 
     // スクリーンショット
     const ssArea = modal.querySelector('.work-detail-screenshot');

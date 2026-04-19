@@ -691,24 +691,29 @@ section {
     letter-spacing: 0.15em;
 }
 
-.work-detail-meta {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
-}
-
-.work-detail-year {
-    font-family: "Arial Black", "Helvetica Neue", sans-serif;
-    font-size: 1.1rem;
-    font-weight: 900;
-    color: var(--text-muted);
-}
-
 .work-detail-tags {
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
+}
+
+.work-detail-section {
+    border-top: 1px solid var(--border);
+    padding-top: 12px;
+}
+
+.work-detail-section-title {
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+}
+
+.work-detail-year {
+    font-size: 0.9rem;
+    color: var(--text);
+    margin-bottom: 4px;
 }
 
 .work-detail-award {
@@ -718,6 +723,31 @@ section {
 }
 .work-detail-award:empty {
     display: none;
+}
+
+.work-detail-download-section {
+    display: none;
+}
+.work-detail-download-section.has-link {
+    display: block;
+}
+
+.work-detail-download {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 16px;
+    border: 1px solid var(--accent);
+    border-radius: 4px;
+    color: var(--accent);
+    font-size: 0.8rem;
+    letter-spacing: 0.03em;
+    transition: background 0.2s, color 0.2s;
+}
+.work-detail-download:hover {
+    background: var(--accent);
+    color: #fff;
+    opacity: 1;
 }
 
 .work-detail-right {
