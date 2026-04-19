@@ -78,7 +78,6 @@ const workMedia = {
     'gamma':            { type: 'placeholder', src: '' },
     'touhou':           { type: 'placeholder', src: '' },
     'circlestriker':    { type: 'placeholder', src: '' },
-    'mario':            { type: 'placeholder', src: '' },
     'sand-tetris':      { type: 'placeholder', src: '' },
     'console-shooter':  { type: 'placeholder', src: '' },
 };
