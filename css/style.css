@@ -114,8 +114,9 @@ img {
     min-height: 100vh;
     display: flex;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: flex-start !important;
     padding-left: 12%;
+    padding-right: 0;
     position: relative;
     overflow: hidden;
 }
@@ -123,7 +124,8 @@ img {
 .hero-content {
     position: relative;
     z-index: 1;
-    text-align: left;
+    text-align: left !important;
+    margin-right: auto;
 }
 
 .hero-sub {
@@ -301,8 +303,8 @@ section {
 .skill-list li:last-child { border-bottom: none; }
 
 .skill-icon {
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
     flex-shrink: 0;
     object-fit: contain;
     border-radius: 4px;
