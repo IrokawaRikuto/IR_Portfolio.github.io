@@ -123,7 +123,7 @@ const workData = {
             en: 'A puzzle-action game developed as a team project at HEW (2nd year). Transform into a shadow and use object shadows as platforms to reach otherwise inaccessible areas. Responsible for character controls, bug fixes, conflict resolution, promotional video, and management support.'
         },
         video: { type: 'video', src: 'videos/gamma_pv.mp4' },
-        screenshot: '',
+        screenshot: 'images/gamma_screenshot.jpg',
         download: '',
     },
     'regamma': {
