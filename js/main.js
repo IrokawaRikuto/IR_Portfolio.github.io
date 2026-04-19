@@ -83,7 +83,7 @@ const workData = {
     'touhou': {
         title: { ja: '東方春三校', en: 'Touhou Harusankou' },
         year: '2024',
-        tags: ['Unity', 'C#', { ja: '個人制作', en: 'Solo' }],
+        tags: ['Unity', { ja: '個人制作', en: 'Solo' }],
         award: { ja: '3校合同コンテスト（夏） 意欲賞 受賞', en: '3-School Joint Contest (Summer) — Enthusiasm Award' },
         desc: {
             ja: '1年次の3校合同コンテスト（夏）にて制作した縦スクロール弾幕シューティング。東方Project原作を意識した弾幕パターンやゲーム性を再現。同コンテストにて意欲賞を受賞。',
