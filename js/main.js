@@ -63,13 +63,20 @@ document.querySelectorAll('.work-card').forEach((el, i) => {
     observer.observe(el);
 });
 
-// ナビバーのスクロール時の効果
+// ナビバーのスクロール時の効果 & トップに戻るボタン
+const backToTop = document.getElementById('back-to-top');
 window.addEventListener('scroll', () => {
     const navbar = document.getElementById('navbar');
     if (window.scrollY > 60) {
         navbar.style.borderBottomColor = 'rgba(108, 99, 255, 0.2)';
     } else {
         navbar.style.borderBottomColor = 'var(--border)';
+    }
+
+    if (window.scrollY > 400) {
+        backToTop.classList.add('visible');
+    } else {
+        backToTop.classList.remove('visible');
     }
 });
 
