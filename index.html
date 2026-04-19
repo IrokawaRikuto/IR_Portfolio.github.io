@@ -1,21 +1,273 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>マイページ</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>色川陸登 | Portfolio</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <h1>Hello GitHub.io!</h1>
-    <table border="1" width="100%" height="300">
-    <!-- ① 上部全幅 -->
-    <tr>
-        <td colspan="2" align="center">① 上部全幅</td>
-    </tr>
-    <!-- ② 左側、③ 右側 -->
-    <tr>
-        <td width="150" valign="top">② 左側</td>
-        <td>③ 右側</td>
-    </tr>
-</table>
+
+<!-- ナビゲーション -->
+<nav id="navbar">
+    <div class="nav-inner">
+        <a href="#hero" class="nav-logo">RIKUTO IROKAWA</a>
+        <ul class="nav-links">
+            <li><a href="#about">About</a></li>
+            <li><a href="#skills">Skills</a></li>
+            <li><a href="#works">Works</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+        <button class="nav-toggle" aria-label="メニュー">
+            <span></span><span></span><span></span>
+        </button>
+    </div>
+</nav>
+
+<!-- ヒーロー -->
+<section id="hero">
+    <div class="hero-content">
+        <p class="hero-sub">Game Programmer / Scenario Writer</p>
+        <h1 class="hero-title">色川 陸登</h1>
+        <p class="hero-desc">プログラムも、物語も、つくる。</p>
+        <a href="#works" class="hero-btn">Works</a>
+    </div>
+    <div class="hero-bg-text" aria-hidden="true">PORTFOLIO</div>
+</section>
+
+<!-- About -->
+<section id="about">
+    <div class="container">
+        <h2 class="section-title">About</h2>
+        <div class="about-grid">
+            <div class="about-photo">
+                <!-- 写真を入れる場合: <img src="images/profile.jpg" alt="色川陸登"> -->
+                <div class="photo-placeholder">PHOTO</div>
+            </div>
+            <div class="about-text">
+                <h3>色川 陸登<span class="ruby">（いろかわ りくと）</span></h3>
+                <table class="about-table">
+                    <tr><th>学校</th><td>HAL東京 ゲーム4年制学科 プログラマーコース</td></tr>
+                    <tr><th>志望職種</th><td>ゲームプログラマー / ゲームシナリオライター</td></tr>
+                </table>
+                <p class="about-pr">
+                    ゲームプログラミングを軸に、動画制作・楽曲制作・画像編集・シナリオ制作まで幅広く手がけるオールラウンダーです。
+                    プログラマーとしての技術は同期の学生からも高く評価されています。
+                    もともとストーリーを考えることが好きで、プログラムだけでなく「物語を届ける」仕事にも強い情熱を持っています。
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Skills -->
+<section id="skills">
+    <div class="container">
+        <h2 class="section-title">Skills</h2>
+        <div class="skills-grid">
+            <div class="skill-category">
+                <h3>Programming</h3>
+                <ul class="skill-list">
+                    <li><span class="skill-name">C++</span></li>
+                    <li><span class="skill-name">C#</span></li>
+                </ul>
+            </div>
+            <div class="skill-category">
+                <h3>Game Engine</h3>
+                <ul class="skill-list">
+                    <li><span class="skill-name">Unity</span></li>
+                </ul>
+            </div>
+            <div class="skill-category">
+                <h3>3DCG / Modeling</h3>
+                <ul class="skill-list">
+                    <li><span class="skill-name">Blender</span></li>
+                    <li><span class="skill-name">Maya</span></li>
+                    <li><span class="skill-name">MMD</span></li>
+                </ul>
+            </div>
+            <div class="skill-category">
+                <h3>Movie / Sound</h3>
+                <ul class="skill-list">
+                    <li><span class="skill-name">YMM4</span></li>
+                    <li><span class="skill-name">AviUtl</span></li>
+                    <li><span class="skill-name">Studio One 6</span></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Works -->
+<section id="works">
+    <div class="container">
+        <h2 class="section-title">Works</h2>
+
+        <!-- GAMMA -->
+        <article class="work-card">
+            <div class="work-media">
+                <!-- <img src="images/gamma.png" alt="GAMMA"> -->
+                <div class="media-placeholder">SCREENSHOT</div>
+            </div>
+            <div class="work-info">
+                <h3 class="work-title">GAMMA</h3>
+                <div class="work-tags">
+                    <span class="tag">Unity</span>
+                    <span class="tag">C#</span>
+                    <span class="tag">チーム制作 → 個人リメイク</span>
+                </div>
+                <p class="work-desc">
+                    2年次のHEW（学内イベント）でチーム制作したパズルアクションゲームを、個人でリメイク。
+                    影に変身し、物体の影を足場にして本来届かない場所へ進むというコンセプト。
+                    チーム版ではキャラクター操作・バグ修正・コンフリクト修正・紹介動画制作・マネジメント補佐を担当。
+                    リメイク版ではプログラムの全面修正、操作感の改善、演出の強化に注力しました。
+                </p>
+                <div class="work-links">
+                    <!-- <a href="#" class="work-link">GitHub</a> -->
+                    <!-- <a href="#" class="work-link">Play Movie</a> -->
+                </div>
+            </div>
+        </article>
+
+        <!-- 東方春三校 -->
+        <article class="work-card">
+            <div class="work-media">
+                <div class="media-placeholder">SCREENSHOT</div>
+            </div>
+            <div class="work-info">
+                <h3 class="work-title">東方春三校</h3>
+                <span class="work-award">意欲賞 受賞</span>
+                <div class="work-tags">
+                    <span class="tag">Unity</span>
+                    <span class="tag">C#</span>
+                    <span class="tag">個人制作</span>
+                </div>
+                <p class="work-desc">
+                    1年次の3校合同コンテスト（夏）にて制作。
+                    東方Project原作を意識した縦スクロール弾幕シューティング。
+                    意欲賞を受賞しました。
+                </p>
+                <div class="work-links">
+                    <!-- <a href="#" class="work-link">GitHub</a> -->
+                </div>
+            </div>
+        </article>
+
+        <!-- CIRCLESTRIKER -->
+        <article class="work-card">
+            <div class="work-media">
+                <div class="media-placeholder">SCREENSHOT</div>
+            </div>
+            <div class="work-info">
+                <h3 class="work-title">CIRCLESTRIKER</h3>
+                <span class="work-award">構成力賞 受賞</span>
+                <div class="work-tags">
+                    <span class="tag">Unity</span>
+                    <span class="tag">C#</span>
+                    <span class="tag">個人制作</span>
+                </div>
+                <p class="work-desc">
+                    1年次の3校合同コンテスト（冬）にて制作。
+                    筒を倒したようなステージをジャンプで進んでいくアクションゲーム。
+                    ステージを回転させながらゴールを目指すユニークな操作性が特徴です。
+                    構成力賞を受賞しました。
+                </p>
+                <div class="work-links">
+                    <!-- <a href="#" class="work-link">GitHub</a> -->
+                </div>
+            </div>
+        </article>
+
+        <!-- 初代マリオ風アクションゲーム -->
+        <article class="work-card">
+            <div class="work-media">
+                <div class="media-placeholder">SCREENSHOT</div>
+            </div>
+            <div class="work-info">
+                <h3 class="work-title">初代マリオ風アクションゲーム</h3>
+                <div class="work-tags">
+                    <span class="tag">C++</span>
+                    <span class="tag">個人制作</span>
+                </div>
+                <p class="work-desc">
+                    初代スーパーマリオブラザーズを完全再現。
+                    既存の名作をゼロから作り上げることで、ゲームプログラミングの基礎力を鍛えました。
+                </p>
+                <div class="work-links">
+                    <!-- <a href="#" class="work-link">GitHub</a> -->
+                </div>
+            </div>
+        </article>
+
+        <!-- 砂テトリス -->
+        <article class="work-card">
+            <div class="work-media">
+                <div class="media-placeholder">SCREENSHOT</div>
+            </div>
+            <div class="work-info">
+                <h3 class="work-title">砂テトリス</h3>
+                <div class="work-tags">
+                    <span class="tag">個人制作</span>
+                </div>
+                <p class="work-desc">
+                    既存作品を自分の手で再現する試み。
+                    砂の物理演算とテトリスのルールを組み合わせたユニークなパズルゲームです。
+                </p>
+                <div class="work-links">
+                    <!-- <a href="#" class="work-link">GitHub</a> -->
+                </div>
+            </div>
+        </article>
+
+        <!-- コンソールシューティング -->
+        <article class="work-card">
+            <div class="work-media">
+                <div class="media-placeholder">SCREENSHOT</div>
+            </div>
+            <div class="work-info">
+                <h3 class="work-title">コンソールシューティング</h3>
+                <div class="work-tags">
+                    <span class="tag">C++</span>
+                    <span class="tag">個人制作</span>
+                </div>
+                <p class="work-desc">
+                    コンソール表示のみでグラディウス風の横スクロールシューティングを制作。
+                    1年次の課題を3年になって改めて作り直し、コンソールの制約の中で表現力を追求しました。
+                </p>
+                <div class="work-links">
+                    <!-- <a href="#" class="work-link">GitHub</a> -->
+                </div>
+            </div>
+        </article>
+
+    </div>
+</section>
+
+<!-- Contact -->
+<section id="contact">
+    <div class="container">
+        <h2 class="section-title">Contact</h2>
+        <div class="contact-content">
+            <p>お問い合わせは下記よりお願いいたします。</p>
+            <div class="contact-links">
+                <a href="https://github.com/IrokawaRikuto" class="contact-link" target="_blank" rel="noopener">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+                    GitHub
+                </a>
+                <a href="mailto:example@example.com" class="contact-link">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                    Email
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- フッター -->
+<footer>
+    <p>&copy; 2026 Rikuto Irokawa</p>
+</footer>
+
+<script src="js/main.js"></script>
 </body>
 </html>
