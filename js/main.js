@@ -122,7 +122,7 @@ const workData = {
             ja: '2年次HEWでチーム制作したパズルアクションゲーム。影に変身し、物体の影を足場にして本来届かない場所へ進むコンセプト。キャラクター操作・バグ修正・コンフリクト修正・紹介動画制作・マネジメント補佐を担当。',
             en: 'A puzzle-action game developed as a team project at HEW (2nd year). Transform into a shadow and use object shadows as platforms to reach otherwise inaccessible areas. Responsible for character controls, bug fixes, conflict resolution, promotional video, and management support.'
         },
-        video: { type: 'placeholder', src: '' },
+        video: { type: 'video', src: 'videos/gamma_pv.mp4' },
         screenshot: '',
         download: '',
     },
