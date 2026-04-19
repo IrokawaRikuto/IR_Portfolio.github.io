@@ -540,8 +540,14 @@ section {
     display: flex;
     align-items: center;
     justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
 }
-.modal[hidden] { display: none; }
+.modal.active {
+    opacity: 1;
+    visibility: visible;
+}
 
 .modal-backdrop {
     position: absolute;
@@ -559,6 +565,11 @@ section {
     width: 90%;
     max-height: 80vh;
     overflow: auto;
+    transform: translateY(30px) scale(0.95);
+    transition: transform 0.3s ease;
+}
+.modal.active .modal-content {
+    transform: translateY(0) scale(1);
 }
 
 .modal-close {

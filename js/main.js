@@ -120,14 +120,14 @@ function openModal(workId) {
         modalBody.appendChild(iframe);
     }
 
-    modal.hidden = false;
+    modal.classList.add('active');
     document.body.style.overflow = 'hidden';
 }
 
 function closeModal() {
-    modal.hidden = true;
+    modal.classList.remove('active');
     document.body.style.overflow = '';
-    modalBody.innerHTML = '';
+    setTimeout(() => { modalBody.innerHTML = ''; }, 300);
 }
 
 // 作品カードのクリックイベント
@@ -156,14 +156,14 @@ const emailModalClose = emailModal.querySelector('.modal-close');
 const emailModalBackdrop = emailModal.querySelector('.modal-backdrop');
 
 function openEmailModal() {
-    emailModal.hidden = false;
+    emailModal.classList.add('active');
     document.body.style.overflow = 'hidden';
     emailStatus.hidden = true;
     emailForm.reset();
 }
 
 function closeEmailModal() {
-    emailModal.hidden = true;
+    emailModal.classList.remove('active');
     document.body.style.overflow = '';
 }
 
