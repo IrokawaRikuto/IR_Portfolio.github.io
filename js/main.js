@@ -110,5 +110,69 @@ document.querySelectorAll('.work-card[data-work]').forEach(card => {
 modalClose.addEventListener('click', closeModal);
 modalBackdrop.addEventListener('click', closeModal);
 document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeModal();
+    if (e.key === 'Escape') {
+        closeModal();
+        closeEmailModal();
+    }
+});
+
+// ===== メール送信モーダル =====
+const emailModal = document.getElementById('email-modal');
+const emailForm = document.getElementById('email-form');
+const emailBtn = document.getElementById('email-btn');
+const emailCancel = document.getElementById('email-cancel');
+const emailStatus = document.getElementById('email-status');
+const emailModalClose = emailModal.querySelector('.modal-close');
+const emailModalBackdrop = emailModal.querySelector('.modal-backdrop');
+
+function openEmailModal() {
+    emailModal.hidden = false;
+    document.body.style.overflow = 'hidden';
+    emailStatus.hidden = true;
+    emailForm.reset();
+}
+
+function closeEmailModal() {
+    emailModal.hidden = true;
+    document.body.style.overflow = '';
+}
+
+emailBtn.addEventListener('click', openEmailModal);
+emailCancel.addEventListener('click', closeEmailModal);
+emailModalClose.addEventListener('click', closeEmailModal);
+emailModalBackdrop.addEventListener('click', closeEmailModal);
+
+emailForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const sendBtn = emailForm.querySelector('.btn-send');
+    sendBtn.disabled = true;
+    sendBtn.textContent = 'Sending...';
+    emailStatus.hidden = true;
+
+    const formData = new FormData(emailForm);
+
+    try {
+        const res = await fetch('https://formsubmit.co/ajax/IRcola777@gmail.com', {
+            method: 'POST',
+            headers: { 'Accept': 'application/json' },
+            body: formData,
+        });
+
+        if (res.ok) {
+            emailStatus.textContent = '送信しました。';
+            emailStatus.className = 'email-status success';
+            emailStatus.hidden = false;
+            emailForm.reset();
+            setTimeout(closeEmailModal, 1500);
+        } else {
+            throw new Error('送信に失敗しました');
+        }
+    } catch (err) {
+        emailStatus.textContent = '送信に失敗しました。時間をおいて再度お試しください。';
+        emailStatus.className = 'email-status error';
+        emailStatus.hidden = false;
+    } finally {
+        sendBtn.disabled = false;
+        sendBtn.textContent = 'Send';
+    }
 });
