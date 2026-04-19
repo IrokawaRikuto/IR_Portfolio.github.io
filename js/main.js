@@ -227,12 +227,12 @@ function openModal(workId) {
         typeof data.desc === 'object' ? data.desc[lang] : data.desc;
 
     modal.classList.add('active');
-    document.body.style.overflow = 'hidden';
+    document.body.style.overflowY = 'hidden';
 }
 
 function closeModal() {
     modal.classList.remove('active');
-    document.body.style.overflow = '';
+    document.body.style.overflowY = '';
 }
 
 // 作品カードのクリックイベント
@@ -262,14 +262,14 @@ const emailModalBackdrop = emailModal.querySelector('.modal-backdrop');
 
 function openEmailModal() {
     emailModal.classList.add('active');
-    document.body.style.overflow = 'hidden';
+    document.body.style.overflowY = 'hidden';
     emailStatus.hidden = true;
     emailForm.reset();
 }
 
 function closeEmailModal() {
     emailModal.classList.remove('active');
-    document.body.style.overflow = '';
+    document.body.style.overflowY = '';
 }
 
 emailBtn.addEventListener('click', openEmailModal);

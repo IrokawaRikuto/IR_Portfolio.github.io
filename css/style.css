@@ -20,6 +20,10 @@
 
 html {
     scroll-behavior: smooth;
+    scrollbar-width: none;
+}
+html::-webkit-scrollbar {
+    display: none;
 }
 
 body {
@@ -601,9 +605,9 @@ section {
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    max-width: 800px;
+    max-width: 900px;
     width: 90%;
-    max-height: 80vh;
+    max-height: 90vh;
     overflow: auto;
     transform: translateY(30px) scale(0.95);
     transition: transform 0.3s ease;
@@ -645,7 +649,9 @@ section {
 
 /* ===== Work Detail Modal ===== */
 .work-modal-content {
-    max-width: 900px;
+    max-width: 1100px;
+    width: 92%;
+    max-height: 92vh;
 }
 
 .work-detail {
