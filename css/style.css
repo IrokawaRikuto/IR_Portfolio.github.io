@@ -187,6 +187,8 @@ img {
 .hero-icon {
     width: clamp(150px, 20vw, 280px);
     height: auto;
+    align-self: flex-start;
+    margin-left: auto;
 }
 
 .hero-sub {
