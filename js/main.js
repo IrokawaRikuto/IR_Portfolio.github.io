@@ -142,7 +142,7 @@ const workData = {
             en: 'A vertical-scrolling bullet hell shooter created for the Fun Game Making In-School Contest. Inspired by the Touhou Project, featuring aimed shots and bullet patterns in three sizes, along with lives, scoring, and score ranking systems.'
         },
         video: { type: 'placeholder', src: '' },
-        screenshots: [],
+        screenshots: ['images/東方春三校_Title.png', 'images/東方春三校_GamePlay.png'],
         download: '',
     },
     'circlestriker': {
@@ -194,7 +194,7 @@ const workData = {
             en: 'A puzzle game combining sand physics simulation with Tetris rules. Inspired by an existing title of the same name, the physics simulation logic was independently designed and implemented in C++.'
         },
         video: { type: 'placeholder', src: '' },
-        screenshots: [],
+        screenshots: ['images/SANDTETRIS_Title.png', 'images/SANDTETRIS_GamePlay.png'],
         download: '',
     },
     'console-shooter': {
@@ -207,7 +207,7 @@ const workData = {
             en: 'A Gradius-style horizontal scrolling shooter built entirely with console output. Redesigned a 1st-year assignment in the 3rd year, achieving motion and visual effects using only text-based rendering.'
         },
         video: { type: 'placeholder', src: '' },
-        screenshots: [],
+        screenshots: ['images/コンソールシューティング_Title.png', 'images/コンソールシューティング_GamePlay.png'],
         download: '',
     },
 };
