@@ -465,7 +465,8 @@ section {
     border-top-color: var(--accent);
 }
 
-.timeline-year:hover .timeline-tooltip {
+.timeline-year:hover .timeline-tooltip,
+.timeline-year.tooltip-active .timeline-tooltip {
     opacity: 1;
     visibility: visible;
     transform: translateX(-50%) translateY(0);
@@ -1048,6 +1049,24 @@ footer {
     }
     .timeline-year::before {
         margin: 0 auto 8px;
+    }
+    .timeline-tooltip {
+        left: calc(50% + 40px);
+        bottom: auto;
+        top: 50%;
+        transform: translateX(0) translateY(-50%);
+    }
+    .timeline-tooltip::after {
+        top: 50%;
+        left: -16px;
+        transform: translateY(-50%);
+        border: 8px solid transparent;
+        border-right-color: var(--accent);
+        border-top-color: transparent;
+    }
+    .timeline-year:hover .timeline-tooltip,
+    .timeline-year.tooltip-active .timeline-tooltip {
+        transform: translateX(0) translateY(-50%);
     }
 
     .works-grid {

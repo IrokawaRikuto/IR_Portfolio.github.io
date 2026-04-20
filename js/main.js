@@ -392,6 +392,24 @@ emailCancel.addEventListener('click', closeEmailModal);
 emailModalClose.addEventListener('click', closeEmailModal);
 emailModalBackdrop.addEventListener('click', closeEmailModal);
 
+// ===== タイムライン吹き出しのタッチ対応 =====
+document.querySelectorAll('.timeline-year').forEach(year => {
+    year.addEventListener('click', (e) => {
+        // リンククリック時は閉じない
+        if (e.target.closest('.tooltip-link')) return;
+        const isActive = year.classList.contains('tooltip-active');
+        // 他の吹き出しを閉じる
+        document.querySelectorAll('.timeline-year.tooltip-active').forEach(y => y.classList.remove('tooltip-active'));
+        if (!isActive) year.classList.add('tooltip-active');
+    });
+});
+// 吹き出し外タップで閉じる
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('.timeline-year')) {
+        document.querySelectorAll('.timeline-year.tooltip-active').forEach(y => y.classList.remove('tooltip-active'));
+    }
+});
+
 emailForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const sendBtn = emailForm.querySelector('.btn-send');
