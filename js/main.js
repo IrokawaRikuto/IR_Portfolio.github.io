@@ -137,7 +137,7 @@ const workData = {
         year: '2024',
         tags: ['Unity', { ja: '課題制作：個人', en: 'Assignment: Solo' }],
         award: { ja: 'おもしろゲームづくり学内コンテスト 意欲賞 受賞', en: 'Fun Game Making In-School Contest — Enthusiasm Award' },
-        env: 'Unity / Visual Studio Code',
+        env: 'Unity',
         desc: {
             ja: 'おもしろゲームづくり学内コンテストにて制作した縦スクロール弾幕シューティング。東方Projectを題材に、自機狙い弾や大中小の弾幕パターン、残機・得点・スコアランキングなどのシステムを実装した。',
             en: 'A vertical-scrolling bullet hell shooter created for the Fun Game Making In-School Contest. Inspired by the Touhou Project, featuring aimed shots and bullet patterns in three sizes, along with lives, scoring, and score ranking systems.'
@@ -195,8 +195,8 @@ const workData = {
         award: null,
         env: 'Visual Studio / Claude Code Pro',
         desc: {
-            ja: '砂の物理演算とテトリスのルールを組み合わせたパズルゲーム。既存の同名作品に着想を得て、物理シミュレーションのロジックをC++で独自に設計・実装した。',
-            en: 'A puzzle game combining sand physics simulation with Tetris rules. Inspired by an existing title of the same name, the physics simulation logic was independently designed and implemented in C++.'
+            ja: 'Claude Code Proの実力を検証するため、自分では一文字もコードを書かず、完全にClaude Codeのみで制作した作品。ブラックボックスにならないよう生成されたコードの中身を確認しながら進め、バグ修正も含めてAIとの協業でゲームを完成させた。既存の同名作品に着想を得た砂物理×テトリスのパズルゲームで、シェーダーを使わず軽量に仕上げ、NEXT表示やランキング機能も実装した。',
+            en: 'A project created entirely by Claude Code Pro without writing a single line of code myself, to test its capabilities. I reviewed all generated code to avoid black-box development, completing the game through AI collaboration including bug fixes. A sand physics × Tetris puzzle game inspired by an existing title, built lightweight without shaders, featuring NEXT display and ranking functionality.'
         },
         video: { type: 'placeholder', src: '' },
         screenshots: ['images/SANDTETRIS_Title.png', 'images/SANDTETRIS_GamePlay.png'],
@@ -209,8 +209,8 @@ const workData = {
         award: null,
         env: 'Visual Studio / Claude Code Pro',
         desc: {
-            ja: 'コンソール出力のみでグラディウス風の横スクロールシューティングを制作。1年次に取り組んだ課題を3年次に再設計し、文字表現だけで動きや演出を実現した。',
-            en: 'A Gradius-style horizontal scrolling shooter built entirely with console output. Redesigned a 1st-year assignment in the 3rd year, achieving motion and visual effects using only text-based rendering.'
+            ja: 'Sand Tetrisに続きClaude Codeを活用して制作。今回は自分でコードを書き、Claude Codeにはバグ修正や方向性の提示を任せる形で開発した。未来創造展で後輩の課題作品を見て、今の自分ならどこまで作れるかを試したのがきっかけ。ダブルバッファによる滑らかな描画、操作性、コンソール特有の視認性、安定性を意識し、1日で完成させた。全3ステージ構成で、ミニゲームとしても遊びごたえのある作品に仕上がった。',
+            en: 'Built with Claude Code following Sand Tetris. This time I wrote the code myself, using Claude Code for bug fixes and direction guidance. Inspired by seeing junior students\\' HEW projects, I wanted to test my current abilities. Focused on smooth rendering with double buffering, controls, console-specific readability, and stability — completed in one day. Features 3 stages with satisfying gameplay as a mini-game.'
         },
         video: { type: 'placeholder', src: '' },
         screenshots: ['images/コンソールシューティング_Title.png', 'images/コンソールシューティング_GamePlay.png'],
