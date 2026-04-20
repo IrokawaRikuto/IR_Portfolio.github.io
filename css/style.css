@@ -177,7 +177,7 @@ img {
     z-index: 1;
     display: flex;
     align-items: center;
-    gap: 40px;
+    gap: 20px;
 }
 
 .hero-text {
@@ -201,7 +201,6 @@ img {
     font-size: 4rem;
     font-weight: 800;
     letter-spacing: 0.1em;
-    font-family: "游明朝", "Yu Mincho", "Noto Serif JP", "HiraMinProN-W3", serif;
     margin-bottom: 16px;
 }
 
