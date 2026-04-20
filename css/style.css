@@ -343,11 +343,6 @@ section {
     border: 1px solid var(--border);
     border-radius: var(--radius);
     padding: 28px 24px;
-    transition: border-color 0.3s, box-shadow 0.3s;
-}
-.skill-category:hover {
-    border-color: var(--accent);
-    box-shadow: 0 0 20px var(--accent-glow);
 }
 
 .skill-category h3 {
