@@ -850,6 +850,7 @@ section {
 .contact-content p {
     color: var(--text-muted);
     margin-bottom: 32px;
+    min-height: 1.5em;
 }
 
 .contact-links {
