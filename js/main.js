@@ -135,7 +135,7 @@ const workData = {
     'touhou': {
         title: { ja: '東方春三校', en: 'Touhou Harusankou' },
         year: '2024',
-        tags: ['Unity', { ja: '個人制作', en: 'Solo' }],
+        tags: ['Unity', { ja: '課題制作：個人', en: 'Assignment: Solo' }],
         award: { ja: 'おもしろゲームづくり学内コンテスト 意欲賞 受賞', en: 'Fun Game Making In-School Contest — Enthusiasm Award' },
         desc: {
             ja: 'おもしろゲームづくり学内コンテストにて制作した縦スクロール弾幕シューティング。東方Projectを題材に、自機狙い弾や大中小の弾幕パターン、残機・得点・スコアランキングなどのシステムを実装した。',
@@ -148,7 +148,7 @@ const workData = {
     'circlestriker': {
         title: { ja: 'CIRCLESTRIKER', en: 'CIRCLESTRIKER' },
         year: '2024',
-        tags: ['Unity', 'C#', { ja: '個人制作', en: 'Solo' }],
+        tags: ['Unity', 'C#', { ja: '課題制作：個人', en: 'Assignment: Solo' }],
         award: { ja: 'オリジナルTPS学内コンペ 構成力賞 受賞', en: 'Original TPS In-School Competition — Composition Award' },
         desc: {
             ja: 'オリジナルTPS学内コンペにて制作した3Dアクションゲーム。円筒状のステージを左右に回転させながらジャンプで進む独自の操作システムを設計し、タイム計測やランキング機能も実装した。',
@@ -161,7 +161,7 @@ const workData = {
     'gamma': {
         title: { ja: 'GAMMA', en: 'GAMMA' },
         year: '2025',
-        tags: ['C++', 'DirectX', { ja: 'チーム制作', en: 'Team' }],
+        tags: ['C++', 'DirectX', { ja: '課題制作：チーム', en: 'Assignment: Team' }],
         award: null,
         desc: {
             ja: '2年次の未来創造展（HEW）にてチーム制作したパズルアクションゲーム。プレイヤーが影に変身し、物体の影を足場にして進む独自のコンセプト。キャラクター操作の実装、紹介動画の制作、チームのマネジメント補佐を担当した。',
@@ -174,7 +174,7 @@ const workData = {
     'regamma': {
         title: { ja: 'RE:GAMMA', en: 'RE:GAMMA' },
         year: '2026',
-        tags: ['C++', 'DirectX', { ja: 'リメイク', en: 'Remake' }, { ja: '個人制作', en: 'Solo' }],
+        tags: ['C++', 'DirectX', { ja: 'リメイク', en: 'Remake' }, { ja: '個人制作', en: 'Personal' }],
         award: null,
         desc: {
             ja: 'チーム制作したGAMMAを個人で完全リメイク。ゲームコンセプトはそのままに、プログラムの全面修正・操作感の改善・演出の強化に注力した作品。',
@@ -187,7 +187,7 @@ const workData = {
     'sand-tetris': {
         title: { ja: 'Sand Tetris', en: 'Sand Tetris' },
         year: '2026',
-        tags: ['C++', { ja: '自主制作', en: 'Self-initiated' }],
+        tags: ['C++', { ja: '個人制作', en: 'Personal' }],
         award: null,
         desc: {
             ja: '砂の物理演算とテトリスのルールを組み合わせたパズルゲーム。既存の同名作品に着想を得て、物理シミュレーションのロジックをC++で独自に設計・実装した。',
@@ -200,7 +200,7 @@ const workData = {
     'console-shooter': {
         title: { ja: 'コンソールシューティング', en: 'Console Shooter' },
         year: '2026',
-        tags: ['C++', { ja: '自主制作', en: 'Self-initiated' }],
+        tags: ['C++', { ja: '個人制作', en: 'Personal' }],
         award: null,
         desc: {
             ja: 'コンソール出力のみでグラディウス風の横スクロールシューティングを制作。1年次に取り組んだ課題を3年次に再設計し、文字表現だけで動きや演出を実現した。',
