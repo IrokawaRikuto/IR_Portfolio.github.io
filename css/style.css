@@ -92,8 +92,11 @@ img {
 }
 
 .nav-logo-icon {
-    height: 48px;
+    height: 100%;
     width: auto;
+    position: absolute;
+    top: 0;
+    left: 40px;
 }
 
 .nav-links {
