@@ -136,10 +136,10 @@ const workData = {
         title: { ja: '東方春三校', en: 'Touhou Harusankou' },
         year: '2024',
         tags: ['Unity', { ja: '個人制作', en: 'Solo' }],
-        award: { ja: '3校合同コンテスト（夏） 意欲賞 受賞', en: '3-School Joint Contest (Summer) — Enthusiasm Award' },
+        award: { ja: 'おもしろゲームづくり学内コンテスト 意欲賞 受賞', en: 'Fun Game Making In-School Contest — Enthusiasm Award' },
         desc: {
-            ja: '1年次の3校合同コンテスト（夏）にて制作した縦スクロール弾幕シューティング。東方Project原作を意識した弾幕パターンやゲーム性を再現。同コンテストにて意欲賞を受賞。',
-            en: 'A vertical-scrolling bullet hell shooter created for the 3-School Joint Contest (Summer, 1st year). Recreated bullet patterns and gameplay inspired by the Touhou Project series. Won the Enthusiasm Award.'
+            ja: 'おもしろゲームづくり学内コンテストにて制作した縦スクロール弾幕シューティング。東方Project原作を意識した弾幕パターンやゲーム性を再現。同コンテストにて意欲賞を受賞。',
+            en: 'A vertical-scrolling bullet hell shooter created for the Fun Game Making In-School Contest. Recreated bullet patterns and gameplay inspired by the Touhou Project series. Won the Enthusiasm Award.'
         },
         video: { type: 'placeholder', src: '' },
         screenshots: [],
@@ -149,10 +149,10 @@ const workData = {
         title: { ja: 'CIRCLESTRIKER', en: 'CIRCLESTRIKER' },
         year: '2024',
         tags: ['Unity', 'C#', { ja: '個人制作', en: 'Solo' }],
-        award: { ja: '3校合同コンテスト（冬） 構成力賞 受賞', en: '3-School Joint Contest (Winter) — Composition Award' },
+        award: { ja: 'オリジナルTPS学内コンペ 構成力賞 受賞', en: 'Original TPS In-School Competition — Composition Award' },
         desc: {
-            ja: '1年次の3校合同コンテスト（冬）にて制作。筒を倒したようなステージを回転させながらジャンプで進むアクションゲーム。同コンテストにて構成力賞を受賞。',
-            en: 'Created for the 3-School Joint Contest (Winter, 1st year). An action game where you jump through a cylindrical stage that rotates as you progress. Won the Composition Award.'
+            ja: 'オリジナルTPS学内コンペにて制作。筒を倒したようなステージを回転させながらジャンプで進むアクションゲーム。同コンペにて構成力賞を受賞。',
+            en: 'Created for the Original TPS In-School Competition. An action game where you jump through a cylindrical stage that rotates as you progress. Won the Composition Award.'
         },
         video: { type: 'placeholder', src: '' },
         screenshots: [],
