@@ -138,8 +138,8 @@ const workData = {
         tags: ['Unity', { ja: '個人制作', en: 'Solo' }],
         award: { ja: 'おもしろゲームづくり学内コンテスト 意欲賞 受賞', en: 'Fun Game Making In-School Contest — Enthusiasm Award' },
         desc: {
-            ja: 'おもしろゲームづくり学内コンテストにて制作した縦スクロール弾幕シューティング。東方Project原作を意識した弾幕パターンやゲーム性を再現。同コンテストにて意欲賞を受賞。',
-            en: 'A vertical-scrolling bullet hell shooter created for the Fun Game Making In-School Contest. Recreated bullet patterns and gameplay inspired by the Touhou Project series. Won the Enthusiasm Award.'
+            ja: 'おもしろゲームづくり学内コンテストにて制作した縦スクロール弾幕シューティング。東方Projectを題材に、多彩な弾幕パターンやスペルカードシステムなど原作の魅力を再現した。',
+            en: 'A vertical-scrolling bullet hell shooter created for the Fun Game Making In-School Contest. Inspired by the Touhou Project, featuring diverse bullet patterns and a spell card system faithful to the original.'
         },
         video: { type: 'placeholder', src: '' },
         screenshots: [],
@@ -151,8 +151,8 @@ const workData = {
         tags: ['Unity', 'C#', { ja: '個人制作', en: 'Solo' }],
         award: { ja: 'オリジナルTPS学内コンペ 構成力賞 受賞', en: 'Original TPS In-School Competition — Composition Award' },
         desc: {
-            ja: 'オリジナルTPS学内コンペにて制作。筒を倒したようなステージを回転させながらジャンプで進むアクションゲーム。同コンペにて構成力賞を受賞。',
-            en: 'Created for the Original TPS In-School Competition. An action game where you jump through a cylindrical stage that rotates as you progress. Won the Composition Award.'
+            ja: 'オリジナルTPS学内コンペにて制作した3Dアクションゲーム。円筒状のステージを回転させながらジャンプで進む独自のゲームシステムを設計・実装した。',
+            en: 'A 3D action game created for the Original TPS In-School Competition. Designed and implemented a unique gameplay system where players jump through a rotating cylindrical stage.'
         },
         video: { type: 'placeholder', src: '' },
         screenshots: [],
@@ -164,8 +164,8 @@ const workData = {
         tags: ['C++', 'DirectX', { ja: 'チーム制作', en: 'Team' }],
         award: null,
         desc: {
-            ja: '2年次HEWでチーム制作したパズルアクションゲーム。影に変身し、物体の影を足場にして本来届かない場所へ進むコンセプト。キャラクター操作・バグ修正・コンフリクト修正・紹介動画制作・マネジメント補佐を担当。',
-            en: 'A puzzle-action game developed as a team project at HEW (2nd year). Transform into a shadow and use object shadows as platforms to reach otherwise inaccessible areas. Responsible for character controls, bug fixes, conflict resolution, promotional video, and management support.'
+            ja: '2年次の未来創造展（HEW）にてチーム制作したパズルアクションゲーム。プレイヤーが影に変身し、物体の影を足場にして進む独自のコンセプト。キャラクター操作の実装、紹介動画の制作、チームのマネジメント補佐を担当した。',
+            en: 'A puzzle-action game developed as a team project for HEW (2nd year). Players transform into shadows and use object shadows as platforms to reach otherwise inaccessible areas. Responsible for character controls implementation, promotional video production, and team management support.'
         },
         video: { type: 'video', src: 'videos/gamma_pv.mp4' },
         screenshots: ['images/gamma_screenshot.jpg'],
@@ -190,8 +190,8 @@ const workData = {
         tags: ['C++', { ja: '自主制作', en: 'Self-initiated' }],
         award: null,
         desc: {
-            ja: '既存作品を自分の手で再現する試み。砂の物理演算とテトリスのルールを組み合わせたユニークなパズルゲーム。',
-            en: 'An attempt to recreate an existing concept by hand. A unique puzzle game combining sand physics simulation with Tetris rules.'
+            ja: '砂の物理演算とテトリスのルールを組み合わせたパズルゲーム。既存の同名作品に着想を得て、物理シミュレーションのロジックをC++で独自に設計・実装した。',
+            en: 'A puzzle game combining sand physics simulation with Tetris rules. Inspired by an existing title of the same name, the physics simulation logic was independently designed and implemented in C++.'
         },
         video: { type: 'placeholder', src: '' },
         screenshots: [],
@@ -203,8 +203,8 @@ const workData = {
         tags: ['C++', { ja: '自主制作', en: 'Self-initiated' }],
         award: null,
         desc: {
-            ja: 'コンソール表示のみでグラディウス風の横スクロールシューティングを制作。1年次の課題を3年で作り直し、制約の中で表現力を追求。',
-            en: 'A Gradius-style horizontal scrolling shooter built entirely in console output. Revisited a 1st-year assignment in the 3rd year, pushing expressiveness within console constraints.'
+            ja: 'コンソール出力のみでグラディウス風の横スクロールシューティングを制作。1年次に取り組んだ課題を3年次に再設計し、文字表現だけで動きや演出を実現した。',
+            en: 'A Gradius-style horizontal scrolling shooter built entirely with console output. Redesigned a 1st-year assignment in the 3rd year, achieving motion and visual effects using only text-based rendering.'
         },
         video: { type: 'placeholder', src: '' },
         screenshots: [],
