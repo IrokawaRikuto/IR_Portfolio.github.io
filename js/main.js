@@ -137,6 +137,7 @@ const workData = {
         year: '2024',
         tags: ['Unity', { ja: '課題制作：個人', en: 'Assignment: Solo' }],
         award: { ja: 'おもしろゲームづくり学内コンテスト 意欲賞 受賞', en: 'Fun Game Making In-School Contest — Enthusiasm Award' },
+        env: 'Unity / Visual Studio Code',
         desc: {
             ja: 'おもしろゲームづくり学内コンテストにて制作した縦スクロール弾幕シューティング。東方Projectを題材に、自機狙い弾や大中小の弾幕パターン、残機・得点・スコアランキングなどのシステムを実装した。',
             en: 'A vertical-scrolling bullet hell shooter created for the Fun Game Making In-School Contest. Inspired by the Touhou Project, featuring aimed shots and bullet patterns in three sizes, along with lives, scoring, and score ranking systems.'
@@ -150,6 +151,7 @@ const workData = {
         year: '2024',
         tags: ['Unity', 'C#', { ja: '課題制作：個人', en: 'Assignment: Solo' }],
         award: { ja: 'オリジナルTPS学内コンペ 構成力賞 受賞', en: 'Original TPS In-School Competition — Composition Award' },
+        env: 'Unity / Visual Studio Code',
         desc: {
             ja: 'オリジナルTPS学内コンペにて制作した3Dアクションゲーム。円筒状のステージを左右に回転させながらジャンプで進む独自の操作システムを設計し、タイム計測やランキング機能も実装した。',
             en: 'A 3D action game created for the Original TPS In-School Competition. Designed a unique control system where players rotate a cylindrical stage left and right while jumping to advance, with time tracking and ranking features.'
@@ -163,6 +165,7 @@ const workData = {
         year: '2025',
         tags: ['C++', 'DirectX', { ja: '課題制作：チーム', en: 'Assignment: Team' }],
         award: null,
+        env: 'Visual Studio / DirectX11',
         desc: {
             ja: '2年次の未来創造展（HEW）にてチーム制作したパズルアクションゲーム。プレイヤーが影に変身し、物体の影を足場にして進む独自のコンセプト。キャラクター操作の実装、紹介動画の制作、チームのマネジメント補佐を担当した。',
             en: 'A puzzle-action game developed as a team project for HEW (2nd year). Players transform into shadows and use object shadows as platforms to reach otherwise inaccessible areas. Responsible for character controls implementation, promotional video production, and team management support.'
@@ -176,6 +179,7 @@ const workData = {
         year: '2026',
         tags: ['C++', 'DirectX', { ja: 'リメイク', en: 'Remake' }, { ja: '個人制作', en: 'Personal' }],
         award: null,
+        env: 'Visual Studio / DirectX11 / Claude Code Pro',
         desc: {
             ja: 'チーム制作したGAMMAを個人で完全リメイク。ゲームコンセプトはそのままに、プログラムの全面修正・操作感の改善・演出の強化に注力した作品。',
             en: 'A complete solo remake of the team-developed GAMMA. Retaining the original game concept, this version focuses on full code refactoring, improved controls, and enhanced visual effects.'
@@ -189,6 +193,7 @@ const workData = {
         year: '2026',
         tags: ['C++', { ja: '個人制作', en: 'Personal' }],
         award: null,
+        env: 'Visual Studio / Claude Code Pro',
         desc: {
             ja: '砂の物理演算とテトリスのルールを組み合わせたパズルゲーム。既存の同名作品に着想を得て、物理シミュレーションのロジックをC++で独自に設計・実装した。',
             en: 'A puzzle game combining sand physics simulation with Tetris rules. Inspired by an existing title of the same name, the physics simulation logic was independently designed and implemented in C++.'
@@ -202,6 +207,7 @@ const workData = {
         year: '2026',
         tags: ['C++', { ja: '個人制作', en: 'Personal' }],
         award: null,
+        env: 'Visual Studio / Claude Code Pro',
         desc: {
             ja: 'コンソール出力のみでグラディウス風の横スクロールシューティングを制作。1年次に取り組んだ課題を3年次に再設計し、文字表現だけで動きや演出を実現した。',
             en: 'A Gradius-style horizontal scrolling shooter built entirely with console output. Redesigned a 1st-year assignment in the 3rd year, achieving motion and visual effects using only text-based rendering.'
@@ -255,6 +261,15 @@ function openModal(workId) {
     // 作品情報：年号
     const yearLabel = currentLang === 'ja' ? '制作年：' : 'Year: ';
     modal.querySelector('.work-detail-year').textContent = yearLabel + data.year;
+
+    // 作品情報：開発環境
+    const envEl = modal.querySelector('.work-detail-env');
+    if (data.env) {
+        const envLabel = currentLang === 'ja' ? '開発環境：' : 'Environment: ';
+        envEl.textContent = envLabel + data.env;
+    } else {
+        envEl.textContent = '';
+    }
 
     // 作品情報：受賞
     const awardEl = modal.querySelector('.work-detail-award');

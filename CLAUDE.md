@@ -7,36 +7,54 @@
 - 構成: HTML/CSS/JS のみ（フレームワークなし）
 
 ## 完了済み
-- ダークテーマ（紫アクセント #6c63ff）のデザイン
-- セクション: Hero, About, Skills, Works（6作品・2列グリッド）, Timeline, Contact, Footer
+- ダークテーマ（赤アクセント #ff4444）のデザイン
+- セクション: Hero, About, Skills, Works（5作品表示・2列グリッド・新しい順）, Timeline, Contact, Footer
 - 言語切り替え（JP/EN）: data-ja/data-en属性方式
-- 作品クリックでモーダル表示（動画/スクリーンショット/説明/タグ/受賞/DLリンク対応）
+- 作品クリックでモーダル表示（動画/スクリーンショット/説明/タグ/受賞/開発環境/DLリンク対応）
+- モーダルURL対応（#work-gammaなどで直接モーダルが開く、面接官間の共有用）
 - モーダル閉じたとき動画停止
-- メール送信フォーム（FormSubmit.co, IRcola777@gmail.com）
-- 背景アニメーション（青い直線の棒が画面を横断、近未来風）
+- メール送信フォーム（FormSubmit.co, IRcola777@gmail.com、autocomplete対応済み）
+- FormSubmit.co の初回メール認証済み
+- 背景アニメーション（赤い直線の棒が画面を横断、近未来風）
 - スクロールフェードインアニメーション（IntersectionObserver）
 - ハンバーガーメニュー（モバイル）
-- トップに戻るボタン（右下、スクロールで出現）
+- トップに戻るボタン（右下、48px、スクロールで出現）
 - スクロールバー非表示（ガタつき防止）
-- Skills: C++, C#, Unity, HTML/CSS, Blender, Maya, MMD, YMM4, AviUtl, Studio One 6
-- GAMMAのPV動画（videos/gamma_pv.mp4）とスクリーンショット（images/gamma_screenshot.jpg）追加済み
+- ファビコン（IRファビコン.png）、ナビバーロゴ（IRファビコン.png）
+- Skills: C++, C#, Unity, HTML/CSS, Blender, Maya, MMD, PMXEditor, YMM4, AviUtl, Studio One 6
+- Skillsカテゴリのホバーエフェクト削除済み（クリック不可のため）
+- About: 学校、志望職種、受賞歴、資格、自己紹介文
 - スクリーンショットは配列形式（screenshots: [...]）で複数枚対応
-- スクリーンショットクリックでライトボックス拡大表示、複数枚時は左右矢印ナビ付きカルーセル
+- スクリーンショットクリックでライトボックス拡大表示、複数枚時は左右矢印ナビ付きカルーセル（左右キー対応）
 - Worksカードには1枚目のスクリーンショットをサムネイル表示（object-fit: contain）
+- 背景ラインが画面内に1pxでも残っていれば消えない（先頭＋尾の両方が画面外で初めてリセット）
+- ナビバーのリンク（About/Skills/Works/Contact）を画面中央に固定配置（position: absolute）
+- 言語ボタン（JP/EN）の幅を40px固定で切替時のズレ解消
+- Aboutテキスト部分に丸角（12px）の薄い背景（rgba白4%）を追加
+- 自己紹介文を添削済み（実践重視のスタイル・3Dモデリング・実務経験を明確化）
+- 作品情報の年表示を「制作年：20XX」形式に変更（英語時は「Year: 20XX」）
+- 作品情報に開発環境を表示（「開発環境：」形式）
+- 作品タグを整理（課題制作：個人、課題制作：チーム、個人制作）
+- Contactリンクの幅固定（min-width: 180px）で言語切替時のズレ解消
+- meta description / OGPタグ追加済み
+- モバイル時の年表を縦ライン形式に変更（中央ライン、左に年号、右に吹き出し、タッチ対応）
+- 作品カードのscroll-margin-top: 80px（ナビバーに隠れない）
 
-## 作品一覧（workData）
-| ID | タイトル | 年 | タグ | 動画 | SS | DL |
-|----|---------|-----|------|------|----|----|
-| touhou | 東方春三校 | 2024 | Unity, 個人制作 | - | - | - |
-| circlestriker | CIRCLESTRIKER | 2024 | Unity, C#, 個人制作 | - | - | - |
-| gamma | GAMMA | 2025 | C++, DirectX, チーム制作 | ✅ | ✅ | - |
-| regamma | RE:GAMMA | 2026 | C++, DirectX, リメイク, 個人制作 | - | - | - |
-| sand-tetris | Sand Tetris | 2026 | 個人制作 | - | - | - |
-| console-shooter | コンソールシューティング | 2026 | C++, 個人制作 | - | - | - |
+## 作品一覧（workData）表示順：新しい順
+| ID | タイトル | 年 | タグ | 開発環境 | 動画 | SS | DL |
+|----|---------|-----|------|----------|------|----|----|
+| sand-tetris | Sand Tetris | 2026 | C++, 個人制作 | VS / Claude Code Pro | - | ✅ | ✅ |
+| console-shooter | コンソールシューティング | 2026 | C++, 個人制作 | VS / Claude Code Pro | - | ✅ | - |
+| regamma | RE:GAMMA | 2026 | C++, DirectX, リメイク, 個人制作 | VS / DX11 / Claude Code Pro | - | - | - |
+| gamma | GAMMA | 2025 | C++, DirectX, 課題制作：チーム | VS / DX11 | ✅ | ✅ | - |
+| circlestriker | CIRCLESTRIKER | 2024 | Unity, C#, 課題制作：個人 | Unity / VS Code | - | - | - |
+| touhou | 東方春三校 | 2024 | Unity, 課題制作：個人 | Unity / VS Code | - | ✅ | - |
+
+※ RE:GAMMAは製作中のため非表示（HTMLコメントアウト）
 
 ## 未完了・予定
-- Web制作の仕事実績をWorksに追加予定
-- 各作品のPV動画・スクリーンショット・ダウンロードURL追加
+- CIRCLESTRIKERのスクリーンショット追加
 - プロフィール写真（現在プレースホルダー）
-- ファビコン
-- FormSubmit.co の初回メール認証
+- 各作品のPV動画追加
+- 各作品のダウンロードURL追加
+- 隠しミニゲーム（縦スクロールシューティング、STARTボタンから起動）
