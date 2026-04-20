@@ -1066,13 +1066,13 @@ footer {
     .timeline {
         flex-direction: column;
         gap: 0;
-        padding: 0 0 0 20px;
-        align-items: flex-start;
+        padding: 0 20px 0 0;
+        align-items: flex-end;
     }
     .timeline-line {
         top: 18px;
-        left: 25px;
-        right: auto;
+        right: 25px;
+        left: auto;
         bottom: 18px;
         width: 2px;
         height: auto;
@@ -1080,9 +1080,10 @@ footer {
     }
     .timeline-year {
         display: flex;
+        flex-direction: row-reverse;
         align-items: center;
         gap: 16px;
-        text-align: left;
+        text-align: right;
         padding: 12px 0;
     }
     .timeline-year::before {
@@ -1108,15 +1109,15 @@ footer {
         border-radius: var(--radius);
         padding: 8px 14px;
         box-shadow: 0 4px 20px var(--accent-glow);
-        margin-left: 8px;
+        margin-right: 8px;
     }
     .timeline-tooltip::after {
         top: 50%;
-        left: -16px;
-        right: auto;
+        right: -16px;
+        left: auto;
         transform: translateY(-50%);
         border: 8px solid transparent;
-        border-right-color: var(--accent);
+        border-left-color: var(--accent);
         border-top-color: transparent;
     }
     .timeline-year:hover .timeline-tooltip,
