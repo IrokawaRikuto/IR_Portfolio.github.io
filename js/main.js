@@ -314,6 +314,7 @@ function openModal(workId) {
 
     modal.classList.add('active');
     document.body.style.overflowY = 'hidden';
+    history.replaceState(null, '', '#work-' + workId);
 }
 
 function closeModal() {
@@ -323,7 +324,21 @@ function closeModal() {
     if (video) { video.pause(); video.currentTime = 0; }
     modal.classList.remove('active');
     document.body.style.overflowY = '';
+    if (location.hash.startsWith('#work-')) {
+        history.replaceState(null, '', location.pathname);
+    }
 }
+
+// URLハッシュから作品モーダルを開く
+function openModalFromHash() {
+    const hash = location.hash;
+    if (hash.startsWith('#work-')) {
+        const workId = hash.replace('#work-', '');
+        if (workData[workId]) openModal(workId);
+    }
+}
+window.addEventListener('load', openModalFromHash);
+window.addEventListener('hashchange', openModalFromHash);
 
 // 作品カードのクリックイベント
 document.querySelectorAll('.work-card[data-work]').forEach(card => {

@@ -176,19 +176,7 @@ img {
 .hero-content {
     position: relative;
     z-index: 1;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.hero-text {
     text-align: left;
-}
-
-.hero-icon {
-    width: 200px;
-    height: auto;
-    flex-shrink: 0;
 }
 
 .hero-sub {
@@ -1049,9 +1037,6 @@ footer {
     #hero {
         justify-content: center;
         padding-left: 0;
-    }
-    .hero-icon {
-        width: 120px;
     }
     .hero-title {
         font-size: 2rem;
