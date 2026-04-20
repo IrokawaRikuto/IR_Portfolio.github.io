@@ -138,8 +138,8 @@ const workData = {
         tags: ['Unity', { ja: '個人制作', en: 'Solo' }],
         award: { ja: 'おもしろゲームづくり学内コンテスト 意欲賞 受賞', en: 'Fun Game Making In-School Contest — Enthusiasm Award' },
         desc: {
-            ja: 'おもしろゲームづくり学内コンテストにて制作した縦スクロール弾幕シューティング。東方Projectを題材に、多彩な弾幕パターンやスペルカードシステムなど原作の魅力を再現した。',
-            en: 'A vertical-scrolling bullet hell shooter created for the Fun Game Making In-School Contest. Inspired by the Touhou Project, featuring diverse bullet patterns and a spell card system faithful to the original.'
+            ja: 'おもしろゲームづくり学内コンテストにて制作した縦スクロール弾幕シューティング。東方Projectを題材に、自機狙い弾や大中小の弾幕パターン、残機・得点・スコアランキングなどのシステムを実装した。',
+            en: 'A vertical-scrolling bullet hell shooter created for the Fun Game Making In-School Contest. Inspired by the Touhou Project, featuring aimed shots and bullet patterns in three sizes, along with lives, scoring, and score ranking systems.'
         },
         video: { type: 'placeholder', src: '' },
         screenshots: [],
@@ -151,8 +151,8 @@ const workData = {
         tags: ['Unity', 'C#', { ja: '個人制作', en: 'Solo' }],
         award: { ja: 'オリジナルTPS学内コンペ 構成力賞 受賞', en: 'Original TPS In-School Competition — Composition Award' },
         desc: {
-            ja: 'オリジナルTPS学内コンペにて制作した3Dアクションゲーム。円筒状のステージを回転させながらジャンプで進む独自のゲームシステムを設計・実装した。',
-            en: 'A 3D action game created for the Original TPS In-School Competition. Designed and implemented a unique gameplay system where players jump through a rotating cylindrical stage.'
+            ja: 'オリジナルTPS学内コンペにて制作した3Dアクションゲーム。円筒状のステージを左右に回転させながらジャンプで進む独自の操作システムを設計し、タイム計測やランキング機能も実装した。',
+            en: 'A 3D action game created for the Original TPS In-School Competition. Designed a unique control system where players rotate a cylindrical stage left and right while jumping to advance, with time tracking and ranking features.'
         },
         video: { type: 'placeholder', src: '' },
         screenshots: [],
