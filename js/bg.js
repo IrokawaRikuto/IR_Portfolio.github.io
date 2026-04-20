@@ -46,9 +46,9 @@
             this.opacity = 0.15 + Math.random() * 0.25;
             this.width = 0.5 + Math.random() * 1.5;
 
-            // 青系の明るめの色（近未来風）
-            const hue = 200 + Math.random() * 50;
-            const lightness = 65 + Math.random() * 15;
+            // 赤系の色（近未来風）
+            const hue = 350 + Math.random() * 20;
+            const lightness = 55 + Math.random() * 15;
             this.color = 'hsla(' + hue + ', 85%, ' + lightness + '%, ';
 
             // 速度ベクトル（固定＝まっすぐ）
