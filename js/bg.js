@@ -124,10 +124,10 @@
         reset(init) {
             this.x = Math.random() * w;
             this.y = Math.random() * h;
-            this.radius = 2 + Math.random() * 5;
+            this.radius = 2 + Math.random() * 3;
             this.baseOpacity = 0.2 + Math.random() * 0.25;
             this.phase = Math.random() * Math.PI * 2;
-            this.pulseSpeed = 0.005 + Math.random() * 0.015;
+            this.pulseSpeed = 0.02 + Math.random() * 0.04;
             this.driftX = (Math.random() - 0.5) * 0.15;
             this.driftY = (Math.random() - 0.5) * 0.1 - 0.05;
         }
