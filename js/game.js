@@ -22,10 +22,30 @@
     var rankingBtns = document.getElementById('game-ranking-btns');
     var rankingTabs = document.getElementById('game-ranking-tabs');
 
-    // Canvas size
-    var W = 360, H = 480;
-    canvas.width = W;
-    canvas.height = H;
+    // Canvas & Field size (東方スタイル: 左にフィールド、右にHUD)
+    var CANVAS_W = 640, CANVAS_H = 480;
+    var FIELD_X = 32, FIELD_Y = 16;
+    var W = 384, H = 448; // game field size
+    var HUD_X = FIELD_X + W + 24;
+    var HUD_W = CANVAS_W - HUD_X - 16;
+    canvas.width = CANVAS_W;
+    canvas.height = CANVAS_H;
+
+    // ===== Sprites =====
+    var sprites = {};
+    function loadSprite(key, src) {
+        var img = new Image();
+        img.src = src;
+        sprites[key] = img;
+    }
+    loadSprite('bulletS', 'シューティング素材/nc165950_弾幕素材_小弾.png');
+    loadSprite('bulletM', 'シューティング素材/nc177465_弾幕素材_中弾.png');
+    loadSprite('bulletL', 'シューティング素材/nc177425_弾幕素材_大弾.png');
+    loadSprite('magicCircle', 'シューティング素材/ボス魔法陣.png');
+    loadSprite('deleteEffect', 'シューティング素材/nc165947_敵弾消去エフェクト.png');
+    // Sprite layout: small=16x16 x9, medium=64x32 x8, large=128x64 x8
+    // Colors: 0=red,1=orange,2=yellow,3=green,4=cyan,5=blue,6=purple,7=gray (8=white for 9-sprites)
+    var BULLET_COLORS = { red: 0, orange: 1, yellow: 2, green: 3, cyan: 4, blue: 5, purple: 6, gray: 7 };
 
     // ===== Constants =====
     var PLAYER_SPEED = 4;
@@ -80,6 +100,7 @@
     var eBullets = [];
     var items = [];
     var particles = [];
+    var deleteEffects = []; // bullet delete animations
 
     var keys = {};
 
@@ -106,7 +127,7 @@
         var colors = ['#ff4444', '#ff6666', '#cc2244', '#ff8888', '#dd3355', '#aa2233'];
         for (var i = 0; i < 45; i++) {
             titleParticles.push({
-                x: Math.random() * W, y: Math.random() * H,
+                x: Math.random() * CANVAS_W, y: Math.random() * CANVAS_H,
                 vx: (Math.random() - 0.5) * 0.6,
                 vy: -0.5 - Math.random() * 0.8,
                 size: 2 + Math.random() * 5,
@@ -117,7 +138,8 @@
         }
     }
 
-    function updateBgParticles(arr) {
+    function updateBgParticles(arr, bw, bh) {
+        bw = bw || W; bh = bh || H;
         for (var i = 0; i < arr.length; i++) {
             var p = arr[i];
             p.x += p.vx;
@@ -125,9 +147,9 @@
             if (p.phase !== undefined) {
                 p.x += Math.sin(p.phase + frame * 0.01) * 0.2;
             }
-            if (p.y < -10) { p.y = H + 10; p.x = Math.random() * W; }
-            if (p.x < -10) p.x = W + 10;
-            if (p.x > W + 10) p.x = -10;
+            if (p.y < -10) { p.y = bh + 10; p.x = Math.random() * bw; }
+            if (p.x < -10) p.x = bw + 10;
+            if (p.x > bw + 10) p.x = -10;
         }
     }
 
@@ -144,7 +166,6 @@
     }
 
     function drawGameBg() {
-        // Dark gradient background
         var grd = ctx.createLinearGradient(0, 0, 0, H);
         grd.addColorStop(0, '#0a0812');
         grd.addColorStop(0.5, '#0e0a18');
@@ -155,13 +176,13 @@
     }
 
     function drawTitleBackground() {
-        var grd = ctx.createLinearGradient(0, 0, 0, H);
+        var grd = ctx.createLinearGradient(0, 0, 0, CANVAS_H);
         grd.addColorStop(0, '#12081a');
         grd.addColorStop(0.4, '#1a0a20');
         grd.addColorStop(0.7, '#14061a');
         grd.addColorStop(1, '#0a0410');
         ctx.fillStyle = grd;
-        ctx.fillRect(0, 0, W, H);
+        ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
         drawBgParticles(titleParticles);
 
         // Title text
@@ -171,14 +192,14 @@
         ctx.shadowColor = '#ff4444';
         ctx.shadowBlur = 25;
         ctx.font = 'bold 38px "Courier New", monospace';
-        ctx.fillText('SHOOTING', W / 2, H * 0.28);
+        ctx.fillText('SHOOTING', CANVAS_W / 2, CANVAS_H * 0.28);
         ctx.shadowBlur = 10;
         ctx.font = 'bold 38px "Courier New", monospace';
-        ctx.fillText('SHOOTING', W / 2, H * 0.28);
+        ctx.fillText('SHOOTING', CANVAS_W / 2, CANVAS_H * 0.28);
         ctx.shadowBlur = 0;
         ctx.font = '11px "Courier New", monospace';
         ctx.fillStyle = 'rgba(255,180,180,0.5)';
-        ctx.fillText('- Portfolio Mini Game -', W / 2, H * 0.28 + 26);
+        ctx.fillText('- Portfolio Mini Game -', CANVAS_W / 2, CANVAS_H * 0.28 + 26);
         ctx.restore();
     }
 
@@ -221,7 +242,7 @@
             bombTimer = BOMB_DURATION;
             invTimer = Math.max(invTimer, BOMB_DURATION);
             for (var i = 0; i < eBullets.length; i++) {
-                spawnParticle(eBullets[i].x, eBullets[i].y, '#ffffff', 3);
+                spawnDeleteEffect(eBullets[i].x, eBullets[i].y);
             }
             eBullets = [];
             for (var i = 0; i < enemies.length; i++) enemies[i].hp -= 30;
@@ -416,6 +437,29 @@
         ctx.textAlign = 'right'; ctx.fillText('\u25C0', W - 2, y);
     }
 
+    // ===== Delete Effects =====
+    function spawnDeleteEffect(x, y) {
+        deleteEffects.push({ x: x, y: y, frame: 0, maxFrame: 16 });
+    }
+    function updateDeleteEffects() {
+        for (var i = deleteEffects.length - 1; i >= 0; i--) {
+            deleteEffects[i].frame++;
+            if (deleteEffects[i].frame >= deleteEffects[i].maxFrame) deleteEffects.splice(i, 1);
+        }
+    }
+    function drawDeleteEffects() {
+        var img = sprites.deleteEffect;
+        if (!img || !img.complete) return;
+        // 256x32, 8 frames of 32x32
+        for (var i = 0; i < deleteEffects.length; i++) {
+            var de = deleteEffects[i];
+            var fi = Math.min(7, Math.floor(de.frame / 2));
+            ctx.globalAlpha = 1 - de.frame / de.maxFrame;
+            ctx.drawImage(img, fi * 32, 0, 32, 32, de.x - 16, de.y - 16, 32, 32);
+        }
+        ctx.globalAlpha = 1;
+    }
+
     // ===== Enemies =====
     // Bullet patterns: 'down', 'way3', 'way5', 'circle', 'aimed', 'diagonal', 'random'
     var BULLET_PATTERNS_SMALL = ['down', 'aimed', 'diagonal'];
@@ -423,12 +467,10 @@
     var BULLET_PATTERNS_LARGE = ['way5', 'circle', 'way3', 'random'];
 
     function pickBulletPattern(type) {
-        // Later stages unlock more patterns
         var pool;
         if (type === 'small') pool = BULLET_PATTERNS_SMALL;
         else if (type === 'medium') pool = BULLET_PATTERNS_MEDIUM;
         else pool = BULLET_PATTERNS_LARGE;
-        // Stage progression: later stages add harder patterns
         if (waveIndex >= 2 && type === 'small') pool = ['down', 'aimed', 'diagonal', 'way3'];
         if (waveIndex >= 4 && type === 'small') pool = ['down', 'aimed', 'diagonal', 'way3', 'random'];
         if (waveIndex >= 3 && type === 'medium') pool = ['way3', 'way5', 'aimed', 'diagonal', 'circle', 'random'];
@@ -468,15 +510,16 @@
     }
 
     function spawnDriftFormation() {
-        var count = 4 + Math.floor(Math.random() * 3);
+        var count = 5 + Math.floor(Math.random() * 6); // 5-10体
         var dir = Math.random() > 0.5 ? 1 : -1;
         var baseY = 30 + Math.random() * 40;
         var startX = dir > 0 ? -15 : W + 15;
         var spd = 1.5 + Math.random() * 1;
+        var spacing = 25;
         for (var i = 0; i < count; i++) {
             enemies.push({
-                x: startX - dir * 25 * i,
-                y: baseY + Math.abs(i - (count - 1) / 2) * 12,
+                x: startX - dir * spacing * i,
+                y: baseY,  // 一直線
                 hp: 3, maxHp: 3, speed: spd, type: 'small',
                 pattern: 'drift', fireRate: Math.floor(180 / diff.bullets),
                 fireTimer: Math.floor(Math.random() * 60),
@@ -514,8 +557,8 @@
             return;
         }
 
-        // Stage-based scaling: same base count per difficulty, increases with stages
-        var stageScale = 1 + waveIndex * 0.15; // +15% enemies per stage
+        // Stage-based scaling
+        var stageScale = 1 + waveIndex * 0.15;
         var spawnRate = Math.max(20, Math.floor(40 / stageScale));
         if (waveTimer % spawnRate === 0) {
             spawnEnemy('small');
@@ -553,50 +596,53 @@
         var spd = (1.5 + Math.random() * 0.5) * diff.speed;
         var sz = e.type === 'small' ? 3 : 4;
         var bp = e.bulletPattern || 'down';
+        // Assign sprite color based on bullet pattern
+        var col = bp === 'aimed' ? 0 : bp === 'way3' ? 3 : bp === 'way5' ? 4 :
+                  bp === 'circle' ? 5 : bp === 'diagonal' ? 1 : bp === 'random' ? 6 : 0;
 
         switch (bp) {
-            case 'down': // Straight down
-                eBullets.push({ x: e.x, y: e.y, vx: 0, vy: spd, size: sz, grazed: false });
+            case 'down':
+                eBullets.push({ x: e.x, y: e.y, vx: 0, vy: spd, size: sz, grazed: false, color: col });
                 break;
-            case 'way3': { // 3-way downward spread
-                var base = Math.PI / 2; // downward
+            case 'way3': {
+                var base = Math.PI / 2;
                 for (var i = -1; i <= 1; i++) {
                     var a = base + i * 0.3;
-                    eBullets.push({ x: e.x, y: e.y, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd, size: sz, grazed: false });
+                    eBullets.push({ x: e.x, y: e.y, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd, size: sz, grazed: false, color: col });
                 }
                 break;
             }
-            case 'way5': { // 5-way spread
+            case 'way5': {
                 var base = Math.PI / 2;
                 for (var i = -2; i <= 2; i++) {
                     var a = base + i * 0.25;
-                    eBullets.push({ x: e.x, y: e.y, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd, size: sz, grazed: false });
+                    eBullets.push({ x: e.x, y: e.y, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd, size: sz, grazed: false, color: col });
                 }
                 break;
             }
-            case 'circle': { // All-direction
+            case 'circle': {
                 var n = Math.floor(5 * diff.bullets);
                 for (var i = 0; i < n; i++) {
                     var a = (Math.PI * 2 / n) * i + e.age * 0.03;
-                    eBullets.push({ x: e.x, y: e.y, vx: Math.cos(a) * spd * 0.8, vy: Math.sin(a) * spd * 0.8, size: sz, grazed: false });
+                    eBullets.push({ x: e.x, y: e.y, vx: Math.cos(a) * spd * 0.8, vy: Math.sin(a) * spd * 0.8, size: sz, grazed: false, color: col });
                 }
                 break;
             }
-            case 'aimed': // Aimed at player
-                eBullets.push({ x: e.x, y: e.y, vx: Math.cos(angle) * spd, vy: Math.sin(angle) * spd, size: sz, grazed: false });
+            case 'aimed':
+                eBullets.push({ x: e.x, y: e.y, vx: Math.cos(angle) * spd, vy: Math.sin(angle) * spd, size: sz, grazed: false, color: col });
                 break;
-            case 'diagonal': { // Left-right diagonal
+            case 'diagonal': {
                 var dirX = e.x < W / 2 ? 1 : -1;
-                eBullets.push({ x: e.x, y: e.y, vx: dirX * spd * 0.7, vy: spd * 0.7, size: sz, grazed: false });
-                eBullets.push({ x: e.x, y: e.y, vx: -dirX * spd * 0.5, vy: spd * 0.85, size: sz, grazed: false });
+                eBullets.push({ x: e.x, y: e.y, vx: dirX * spd * 0.7, vy: spd * 0.7, size: sz, grazed: false, color: col });
+                eBullets.push({ x: e.x, y: e.y, vx: -dirX * spd * 0.5, vy: spd * 0.85, size: sz, grazed: false, color: col });
                 break;
             }
-            case 'random': { // Random direction (biased downward)
+            case 'random': {
                 var n = e.type === 'large' ? 3 : (e.type === 'medium' ? 2 : 1);
                 for (var i = 0; i < n; i++) {
-                    var a = Math.PI * 0.15 + Math.random() * Math.PI * 0.7; // ~downward hemisphere
+                    var a = Math.PI * 0.15 + Math.random() * Math.PI * 0.7;
                     var s = spd * (0.7 + Math.random() * 0.6);
-                    eBullets.push({ x: e.x, y: e.y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, size: sz, grazed: false });
+                    eBullets.push({ x: e.x, y: e.y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, size: sz, grazed: false, color: col });
                 }
                 break;
             }
@@ -607,12 +653,10 @@
         spawnExplosion(e.x, e.y, '#ff4444', e.size > 14 ? 12 : 6);
         score += e.type === 'small' ? 100 : e.type === 'medium' ? 500 : 2000;
         if (e.type === 'small') {
-            // 80% score, 20% small power
             if (Math.random() < 0.2) spawnItems(e.x, e.y, 'powerS', 1);
             else spawnItems(e.x, e.y, 'scoreS', 1);
         } else if (e.type === 'medium') {
             spawnItems(e.x, e.y, 'score', 1);
-            // 25% chance for power
             if (Math.random() < 0.25) spawnItems(e.x, e.y, 'power', 1);
             else spawnItems(e.x, e.y, 'scoreS', 2);
         } else if (e.type === 'large') {
@@ -663,20 +707,20 @@
             var n = Math.floor(3 * diff.bullets), spread = 0.4;
             for (var i = 0; i < n; i++) {
                 var a = angle - spread + (spread * 2 / Math.max(n - 1, 1)) * i;
-                eBullets.push({ x: boss.x, y: boss.y + boss.size, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd, size: 5, grazed: false });
+                eBullets.push({ x: boss.x, y: boss.y + boss.size, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd, size: 5, grazed: false, color: 0 });
             }
         } else if (phase === 1) {
             var n = Math.floor(4 * diff.bullets);
             for (var i = 0; i < n; i++) {
                 var a = (Math.PI * 2 / n) * i + boss.age * 0.05;
-                eBullets.push({ x: boss.x, y: boss.y + boss.size * 0.5, vx: Math.cos(a) * spd * 0.9, vy: Math.sin(a) * spd * 0.9, size: 4, grazed: false });
+                eBullets.push({ x: boss.x, y: boss.y + boss.size * 0.5, vx: Math.cos(a) * spd * 0.9, vy: Math.sin(a) * spd * 0.9, size: 4, grazed: false, color: 5 });
             }
         } else {
             var n = Math.floor(6 * diff.bullets);
             for (var i = 0; i < n; i++) {
                 var a = Math.random() * Math.PI * 0.8 + Math.PI * 0.1;
                 var s = spd * (0.7 + Math.random() * 0.6);
-                eBullets.push({ x: boss.x + (Math.random() - 0.5) * 30, y: boss.y + boss.size, vx: Math.cos(a) * s, vy: Math.sin(a) * s, size: 4, grazed: false });
+                eBullets.push({ x: boss.x + (Math.random() - 0.5) * 30, y: boss.y + boss.size, vx: Math.cos(a) * s, vy: Math.sin(a) * s, size: 4, grazed: false, color: 6 });
             }
         }
         if (boss.phaseTimer > 300) { boss.phase++; boss.phaseTimer = 0; }
@@ -689,12 +733,24 @@
         spawnItems(boss.x, boss.y, 'power', 3);
         if (Math.random() > 0.5) spawnItems(boss.x, boss.y, 'life', 1);
         else spawnItems(boss.x, boss.y, 'bomb', 1);
-        for (var i = 0; i < eBullets.length; i++) spawnParticle(eBullets[i].x, eBullets[i].y, '#ffffff', 2);
+        for (var i = 0; i < eBullets.length; i++) spawnDeleteEffect(eBullets[i].x, eBullets[i].y);
         eBullets = []; boss = null; bossActive = false;
     }
 
     function drawBoss() {
         if (!boss) return;
+        // Magic circle behind boss
+        var mc = sprites.magicCircle;
+        if (mc && mc.complete) {
+            ctx.save();
+            ctx.translate(boss.x, boss.y);
+            ctx.rotate(boss.age * 0.02);
+            ctx.globalAlpha = 0.4;
+            var mcSize = boss.size * 3;
+            ctx.drawImage(mc, -mcSize / 2, -mcSize / 2, mcSize, mcSize);
+            ctx.globalAlpha = 1;
+            ctx.restore();
+        }
         ctx.save(); ctx.translate(boss.x, boss.y);
         ctx.fillStyle = '#cc2222'; ctx.beginPath(); ctx.arc(0, 0, boss.size, 0, Math.PI * 2); ctx.fill();
         ctx.fillStyle = '#991111';
@@ -702,6 +758,7 @@
         ctx.beginPath(); ctx.moveTo(boss.size, 0); ctx.lineTo(boss.size * 1.8, -boss.size * 0.5); ctx.lineTo(boss.size * 0.5, -boss.size * 0.3); ctx.closePath(); ctx.fill();
         ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(0, 0, boss.size * 0.25, 0, Math.PI * 2); ctx.fill();
         ctx.restore();
+        // Boss HP bar at top of field
         var bw = W * 0.7, bx = (W - bw) / 2;
         ctx.fillStyle = '#333'; ctx.fillRect(bx, 8, bw, 5);
         ctx.fillStyle = '#ff2222'; ctx.fillRect(bx, 8, bw * Math.max(0, boss.hp / boss.maxHp), 5);
@@ -716,10 +773,19 @@
         }
     }
     function drawEBullets() {
+        var imgS = sprites.bulletS;
+        var useSprite = imgS && imgS.complete;
         for (var i = 0; i < eBullets.length; i++) {
             var b = eBullets[i];
-            ctx.fillStyle = 'rgba(255,136,136,0.9)'; ctx.beginPath(); ctx.arc(b.x, b.y, b.size, 0, Math.PI * 2); ctx.fill();
-            ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.beginPath(); ctx.arc(b.x, b.y, b.size * 0.4, 0, Math.PI * 2); ctx.fill();
+            if (useSprite) {
+                // Small bullet sprite: 144x16, 9 sprites of 16x16
+                var col = (b.color !== undefined) ? b.color : 0;
+                var drawSize = b.size * 4;
+                ctx.drawImage(imgS, col * 16, 0, 16, 16, b.x - drawSize / 2, b.y - drawSize / 2, drawSize, drawSize);
+            } else {
+                ctx.fillStyle = 'rgba(255,136,136,0.9)'; ctx.beginPath(); ctx.arc(b.x, b.y, b.size, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.beginPath(); ctx.arc(b.x, b.y, b.size * 0.4, 0, Math.PI * 2); ctx.fill();
+            }
         }
     }
 
@@ -798,11 +864,9 @@
         var oldPower = power;
         power = Math.max(MIN_POWER, power - 100); // -1.00
         var lost = oldPower - power;
-        // Drop 40-60% of lost power as items
         if (lost > 0) {
-            var dropRate = 0.4 + Math.random() * 0.2; // 40-60%
+            var dropRate = 0.4 + Math.random() * 0.2;
             var dropAmount = Math.floor(lost * dropRate);
-            // Mix of big P (10=0.10) and small P (1=0.01)
             var bigCount = Math.floor(dropAmount / 10);
             var smallCount = dropAmount - bigCount * 10;
             if (bigCount > 0) spawnItems(player.x, player.y, 'power', bigCount);
@@ -814,45 +878,114 @@
         if (lives <= 0) gameOver();
     }
 
-    // ===== Canvas HUD =====
-    function drawHUD() {
+    // ===== Right-side HUD Panel (東方スタイル) =====
+    function drawHUDPanel() {
         ctx.save();
-        // Top bar
-        ctx.fillStyle = 'rgba(0,0,0,0.45)';
-        ctx.fillRect(0, 0, W, 20);
-        ctx.font = '10px "Courier New", monospace';
-        ctx.textBaseline = 'middle';
+        ctx.textBaseline = 'top';
         ctx.textAlign = 'left';
-        ctx.fillStyle = '#fff';
-        ctx.fillText('SCORE ' + score, 6, 11);
-        ctx.textAlign = 'right';
-        ctx.fillStyle = '#aaa';
-        ctx.fillText('GRAZE ' + graze, W - 6, 11);
 
-        // Bottom bar
-        ctx.fillStyle = 'rgba(0,0,0,0.45)';
-        ctx.fillRect(0, H - 22, W, 22);
-        // Lives
-        var lx = 8;
-        for (var i = 0; i < Math.max(MAX_LIVES, lives); i++) {
-            ctx.fillStyle = i < lives ? '#ff4444' : '#333';
-            ctx.beginPath(); ctx.arc(lx + i * 12, H - 11, 4, 0, Math.PI * 2); ctx.fill();
-        }
-        // Bombs
-        var bx = lx + Math.max(MAX_LIVES, lives) * 12 + 8;
-        for (var i = 0; i < Math.max(MAX_BOMBS, bombs); i++) {
-            ctx.fillStyle = i < bombs ? '#44ff44' : '#333';
-            ctx.beginPath(); ctx.arc(bx + i * 12, H - 11, 4, 0, Math.PI * 2); ctx.fill();
-        }
-        // Power
-        ctx.textAlign = 'center';
-        ctx.fillStyle = '#ffaa44';
-        ctx.font = '10px "Courier New", monospace';
-        ctx.fillText('P:' + (power / 100).toFixed(2), W / 2 + 30, H - 11);
+        // Panel background
+        ctx.fillStyle = '#08060e';
+        ctx.fillRect(FIELD_X + W + 2, 0, CANVAS_W - FIELD_X - W - 2, CANVAS_H);
+
+        var px = HUD_X;
+        var py = FIELD_Y + 8;
+
         // Difficulty
-        ctx.textAlign = 'right';
-        ctx.fillStyle = 'rgba(255,100,100,0.7)';
-        ctx.fillText(diff.label, W - 6, H - 11);
+        ctx.font = 'bold 14px "Courier New", monospace';
+        ctx.fillStyle = '#ff4444';
+        ctx.fillText(diff.label, px, py);
+        ctx.fillStyle = '#555';
+        ctx.font = '10px "Courier New", monospace';
+        ctx.fillText('Stage ' + (waveIndex + 1), px + HUD_W - 50, py + 2);
+        py += 28;
+
+        // Score label + value
+        ctx.fillStyle = '#666';
+        ctx.font = '10px "Courier New", monospace';
+        ctx.fillText('SCORE', px, py);
+        py += 14;
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 16px "Courier New", monospace';
+        ctx.fillText(score.toString(), px, py);
+        py += 30;
+
+        // Separator
+        ctx.strokeStyle = '#333';
+        ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px + HUD_W, py); ctx.stroke();
+        py += 12;
+
+        // Lives
+        ctx.fillStyle = '#666';
+        ctx.font = '10px "Courier New", monospace';
+        ctx.fillText('PLAYER', px, py);
+        py += 16;
+        for (var i = 0; i < Math.max(MAX_LIVES, lives); i++) {
+            ctx.fillStyle = i < lives ? '#ff4444' : '#222';
+            ctx.beginPath();
+            // Star shape for lives
+            var sx = px + 10 + i * 18, sy = py + 2;
+            ctx.arc(sx, sy, 6, 0, Math.PI * 2);
+            ctx.fill();
+            if (i < lives) {
+                ctx.fillStyle = '#ff8888';
+                ctx.beginPath(); ctx.arc(sx - 2, sy - 2, 2, 0, Math.PI * 2); ctx.fill();
+            }
+        }
+        py += 22;
+
+        // Bombs
+        ctx.fillStyle = '#666';
+        ctx.font = '10px "Courier New", monospace';
+        ctx.fillText('BOMB', px, py);
+        py += 16;
+        for (var i = 0; i < Math.max(MAX_BOMBS, bombs); i++) {
+            ctx.fillStyle = i < bombs ? '#44ff44' : '#222';
+            var bx = px + 10 + i * 18, by = py + 2;
+            ctx.beginPath(); ctx.arc(bx, by, 6, 0, Math.PI * 2); ctx.fill();
+            if (i < bombs) {
+                ctx.fillStyle = '#88ff88';
+                ctx.beginPath(); ctx.arc(bx - 2, by - 2, 2, 0, Math.PI * 2); ctx.fill();
+            }
+        }
+        py += 26;
+
+        // Separator
+        ctx.strokeStyle = '#333';
+        ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px + HUD_W, py); ctx.stroke();
+        py += 12;
+
+        // Power
+        ctx.fillStyle = '#666';
+        ctx.font = '10px "Courier New", monospace';
+        ctx.fillText('POWER', px, py);
+        py += 16;
+        ctx.fillStyle = '#ffaa44';
+        ctx.font = 'bold 14px "Courier New", monospace';
+        ctx.fillText((power / 100).toFixed(2) + ' / ' + (MAX_POWER / 100).toFixed(2), px, py);
+        py += 8;
+        // Power bar
+        var barW = HUD_W - 4;
+        var barH = 6;
+        py += 10;
+        ctx.fillStyle = '#222';
+        ctx.fillRect(px, py, barW, barH);
+        ctx.fillStyle = '#ffaa44';
+        ctx.fillRect(px, py, barW * (power / MAX_POWER), barH);
+        ctx.strokeStyle = '#444';
+        ctx.strokeRect(px, py, barW, barH);
+        py += 22;
+
+        // Graze
+        ctx.fillStyle = '#666';
+        ctx.font = '10px "Courier New", monospace';
+        ctx.fillText('GRAZE', px, py);
+        py += 14;
+        ctx.fillStyle = '#aaaaaa';
+        ctx.font = 'bold 14px "Courier New", monospace';
+        ctx.fillText(graze.toString(), px, py);
+
         ctx.restore();
     }
 
@@ -864,6 +997,7 @@
         bossInterval = 1200; preBoss = false;
         player.x = W / 2; player.y = H - 60;
         pBullets = []; enemies = []; eBullets = []; items = []; particles = [];
+        deleteEffects = [];
         initBgParticles();
     }
 
@@ -953,13 +1087,35 @@
         updateBgParticles(bgParticles);
         updatePlayer(); updatePBullets(); updateEnemies();
         updateEBullets(); updateItems(); updateParticles();
+        updateDeleteEffects();
         checkCollisions();
+
+        // Clear full canvas
+        ctx.fillStyle = '#08060e';
+        ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+
+        // Draw game field (clipped & translated)
+        ctx.save();
+        ctx.translate(FIELD_X, FIELD_Y);
+        ctx.beginPath();
+        ctx.rect(0, 0, W, H);
+        ctx.clip();
 
         drawGameBg();
         drawCollectLine();
         drawItems(); drawPBullets(); drawEnemies(); drawBoss();
         drawEBullets(); drawPlayer(); drawParticles();
-        drawHUD();
+        drawDeleteEffects();
+
+        ctx.restore();
+
+        // Field border
+        ctx.strokeStyle = '#555';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(FIELD_X - 1, FIELD_Y - 1, W + 2, H + 2);
+
+        // Right-side HUD
+        drawHUDPanel();
 
         if (state === 'PLAYING') animId = requestAnimationFrame(gameLoop);
     }
@@ -970,7 +1126,7 @@
         function titleFrame() {
             if (state !== 'TITLE' && state !== 'DIFFICULTY' && state !== 'RANKING') { titleAnimId = null; return; }
             frame++;
-            updateBgParticles(titleParticles);
+            updateBgParticles(titleParticles, CANVAS_W, CANVAS_H);
             drawTitleBackground();
             titleAnimId = requestAnimationFrame(titleFrame);
         }
