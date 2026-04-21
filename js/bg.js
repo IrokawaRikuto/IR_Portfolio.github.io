@@ -115,6 +115,51 @@
         }
     }
 
+    // ===== 小さなグロウパーティクル =====
+    class Glow {
+        constructor() {
+            this.reset(true);
+        }
+
+        reset(init) {
+            this.x = Math.random() * w;
+            this.y = Math.random() * h;
+            this.radius = 1 + Math.random() * 2.5;
+            this.baseOpacity = 0.08 + Math.random() * 0.18;
+            this.phase = Math.random() * Math.PI * 2;
+            this.pulseSpeed = 0.005 + Math.random() * 0.015;
+            this.driftX = (Math.random() - 0.5) * 0.15;
+            this.driftY = (Math.random() - 0.5) * 0.1 - 0.05;
+        }
+
+        update() {
+            this.x += this.driftX;
+            this.y += this.driftY;
+            this.phase += this.pulseSpeed;
+
+            if (this.x < -20 || this.x > w + 20 || this.y < -20 || this.y > h + 20) {
+                this.reset(false);
+            }
+        }
+
+        draw() {
+            const opacity = this.baseOpacity * (0.5 + 0.5 * Math.sin(this.phase));
+            const grad = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius * 3);
+            grad.addColorStop(0, 'rgba(255, 68, 68, ' + opacity + ')');
+            grad.addColorStop(1, 'rgba(255, 68, 68, 0)');
+            ctx.beginPath();
+            ctx.fillStyle = grad;
+            ctx.arc(this.x, this.y, this.radius * 3, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
+    const glowCount = 25;
+    const glows = [];
+    for (let i = 0; i < glowCount; i++) {
+        glows.push(new Glow());
+    }
+
     const lineCount = 10;
     const lines = [];
     for (let i = 0; i < lineCount; i++) {
@@ -138,6 +183,11 @@
 
     function animate() {
         ctx.clearRect(0, 0, w, h);
+
+        for (const glow of glows) {
+            glow.update();
+            glow.draw();
+        }
 
         for (const line of lines) {
             line.update();
