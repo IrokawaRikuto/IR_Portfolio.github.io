@@ -157,7 +157,7 @@ const workData = {
             en: 'A 3D action game created for the Original TPS In-School Competition. Designed a unique control system where players rotate a cylindrical stage left and right while jumping to advance, with time tracking and ranking features.'
         },
         video: { type: 'placeholder', src: '' },
-        screenshots: [],
+        screenshots: ['images/CircleStrikerLogo.png'],
         download: '',
     },
     'gamma': {
@@ -200,7 +200,7 @@ const workData = {
         },
         video: { type: 'placeholder', src: '' },
         screenshots: ['images/SANDTETRIS_Title.png', 'images/SANDTETRIS_GamePlay.png'],
-        download: 'SandTetris.exe',
+        download: 'games/SandTetris.exe',
     },
     'console-shooter': {
         title: { ja: 'コンソールシューティング', en: 'Console Shooter' },
