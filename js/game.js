@@ -64,7 +64,7 @@
     var MAX_POWER = 400;
     var INVINCIBLE_FRAMES = 180;
     var BOMB_DURATION = 60;
-    var ITEM_ATTRACT_RADIUS = 60;
+    var ITEM_ATTRACT_RADIUS = 36;
     var ITEM_AUTO_COLLECT_Y = 100;
     var GRAZE_RADIUS = 24;
 
@@ -190,18 +190,19 @@
         ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
         drawBgParticles(titleParticles);
 
-        // Title text (single layer)
+        // Title text (パーティクルの手前に描画、大きく表示)
         ctx.save();
         ctx.textAlign = 'center';
         ctx.fillStyle = '#ff4444';
         ctx.shadowColor = '#ff4444';
-        ctx.shadowBlur = 20;
-        ctx.font = 'bold 38px "Courier New", monospace';
-        ctx.fillText('SHOOTING', CANVAS_W / 2, CANVAS_H * 0.28);
+        ctx.shadowBlur = 30;
+        ctx.font = 'bold 54px "Courier New", monospace';
+        ctx.fillText('SHOOTING', CANVAS_W / 2, CANVAS_H * 0.22);
+        ctx.fillText('SHOOTING', CANVAS_W / 2, CANVAS_H * 0.22); // 二重描画で明るく
         ctx.shadowBlur = 0;
-        ctx.font = '11px "Courier New", monospace';
-        ctx.fillStyle = 'rgba(255,180,180,0.5)';
-        ctx.fillText('- Portfolio Mini Game -', CANVAS_W / 2, CANVAS_H * 0.28 + 26);
+        ctx.font = '12px "Courier New", monospace';
+        ctx.fillStyle = 'rgba(255,200,200,0.6)';
+        ctx.fillText('- Portfolio Mini Game -', CANVAS_W / 2, CANVAS_H * 0.22 + 32);
         ctx.restore();
     }
 
@@ -366,13 +367,28 @@
     }
 
     // ===== Items =====
+    // 敵撃破時: 真上に飛んでから自由落下
     function spawnItems(x, y, type, count) {
         for (var i = 0; i < count; i++) {
-            var angle = Math.random() * Math.PI * 2;
-            var spd = 1 + Math.random() * 2;
+            var spread = (count > 1) ? (i / (count - 1) - 0.5) * 20 : 0;
             items.push({
-                x: x + Math.cos(angle) * 5, y: y + Math.sin(angle) * 5,
-                vx: Math.cos(angle) * spd * 0.3, vy: -2 + Math.sin(angle) * spd * 0.3,
+                x: x + spread, y: y,
+                vx: 0, vy: -2.5 - Math.random() * 1.5,
+                type: type, age: 0, attracted: false
+            });
+        }
+    }
+
+    // 被弾時パワーばらまき: プレイヤーから扇状に真上へ飛ばす
+    function spawnDeathPowerItems(x, y, type, count) {
+        var fanAngle = Math.PI * 0.6; // 扇の角度
+        var baseAngle = -Math.PI / 2; // 真上
+        for (var i = 0; i < count; i++) {
+            var a = baseAngle - fanAngle / 2 + (count > 1 ? fanAngle * (i / (count - 1)) : 0);
+            var spd = 4 + Math.random() * 2;
+            items.push({
+                x: x, y: y,
+                vx: Math.cos(a) * spd, vy: Math.sin(a) * spd,
                 type: type, age: 0, attracted: false
             });
         }
@@ -386,7 +402,7 @@
             if (player.y < ITEM_AUTO_COLLECT_Y) it.attracted = true;
             if (slow && dist < ITEM_ATTRACT_RADIUS) it.attracted = true;
             if (it.attracted && dist > 1) {
-                it.vx = dx / dist * 8; it.vy = dy / dist * 8;
+                it.vx = dx / dist * 4.5; it.vy = dy / dist * 4.5;
             }
         }
     }
@@ -1017,6 +1033,7 @@
     function playerHit() {
         lives--;
         invTimer = INVINCIBLE_FRAMES;
+        var px = player.x, py = player.y;
         var oldPower = power;
         power = Math.max(MIN_POWER, power - 100); // -1.00
         var lost = oldPower - power;
@@ -1025,10 +1042,10 @@
             var dropAmount = Math.floor(lost * dropRate);
             var bigCount = Math.floor(dropAmount / 10);
             var smallCount = dropAmount - bigCount * 10;
-            if (bigCount > 0) spawnItems(player.x, player.y, 'power', bigCount);
-            if (smallCount > 0) spawnItems(player.x, player.y, 'powerS', smallCount);
+            if (bigCount > 0) spawnDeathPowerItems(px, py, 'power', bigCount);
+            if (smallCount > 0) spawnDeathPowerItems(px, py, 'powerS', smallCount);
         }
-        spawnExplosion(player.x, player.y, '#ffffff', 10);
+        spawnExplosion(px, py, '#ffffff', 10);
         eBullets = [];
         player.x = W / 2; player.y = H - 60;
         if (lives <= 0) gameOver();
