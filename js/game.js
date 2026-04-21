@@ -24,7 +24,7 @@
 
     // HUD elements
     var hudScore = document.getElementById('hud-score');
-    var hudHiscore = document.getElementById('hud-hiscore');
+
     var hudLives = document.getElementById('hud-lives');
     var hudBombs = document.getElementById('hud-bombs');
     var hudPowerVal = document.getElementById('hud-power-val');
@@ -63,7 +63,6 @@
     var animId = null;
     var frame = 0;
     var score = 0;
-    var hiscore = parseInt(localStorage.getItem('game_hiscore') || '0');
     var lives = 0;
     var bombs = 0;
     var power = 0;
@@ -385,7 +384,6 @@
             e.speed = 1.5 + Math.random() * 1;
             e.fireRate = Math.floor(180 / diff.bullets);
             if (patRoll > 0.7) { e.pattern = 'sine'; e.baseX = e.x; }
-            else if (patRoll > 0.5) { e.pattern = 'drift'; e.y = 30 + Math.random() * 40; e.x = e.dir > 0 ? -15 : W + 15; }
         } else if (type === 'medium') {
             e.hp = 15; e.maxHp = 15;
             e.size = 14;
@@ -402,6 +400,34 @@
         }
 
         enemies.push(e);
+    }
+
+    function spawnDriftFormation() {
+        var count = 4 + Math.floor(Math.random() * 3); // 4-6 enemies
+        var dir = Math.random() > 0.5 ? 1 : -1;
+        var baseY = 30 + Math.random() * 40;
+        var startX = dir > 0 ? -15 : W + 15;
+        var spacingX = dir * 25; // horizontal spacing between each
+        var spacingY = 12; // slight V-formation offset
+        var spd = 1.5 + Math.random() * 1;
+
+        for (var i = 0; i < count; i++) {
+            var e = {
+                x: startX - spacingX * i,
+                y: baseY + Math.abs(i - (count - 1) / 2) * spacingY,
+                hp: 3, maxHp: 3,
+                speed: spd,
+                type: 'small',
+                pattern: 'drift',
+                fireRate: Math.floor(180 / diff.bullets),
+                fireTimer: Math.floor(Math.random() * 60),
+                size: 8,
+                age: 0,
+                baseX: 0,
+                dir: dir
+            };
+            enemies.push(e);
+        }
     }
 
     function spawnBoss() {
@@ -432,6 +458,9 @@
         if (waveTimer % spawnRate === 0) {
             spawnEnemy('small');
             if (Math.random() > 0.6) spawnEnemy('small');
+        }
+        if (waveTimer % 120 === 0 && waveTimer > 60) {
+            spawnDriftFormation();
         }
         if (waveTimer % 200 === 0 && waveTimer > 200) {
             spawnEnemy('medium');
@@ -826,6 +855,7 @@
     }
 
     function startGame() {
+        if (titleAnimId) { cancelAnimationFrame(titleAnimId); titleAnimId = null; }
         resetGame();
         state = 'PLAYING';
         overlay.hidden = true;
@@ -834,10 +864,6 @@
 
     function gameOver() {
         state = 'GAMEOVER';
-        if (score > hiscore) {
-            hiscore = score;
-            localStorage.setItem('game_hiscore', hiscore.toString());
-        }
         overlay.hidden = false;
         titleScreen.hidden = true;
         diffScreen.hidden = true;
@@ -871,7 +897,6 @@
 
     function updateHUD() {
         if (hudScore) hudScore.textContent = score;
-        if (hudHiscore) hudHiscore.textContent = hiscore;
         if (hudDifficulty) hudDifficulty.textContent = diff.label;
 
         if (hudLives) {
@@ -937,15 +962,39 @@
         modal.classList.remove('active');
         document.body.style.overflowY = '';
         if (animId) { cancelAnimationFrame(animId); animId = null; }
+        if (titleAnimId) { cancelAnimationFrame(titleAnimId); titleAnimId = null; }
         state = 'TITLE';
         keys = {};
         resetMobileKeys();
     }
 
+    var titleAnimId = null;
     function drawTitleBg() {
-        ctx.fillStyle = '#000';
-        ctx.fillRect(0, 0, W, H);
-        drawStars();
+        if (titleAnimId) { cancelAnimationFrame(titleAnimId); titleAnimId = null; }
+        function titleFrame() {
+            if (state !== 'TITLE' && state !== 'DIFFICULTY') { titleAnimId = null; return; }
+            updateStars();
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, W, H);
+            drawStars();
+
+            // Title text
+            ctx.save();
+            ctx.textAlign = 'center';
+            ctx.fillStyle = '#ff4444';
+            ctx.shadowColor = '#ff4444';
+            ctx.shadowBlur = 20;
+            ctx.font = 'bold 36px "Courier New", monospace';
+            ctx.fillText('SHOOTING', W / 2, H * 0.3);
+            ctx.shadowBlur = 0;
+            ctx.font = '12px "Courier New", monospace';
+            ctx.fillStyle = 'rgba(255,255,255,0.4)';
+            ctx.fillText('- Portfolio Mini Game -', W / 2, H * 0.3 + 28);
+            ctx.restore();
+
+            titleAnimId = requestAnimationFrame(titleFrame);
+        }
+        titleFrame();
     }
 
     // ===== Input =====
@@ -985,6 +1034,7 @@
     modalBackdrop.addEventListener('click', closeGameModal);
 
     playBtn.addEventListener('click', function () {
+        state = 'DIFFICULTY';
         titleScreen.hidden = true;
         diffScreen.hidden = false;
     });
@@ -1011,8 +1061,10 @@
     });
 
     retryBtn.addEventListener('click', function () {
+        state = 'DIFFICULTY';
         overScreen.hidden = true;
         diffScreen.hidden = false;
+        drawTitleBg();
     });
 
     rankingCloseBtn.addEventListener('click', function () {
