@@ -249,6 +249,81 @@
 #game-ranking-list li .name { flex: 1; }
 #game-ranking-list li .score { text-align: right; min-width: 70px; }
 
+/* ===== Title Menu ===== */
+.title-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 16px;
+}
+.title-menu-item {
+    display: block;
+    width: 200px;
+    margin: 0 auto;
+    padding: 10px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text);
+    font-size: 0.85rem;
+    letter-spacing: 0.1em;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: border-color 0.3s, color 0.3s;
+}
+.title-menu-item:hover,
+.title-menu-item.selected {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+/* ===== Ranking Tabs ===== */
+.ranking-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    margin-bottom: 12px;
+}
+.ranking-tab {
+    padding: 4px 10px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 0.65rem;
+    letter-spacing: 0.05em;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: border-color 0.3s, color 0.3s;
+}
+.ranking-tab:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+.ranking-tab.active {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(255, 68, 68, 0.1);
+}
+
+#game-ranking-btns {
+    margin-top: 12px;
+}
+
+/* ===== Selected State for Difficulty Buttons ===== */
+.difficulty-btn.selected {
+    border-color: var(--accent) !important;
+    color: var(--accent) !important;
+}
+.difficulty-btn.easy.selected { border-color: #44aaff !important; color: #44aaff !important; background: #44aaff11; }
+.difficulty-btn.normal.selected { border-color: #44ff44 !important; color: #44ff44 !important; background: #44ff4411; }
+.difficulty-btn.hard.selected { border-color: #ffaa44 !important; color: #ffaa44 !important; background: #ffaa4411; }
+.difficulty-btn.lunatic.selected { border-color: #ff4444 !important; color: #ff4444 !important; background: #ff444411; }
+
+.game-btn.selected {
+    border-color: #fff;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.1);
+}
+
 /* ===== Mobile Controls ===== */
 .game-controls {
     display: none;

@@ -16,15 +16,14 @@
     var finalScoreEl = document.getElementById('game-final-score');
     var nameInput = document.getElementById('game-name');
     var startBtn = document.getElementById('game-start-btn');
-    var playBtn = document.getElementById('game-play-btn');
     var submitBtn = document.getElementById('game-submit-btn');
-    var retryBtn = document.getElementById('game-retry-btn');
     var rankingList = document.getElementById('game-ranking-list');
-    var rankingCloseBtn = document.getElementById('game-ranking-close');
+    var rankingBtns = document.getElementById('game-ranking-btns');
+    var rankingTabs = document.getElementById('game-ranking-tabs');
 
     // HUD elements
     var hudScore = document.getElementById('hud-score');
-
+    var hudGraze = document.getElementById('hud-graze');
     var hudLives = document.getElementById('hud-lives');
     var hudBombs = document.getElementById('hud-bombs');
     var hudPowerVal = document.getElementById('hud-power-val');
@@ -44,11 +43,13 @@
     var FIRE_INTERVAL = 4;
     var MAX_LIVES = 3;
     var MAX_BOMBS = 3;
-    var MAX_POWER = 400; // 4.00
+    var MIN_POWER = 100;
+    var MAX_POWER = 400;
     var INVINCIBLE_FRAMES = 120;
     var BOMB_DURATION = 60;
     var ITEM_ATTRACT_RADIUS = 60;
     var ITEM_AUTO_COLLECT_Y = 100;
+    var GRAZE_RADIUS = 24;
 
     // Difficulty multipliers
     var DIFF = {
@@ -61,11 +62,13 @@
     // ===== State =====
     var state = 'TITLE';
     var animId = null;
+    var titleAnimId = null;
     var frame = 0;
     var score = 0;
+    var graze = 0;
     var lives = 0;
     var bombs = 0;
-    var power = 0;
+    var power = MIN_POWER;
     var invTimer = 0;
     var fireTimer = 0;
     var bombTimer = 0;
@@ -75,7 +78,10 @@
     var waveIndex = 0;
     var bossActive = false;
     var boss = null;
-    var bossInterval = 1200; // Boss every ~20 seconds
+    var bossInterval = 1200;
+    var preBoss = false;
+    var rankingFrom = 'title';
+    var menuIndex = 0;
 
     var player = { x: W / 2, y: H - 60 };
     var pBullets = [];
@@ -146,39 +152,42 @@
         if ((keys['KeyX'] || mobileKeys.bomb) && bombTimer <= 0 && bombs > 0) {
             bombs--;
             bombTimer = BOMB_DURATION;
+            invTimer = Math.max(invTimer, BOMB_DURATION);
             // Clear bullets
             for (var i = 0; i < eBullets.length; i++) {
                 spawnParticle(eBullets[i].x, eBullets[i].y, '#ffffff', 3);
             }
             eBullets = [];
-            // Damage all enemies
+            // Initial burst damage
             for (var i = 0; i < enemies.length; i++) enemies[i].hp -= 30;
             if (boss) boss.hp -= 50;
         }
-        if (bombTimer > 0) bombTimer--;
+        if (bombTimer > 0) {
+            bombTimer--;
+            // Continuous damage during bomb
+            if (frame % 10 === 0) {
+                for (var i = 0; i < enemies.length; i++) enemies[i].hp -= 5;
+                if (boss) boss.hp -= 10;
+            }
+        }
 
         // Item attraction
         attractItems(slow);
     }
 
     function firePlayerShot() {
-        var lvl = Math.floor(power / 100); // 0-4
+        var lvl = Math.floor(power / 100); // 1-4
         var bx = player.x, by = player.y - PLAYER_SIZE;
 
-        if (lvl === 0) {
+        if (lvl <= 1) {
             pBullets.push({ x: bx, y: by, vx: 0, vy: -10, w: 3, h: 14 });
-        } else if (lvl === 1) {
+        } else if (lvl === 2) {
             pBullets.push({ x: bx - 5, y: by, vx: 0, vy: -10, w: 3, h: 14 });
             pBullets.push({ x: bx + 5, y: by, vx: 0, vy: -10, w: 3, h: 14 });
-        } else if (lvl === 2) {
+        } else if (lvl === 3) {
             pBullets.push({ x: bx, y: by, vx: 0, vy: -10, w: 3, h: 14 });
             pBullets.push({ x: bx - 10, y: by, vx: -0.5, vy: -10, w: 3, h: 12 });
             pBullets.push({ x: bx + 10, y: by, vx: 0.5, vy: -10, w: 3, h: 12 });
-        } else if (lvl === 3) {
-            pBullets.push({ x: bx - 4, y: by, vx: 0, vy: -10, w: 3, h: 14 });
-            pBullets.push({ x: bx + 4, y: by, vx: 0, vy: -10, w: 3, h: 14 });
-            pBullets.push({ x: bx - 14, y: by, vx: -0.8, vy: -10, w: 3, h: 12 });
-            pBullets.push({ x: bx + 14, y: by, vx: 0.8, vy: -10, w: 3, h: 12 });
         } else {
             pBullets.push({ x: bx - 4, y: by, vx: 0, vy: -10, w: 4, h: 16 });
             pBullets.push({ x: bx + 4, y: by, vx: 0, vy: -10, w: 4, h: 16 });
@@ -190,7 +199,8 @@
     }
 
     function drawPlayer() {
-        if (invTimer > 0 && Math.floor(invTimer / 4) % 2 === 0) return;
+        // Blink during invincibility or bomb
+        if ((invTimer > 0 || bombTimer > 0) && Math.floor(frame / 4) % 2 === 0) return;
         var slow = keys['ShiftLeft'] || keys['ShiftRight'] || mobileKeys.slow;
 
         ctx.save();
@@ -220,7 +230,6 @@
             ctx.arc(0, 0, PLAYER_HITBOX + 2, 0, Math.PI * 2);
             ctx.stroke();
 
-            // Attraction range
             ctx.strokeStyle = 'rgba(255,68,68,0.15)';
             ctx.beginPath();
             ctx.arc(0, 0, ITEM_ATTRACT_RADIUS, 0, Math.PI * 2);
@@ -261,7 +270,7 @@
     }
 
     // ===== Items =====
-    // type: 'scoreS', 'score', 'powerS', 'power'
+    // types: 'score', 'scoreS', 'power', 'powerS', 'bomb', 'life'
     function spawnItems(x, y, type, count) {
         for (var i = 0; i < count; i++) {
             var angle = Math.random() * Math.PI * 2;
@@ -285,11 +294,9 @@
             var dy = player.y - it.y;
             var dist = Math.sqrt(dx * dx + dy * dy);
 
-            // Auto collect near top
             if (player.y < ITEM_AUTO_COLLECT_Y) {
                 it.attracted = true;
             }
-            // Slow mode attraction
             if (slow && dist < ITEM_ATTRACT_RADIUS) {
                 it.attracted = true;
             }
@@ -304,18 +311,23 @@
         }
     }
 
+    function forceCollectAllItems() {
+        for (var i = 0; i < items.length; i++) {
+            items[i].attracted = true;
+        }
+    }
+
     function updateItems() {
         for (var i = items.length - 1; i >= 0; i--) {
             var it = items[i];
             it.age++;
             if (!it.attracted) {
-                it.vy += 0.03; // gravity
+                it.vy += 0.03;
                 if (it.vy > 1.5) it.vy = 1.5;
             }
             it.x += it.vx;
             it.y += it.vy;
 
-            // Collect
             var dx = player.x - it.x;
             var dy = player.y - it.y;
             if (dx * dx + dy * dy < 16 * 16) {
@@ -334,29 +346,64 @@
             case 'score':  score += 1000; break;
             case 'powerS': power = Math.min(MAX_POWER, power + 1); break;
             case 'power':  power = Math.min(MAX_POWER, power + 5); break;
+            case 'bomb':   bombs = Math.min(MAX_BOMBS + 2, bombs + 1); break;
+            case 'life':   lives++; break;
         }
     }
 
     function drawItems() {
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
         for (var i = 0; i < items.length; i++) {
             var it = items[i];
-            var sz = (it.type === 'scoreS' || it.type === 'powerS') ? 4 : 7;
+            var big = (it.type === 'score' || it.type === 'power' || it.type === 'bomb' || it.type === 'life');
+            var sz = big ? 10 : 6;
 
-            if (it.type === 'scoreS' || it.type === 'score') {
-                ctx.fillStyle = it.type === 'score' ? '#ffdd44' : '#ffdd4488';
-            } else {
-                ctx.fillStyle = it.type === 'power' ? '#ff4444' : '#ff444488';
+            var color, label;
+            switch (it.type) {
+                case 'scoreS': case 'score':
+                    color = '#4488ff'; label = '\u70B9'; break;
+                case 'powerS': case 'power':
+                    color = '#ff4444'; label = 'P'; break;
+                case 'bomb':
+                    color = '#44ff44'; label = 'B'; break;
+                case 'life':
+                    color = '#aa44ff'; label = '1UP'; break;
             }
 
-            ctx.beginPath();
-            ctx.arc(it.x, it.y, sz, 0, Math.PI * 2);
-            ctx.fill();
+            ctx.fillStyle = color;
+            ctx.fillRect(it.x - sz, it.y - sz, sz * 2, sz * 2);
 
-            // Border
             ctx.strokeStyle = '#fff';
-            ctx.lineWidth = 0.5;
-            ctx.stroke();
+            ctx.lineWidth = 1;
+            ctx.strokeRect(it.x - sz, it.y - sz, sz * 2, sz * 2);
+
+            ctx.fillStyle = '#fff';
+            ctx.font = big ? 'bold 8px sans-serif' : 'bold 6px sans-serif';
+            if (it.type === 'life') ctx.font = 'bold 6px sans-serif';
+            ctx.fillText(label, it.x, it.y + 1);
         }
+    }
+
+    // ===== Collect Line Indicator =====
+    function drawCollectLine() {
+        var y = ITEM_AUTO_COLLECT_Y;
+        ctx.strokeStyle = 'rgba(255,68,68,0.15)';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(W, y);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        ctx.fillStyle = 'rgba(255,68,68,0.4)';
+        ctx.font = '10px sans-serif';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('\u25B6', 2, y);
+        ctx.textAlign = 'right';
+        ctx.fillText('\u25C0', W - 2, y);
     }
 
     // ===== Enemies =====
@@ -366,7 +413,7 @@
             y: -20,
             hp: 1, maxHp: 1,
             speed: 1,
-            type: type, // 'small', 'medium', 'large'
+            type: type,
             pattern: 'straight',
             fireRate: 200,
             fireTimer: Math.floor(Math.random() * 60),
@@ -403,12 +450,12 @@
     }
 
     function spawnDriftFormation() {
-        var count = 4 + Math.floor(Math.random() * 3); // 4-6 enemies
+        var count = 4 + Math.floor(Math.random() * 3);
         var dir = Math.random() > 0.5 ? 1 : -1;
         var baseY = 30 + Math.random() * 40;
         var startX = dir > 0 ? -15 : W + 15;
-        var spacingX = dir * 25; // horizontal spacing between each
-        var spacingY = 12; // slight V-formation offset
+        var spacingX = dir * 25;
+        var spacingY = 12;
         var spd = 1.5 + Math.random() * 1;
 
         for (var i = 0; i < count; i++) {
@@ -453,6 +500,25 @@
 
         waveTimer++;
 
+        // Pre-boss phase: stop spawning, wait for enemies to leave
+        if (preBoss) {
+            for (var i = enemies.length - 1; i >= 0; i--) {
+                var e = enemies[i];
+                e.age++;
+                e.y += e.speed + 1.5;
+                if (e.pattern === 'drift') e.x += e.dir * e.speed * 1.5;
+                if (e.y > H + 40 || e.x < -40 || e.x > W + 40) {
+                    enemies.splice(i, 1);
+                }
+            }
+            if (enemies.length === 0) {
+                forceCollectAllItems();
+                preBoss = false;
+                spawnBoss();
+            }
+            return;
+        }
+
         // Spawn logic
         var spawnRate = 40;
         if (waveTimer % spawnRate === 0) {
@@ -469,13 +535,13 @@
             spawnEnemy('large');
         }
 
-        // Boss spawn
+        // Boss trigger
         if (waveTimer >= bossInterval) {
             waveTimer = 0;
             waveIndex++;
             bossInterval = Math.max(800, bossInterval - 50);
-            // Clear remaining enemies gently
-            spawnBoss();
+            preBoss = true;
+            return;
         }
 
         for (var i = enemies.length - 1; i >= 0; i--) {
@@ -495,21 +561,18 @@
                 e.x += Math.sin(e.age * 0.015) * 0.8;
             }
 
-            // Fire
             e.fireTimer++;
             if (e.fireTimer >= e.fireRate && e.y > 10 && e.y < H * 0.65) {
                 e.fireTimer = 0;
                 fireEnemyBullet(e);
             }
 
-            // HP check
             if (e.hp <= 0) {
                 enemyDestroyed(e);
                 enemies.splice(i, 1);
                 continue;
             }
 
-            // Off screen
             if (e.y > H + 40 || e.x < -40 || e.x > W + 40) {
                 enemies.splice(i, 1);
             }
@@ -521,18 +584,18 @@
         var spd = (1.5 + Math.random() * 0.5) * diff.speed;
 
         if (e.type === 'small') {
-            eBullets.push({ x: e.x, y: e.y, vx: Math.cos(angle) * spd, vy: Math.sin(angle) * spd, size: 3 });
+            eBullets.push({ x: e.x, y: e.y, vx: Math.cos(angle) * spd, vy: Math.sin(angle) * spd, size: 3, grazed: false });
         } else if (e.type === 'medium') {
             var n = Math.floor(2 * diff.bullets);
             var spread = 0.3;
             for (var a = -spread; a <= spread + 0.01; a += spread * 2 / Math.max(n - 1, 1)) {
-                eBullets.push({ x: e.x, y: e.y, vx: Math.cos(angle + a) * spd, vy: Math.sin(angle + a) * spd, size: 4 });
+                eBullets.push({ x: e.x, y: e.y, vx: Math.cos(angle + a) * spd, vy: Math.sin(angle + a) * spd, size: 4, grazed: false });
             }
         } else if (e.type === 'large') {
             var n = Math.floor(5 * diff.bullets);
             for (var i = 0; i < n; i++) {
                 var a = (Math.PI * 2 / n) * i + e.age * 0.03;
-                eBullets.push({ x: e.x, y: e.y, vx: Math.cos(a) * spd * 0.8, vy: Math.sin(a) * spd * 0.8, size: 4 });
+                eBullets.push({ x: e.x, y: e.y, vx: Math.cos(a) * spd * 0.8, vy: Math.sin(a) * spd * 0.8, size: 4, grazed: false });
             }
         }
     }
@@ -552,6 +615,10 @@
             spawnItems(e.x, e.y, 'scoreS', 4);
             spawnItems(e.x, e.y, 'power', 1);
             spawnItems(e.x, e.y, 'powerS', 3);
+            // Rare bomb/life drops
+            var rng = Math.random();
+            if (rng < 0.15) spawnItems(e.x, e.y, 'life', 1);
+            else if (rng < 0.35) spawnItems(e.x, e.y, 'bomb', 1);
         }
     }
 
@@ -576,7 +643,6 @@
             ctx.arc(0, 0, e.size * 0.2, 0, Math.PI * 2);
             ctx.fill();
 
-            // HP bar for medium/large
             if (e.type !== 'small') {
                 var bw = e.size * 1.6;
                 ctx.fillStyle = '#333';
@@ -600,12 +666,10 @@
             return;
         }
 
-        // Movement
         boss.x += Math.sin(boss.age * 0.01) * 1.5;
         if (boss.x < 50) boss.x = 50;
         if (boss.x > W - 50) boss.x = W - 50;
 
-        // Phases
         boss.phaseTimer++;
         boss.fireTimer++;
 
@@ -615,7 +679,6 @@
             fireBossBullets();
         }
 
-        // Boss defeated
         if (boss.hp <= 0) {
             bossDefeated();
         }
@@ -626,32 +689,28 @@
         var phase = boss.phase % 3;
 
         if (phase === 0) {
-            // Aimed spread
             var angle = Math.atan2(player.y - boss.y, player.x - boss.x);
             var n = Math.floor(3 * diff.bullets);
             var spread = 0.4;
             for (var i = 0; i < n; i++) {
                 var a = angle - spread + (spread * 2 / Math.max(n - 1, 1)) * i;
-                eBullets.push({ x: boss.x, y: boss.y + boss.size, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd, size: 5 });
+                eBullets.push({ x: boss.x, y: boss.y + boss.size, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd, size: 5, grazed: false });
             }
         } else if (phase === 1) {
-            // Spiral
             var n = Math.floor(4 * diff.bullets);
             for (var i = 0; i < n; i++) {
                 var a = (Math.PI * 2 / n) * i + boss.age * 0.05;
-                eBullets.push({ x: boss.x, y: boss.y + boss.size * 0.5, vx: Math.cos(a) * spd * 0.9, vy: Math.sin(a) * spd * 0.9, size: 4 });
+                eBullets.push({ x: boss.x, y: boss.y + boss.size * 0.5, vx: Math.cos(a) * spd * 0.9, vy: Math.sin(a) * spd * 0.9, size: 4, grazed: false });
             }
         } else {
-            // Random spread
             var n = Math.floor(6 * diff.bullets);
             for (var i = 0; i < n; i++) {
                 var a = Math.random() * Math.PI * 0.8 + Math.PI * 0.1;
                 var s = spd * (0.7 + Math.random() * 0.6);
-                eBullets.push({ x: boss.x + (Math.random() - 0.5) * 30, y: boss.y + boss.size, vx: Math.cos(a) * s, vy: Math.sin(a) * s, size: 4 });
+                eBullets.push({ x: boss.x + (Math.random() - 0.5) * 30, y: boss.y + boss.size, vx: Math.cos(a) * s, vy: Math.sin(a) * s, size: 4, grazed: false });
             }
         }
 
-        // Phase change
         if (boss.phaseTimer > 300) {
             boss.phase++;
             boss.phaseTimer = 0;
@@ -664,7 +723,9 @@
         spawnItems(boss.x, boss.y, 'score', 5);
         spawnItems(boss.x, boss.y, 'scoreS', 10);
         spawnItems(boss.x, boss.y, 'power', 3);
-        // Clear bullets
+        // Boss always drops life or bomb
+        if (Math.random() > 0.5) spawnItems(boss.x, boss.y, 'life', 1);
+        else spawnItems(boss.x, boss.y, 'bomb', 1);
         for (var i = 0; i < eBullets.length; i++) {
             spawnParticle(eBullets[i].x, eBullets[i].y, '#ffffff', 2);
         }
@@ -678,13 +739,11 @@
         ctx.save();
         ctx.translate(boss.x, boss.y);
 
-        // Body
         ctx.fillStyle = '#cc2222';
         ctx.beginPath();
         ctx.arc(0, 0, boss.size, 0, Math.PI * 2);
         ctx.fill();
 
-        // Wings
         ctx.fillStyle = '#991111';
         ctx.beginPath();
         ctx.moveTo(-boss.size, 0);
@@ -699,7 +758,6 @@
         ctx.closePath();
         ctx.fill();
 
-        // Core
         ctx.fillStyle = '#fff';
         ctx.beginPath();
         ctx.arc(0, 0, boss.size * 0.25, 0, Math.PI * 2);
@@ -772,12 +830,30 @@
         ctx.globalAlpha = 1;
     }
 
+    // ===== Graze =====
+    function checkGraze() {
+        if (invTimer > 0 || bombTimer > 0) return;
+        for (var i = 0; i < eBullets.length; i++) {
+            var b = eBullets[i];
+            if (b.grazed) continue;
+            var dx = b.x - player.x;
+            var dy = b.y - player.y;
+            var dist = Math.sqrt(dx * dx + dy * dy);
+            var hitDist = PLAYER_HITBOX + b.size;
+            if (dist < GRAZE_RADIUS && dist > hitDist) {
+                b.grazed = true;
+                graze++;
+                score += 10;
+                spawnParticle(player.x + dx * 0.3, player.y + dy * 0.3, '#ffffff', 1);
+            }
+        }
+    }
+
     // ===== Collision =====
     function checkCollisions() {
         // Player bullets vs enemies
         for (var i = pBullets.length - 1; i >= 0; i--) {
             var b = pBullets[i];
-            // vs enemies
             for (var j = enemies.length - 1; j >= 0; j--) {
                 var e = enemies[j];
                 if (Math.abs(b.x - e.x) < e.size + 4 && Math.abs(b.y - e.y) < e.size + 4) {
@@ -787,7 +863,6 @@
                     break;
                 }
             }
-            // vs boss
             if (boss && !boss.entering && i < pBullets.length) {
                 var b2 = pBullets[i];
                 if (b2 && Math.abs(b2.x - boss.x) < boss.size + 4 && Math.abs(b2.y - boss.y) < boss.size + 4) {
@@ -797,6 +872,9 @@
                 }
             }
         }
+
+        // Graze check
+        checkGraze();
 
         // Enemy bullets vs player
         if (invTimer > 0 || bombTimer > 0) return;
@@ -835,7 +913,7 @@
     function playerHit() {
         lives--;
         invTimer = INVINCIBLE_FRAMES;
-        power = Math.max(0, power - 50);
+        power = Math.max(MIN_POWER, power - 50);
         spawnExplosion(player.x, player.y, '#ffffff', 10);
         eBullets = [];
         player.x = W / 2;
@@ -845,10 +923,10 @@
 
     // ===== Game State =====
     function resetGame() {
-        frame = 0; score = 0; lives = MAX_LIVES; bombs = MAX_BOMBS;
-        power = 0; invTimer = 0; fireTimer = 0; bombTimer = 0;
+        frame = 0; score = 0; graze = 0; lives = MAX_LIVES; bombs = MAX_BOMBS;
+        power = MIN_POWER; invTimer = 0; fireTimer = 0; bombTimer = 0;
         waveTimer = 0; waveIndex = 0; bossActive = false; boss = null;
-        bossInterval = 1200;
+        bossInterval = 1200; preBoss = false;
         player.x = W / 2; player.y = H - 60;
         pBullets = []; enemies = []; eBullets = []; items = []; particles = [];
         initStars();
@@ -856,10 +934,12 @@
 
     function startGame() {
         if (titleAnimId) { cancelAnimationFrame(titleAnimId); titleAnimId = null; }
+        if (animId) { cancelAnimationFrame(animId); animId = null; }
         resetGame();
         state = 'PLAYING';
         overlay.hidden = true;
         updateHUD();
+        animId = requestAnimationFrame(gameLoop);
     }
 
     function gameOver() {
@@ -874,12 +954,61 @@
         setTimeout(function () { nameInput.focus(); }, 100);
     }
 
-    function showRanking() {
+    function showRanking(from, showDiff) {
+        rankingFrom = from || 'title';
         state = 'RANKING';
         overScreen.hidden = true;
+        titleScreen.hidden = true;
+        diffScreen.hidden = true;
         rankingScreen.hidden = false;
+
+        var tabDiff = showDiff || diffKey;
+        var tabs = rankingTabs.querySelectorAll('.ranking-tab');
+        tabs.forEach(function (t) {
+            t.classList.toggle('active', t.dataset.diff === tabDiff);
+        });
+
+        loadRanking(tabDiff);
+
+        // Build buttons
+        rankingBtns.innerHTML = '';
+        if (rankingFrom === 'gameover') {
+            var retryB = document.createElement('button');
+            retryB.className = 'game-btn';
+            retryB.setAttribute('data-ja', '\u30EA\u30C8\u30E9\u30A4');
+            retryB.setAttribute('data-en', 'Retry');
+            retryB.textContent = (typeof currentLang !== 'undefined' && currentLang === 'en') ? 'Retry' : '\u30EA\u30C8\u30E9\u30A4';
+            retryB.addEventListener('click', function () {
+                startGame();
+            });
+            var titleB = document.createElement('button');
+            titleB.className = 'game-btn';
+            titleB.setAttribute('data-ja', '\u30BF\u30A4\u30C8\u30EB\u3078');
+            titleB.setAttribute('data-en', 'Title');
+            titleB.textContent = (typeof currentLang !== 'undefined' && currentLang === 'en') ? 'Title' : '\u30BF\u30A4\u30C8\u30EB\u3078';
+            titleB.addEventListener('click', function () {
+                goToTitle();
+            });
+            rankingBtns.appendChild(retryB);
+            rankingBtns.appendChild(titleB);
+            menuIndex = 0;
+        } else {
+            var backB = document.createElement('button');
+            backB.className = 'game-btn';
+            backB.setAttribute('data-ja', '\u623B\u308B');
+            backB.setAttribute('data-en', 'Back');
+            backB.textContent = (typeof currentLang !== 'undefined' && currentLang === 'en') ? 'Back' : '\u623B\u308B';
+            backB.addEventListener('click', function () {
+                goToTitle();
+            });
+            rankingBtns.appendChild(backB);
+            menuIndex = 0;
+        }
+    }
+
+    function loadRanking(difficultyKey) {
         rankingList.innerHTML = '<li><span style="color:var(--text-muted)">Loading...</span></li>';
-        GameRanking.fetchRanking(10).then(function (data) {
+        GameRanking.fetchRanking(difficultyKey, 10).then(function (data) {
             rankingList.innerHTML = '';
             if (data.length === 0) {
                 rankingList.innerHTML = '<li><span style="color:var(--text-muted)">No scores yet</span></li>';
@@ -893,20 +1022,37 @@
         });
     }
 
+    function goToTitle() {
+        if (animId) { cancelAnimationFrame(animId); animId = null; }
+        state = 'TITLE';
+        menuIndex = 0;
+        overlay.hidden = false;
+        titleScreen.hidden = false;
+        diffScreen.hidden = true;
+        overScreen.hidden = true;
+        rankingScreen.hidden = true;
+        updateMenuHighlight();
+        initStars();
+        drawTitleBg();
+    }
+
     function escapeHtml(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 
     function updateHUD() {
         if (hudScore) hudScore.textContent = score;
+        if (hudGraze) hudGraze.textContent = graze;
         if (hudDifficulty) hudDifficulty.textContent = diff.label;
 
         if (hudLives) {
             var h = '';
-            for (var i = 0; i < MAX_LIVES; i++) h += '<span class="' + (i < lives ? '' : 'empty') + '"></span>';
+            var max = Math.max(MAX_LIVES, lives);
+            for (var i = 0; i < max; i++) h += '<span class="' + (i < lives ? '' : 'empty') + '"></span>';
             hudLives.innerHTML = h;
         }
         if (hudBombs) {
             var h = '';
-            for (var i = 0; i < MAX_BOMBS; i++) h += '<span class="' + (i < bombs ? '' : 'empty') + '"></span>';
+            var max = Math.max(MAX_BOMBS, bombs);
+            for (var i = 0; i < max; i++) h += '<span class="' + (i < bombs ? '' : 'empty') + '"></span>';
             hudBombs.innerHTML = h;
         }
         if (hudPowerVal) hudPowerVal.textContent = (power / 100).toFixed(2) + ' / 4.00';
@@ -930,6 +1076,7 @@
         ctx.fillStyle = '#000';
         ctx.fillRect(0, 0, W, H);
         drawStars();
+        drawCollectLine();
         drawItems();
         drawPBullets();
         drawEnemies();
@@ -941,44 +1088,16 @@
         if (state === 'PLAYING') animId = requestAnimationFrame(gameLoop);
     }
 
-    // ===== Modal =====
-    function openGameModal() {
-        modal.classList.add('active');
-        document.body.style.overflowY = 'hidden';
-        state = 'TITLE';
-        overlay.hidden = false;
-        titleScreen.hidden = false;
-        diffScreen.hidden = true;
-        overScreen.hidden = true;
-        rankingScreen.hidden = true;
-        modal.querySelectorAll('[data-ja][data-en]').forEach(function (el) {
-            el.textContent = el.getAttribute('data-' + currentLang);
-        });
-        initStars();
-        drawTitleBg();
-    }
-
-    function closeGameModal() {
-        modal.classList.remove('active');
-        document.body.style.overflowY = '';
-        if (animId) { cancelAnimationFrame(animId); animId = null; }
-        if (titleAnimId) { cancelAnimationFrame(titleAnimId); titleAnimId = null; }
-        state = 'TITLE';
-        keys = {};
-        resetMobileKeys();
-    }
-
-    var titleAnimId = null;
+    // ===== Title Scene =====
     function drawTitleBg() {
         if (titleAnimId) { cancelAnimationFrame(titleAnimId); titleAnimId = null; }
         function titleFrame() {
-            if (state !== 'TITLE' && state !== 'DIFFICULTY') { titleAnimId = null; return; }
+            if (state !== 'TITLE' && state !== 'DIFFICULTY' && state !== 'RANKING') { titleAnimId = null; return; }
             updateStars();
             ctx.fillStyle = '#000';
             ctx.fillRect(0, 0, W, H);
             drawStars();
 
-            // Title text
             ctx.save();
             ctx.textAlign = 'center';
             ctx.fillStyle = '#ff4444';
@@ -997,11 +1116,91 @@
         titleFrame();
     }
 
+    // ===== Menu Navigation =====
+    function getMenuItems() {
+        if (state === 'TITLE') {
+            return titleScreen.querySelectorAll('.title-menu-item');
+        } else if (state === 'DIFFICULTY') {
+            return diffScreen.querySelectorAll('.difficulty-btn');
+        } else if (state === 'RANKING') {
+            return rankingBtns.querySelectorAll('.game-btn');
+        }
+        return [];
+    }
+
+    function updateMenuHighlight() {
+        var items = getMenuItems();
+        for (var i = 0; i < items.length; i++) {
+            items[i].classList.toggle('selected', i === menuIndex);
+        }
+    }
+
+    function handleMenuKey(code) {
+        if (state === 'GAMEOVER') {
+            // Enter submits score
+            if (code === 'Enter') {
+                submitBtn.click();
+            }
+            return;
+        }
+
+        var items = getMenuItems();
+        if (!items || items.length === 0) return;
+
+        if (code === 'ArrowUp') {
+            menuIndex = (menuIndex - 1 + items.length) % items.length;
+            updateMenuHighlight();
+        } else if (code === 'ArrowDown') {
+            menuIndex = (menuIndex + 1) % items.length;
+            updateMenuHighlight();
+        } else if (code === 'KeyZ' || code === 'Enter') {
+            if (menuIndex >= 0 && menuIndex < items.length) {
+                items[menuIndex].click();
+            }
+        } else if (code === 'KeyX' || code === 'Escape') {
+            if (state === 'DIFFICULTY') {
+                goToTitle();
+            } else if (state === 'RANKING') {
+                goToTitle();
+            } else if (state === 'TITLE') {
+                closeGameModal();
+            }
+        }
+    }
+
+    // ===== Modal =====
+    function openGameModal() {
+        modal.classList.add('active');
+        document.body.style.overflowY = 'hidden';
+        menuIndex = 0;
+        modal.querySelectorAll('[data-ja][data-en]').forEach(function (el) {
+            el.textContent = el.getAttribute('data-' + currentLang);
+        });
+        goToTitle();
+    }
+
+    function closeGameModal() {
+        modal.classList.remove('active');
+        document.body.style.overflowY = '';
+        if (animId) { cancelAnimationFrame(animId); animId = null; }
+        if (titleAnimId) { cancelAnimationFrame(titleAnimId); titleAnimId = null; }
+        state = 'TITLE';
+        keys = {};
+        resetMobileKeys();
+    }
+
     // ===== Input =====
     document.addEventListener('keydown', function (e) {
         if (!modal.classList.contains('active')) return;
-        if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].indexOf(e.code) !== -1) e.preventDefault();
+        var isMenu = (state !== 'PLAYING');
+        if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].indexOf(e.code) !== -1) {
+            if (state !== 'GAMEOVER') e.preventDefault();
+        }
         keys[e.code] = true;
+
+        if (isMenu) {
+            handleMenuKey(e.code);
+        }
     });
     document.addEventListener('keyup', function (e) { keys[e.code] = false; });
 
@@ -1033,50 +1232,70 @@
     modalClose.addEventListener('click', closeGameModal);
     modalBackdrop.addEventListener('click', closeGameModal);
 
-    playBtn.addEventListener('click', function () {
-        state = 'DIFFICULTY';
-        titleScreen.hidden = true;
-        diffScreen.hidden = false;
+    // Title menu items
+    modal.querySelectorAll('.title-menu-item').forEach(function (btn, idx) {
+        btn.addEventListener('click', function () {
+            var action = btn.dataset.action;
+            if (action === 'start') {
+                state = 'DIFFICULTY';
+                menuIndex = 0;
+                titleScreen.hidden = true;
+                diffScreen.hidden = false;
+                updateMenuHighlight();
+            } else if (action === 'ranking') {
+                showRanking('title', 'normal');
+                drawTitleBg();
+            } else if (action === 'exit') {
+                closeGameModal();
+            }
+        });
+        btn.addEventListener('mouseenter', function () {
+            menuIndex = idx;
+            updateMenuHighlight();
+        });
     });
 
     // Difficulty buttons
-    modal.querySelectorAll('.difficulty-btn').forEach(function (btn) {
+    modal.querySelectorAll('.difficulty-btn').forEach(function (btn, idx) {
         btn.addEventListener('click', function () {
             diffKey = btn.dataset.diff;
             diff = DIFF[diffKey];
             startGame();
-            animId = requestAnimationFrame(gameLoop);
+        });
+        btn.addEventListener('mouseenter', function () {
+            menuIndex = idx;
+            updateMenuHighlight();
         });
     });
 
+    // Submit score
     submitBtn.addEventListener('click', function () {
         var name = nameInput.value.trim() || 'AAA';
         submitBtn.disabled = true;
         submitBtn.textContent = '...';
-        GameRanking.submitScore(name, score).then(function () {
+        GameRanking.submitScore(name, score, diffKey).then(function () {
             submitBtn.disabled = false;
-            submitBtn.textContent = currentLang === 'ja' ? '\u30B9\u30B3\u30A2\u9001\u4FE1' : 'Submit Score';
-            showRanking();
+            submitBtn.textContent = (typeof currentLang !== 'undefined' && currentLang === 'en') ? 'Submit Score' : '\u30B9\u30B3\u30A2\u9001\u4FE1';
+            showRanking('gameover', diffKey);
         });
     });
 
-    retryBtn.addEventListener('click', function () {
-        state = 'DIFFICULTY';
-        overScreen.hidden = true;
-        diffScreen.hidden = false;
-        drawTitleBg();
+    // Enter key in name input -> submit
+    nameInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            submitBtn.click();
+        }
+        e.stopPropagation();
     });
 
-    rankingCloseBtn.addEventListener('click', function () {
-        state = 'TITLE';
-        titleScreen.hidden = false;
-        diffScreen.hidden = true;
-        rankingScreen.hidden = true;
-        drawTitleBg();
-    });
-
-    document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape' && modal.classList.contains('active')) closeGameModal();
+    // Ranking tabs
+    rankingTabs.querySelectorAll('.ranking-tab').forEach(function (tab) {
+        tab.addEventListener('click', function () {
+            rankingTabs.querySelectorAll('.ranking-tab').forEach(function (t) { t.classList.remove('active'); });
+            tab.classList.add('active');
+            loadRanking(tab.dataset.diff);
+        });
     });
 
     GameRanking.init();

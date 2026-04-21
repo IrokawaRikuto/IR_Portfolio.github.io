@@ -462,9 +462,14 @@
                 <canvas id="game-canvas"></canvas>
                 <div id="game-overlay">
                     <div id="game-title-screen">
-                        <h3>SHOOTER</h3>
-                        <p id="game-instructions" data-ja="移動: ↑←↓→　ショット: Z　ボム: X　低速: Shift" data-en="Move: ↑←↓→  Shot: Z  Bomb: X  Slow: Shift">移動: ↑←↓→　ショット: Z　ボム: X　低速: Shift</p>
-                        <button id="game-play-btn" class="game-btn">PLAY</button>
+                        <h3>SHOOTING</h3>
+                        <p id="game-instructions" data-ja="移動: ↑←↓→　ショット: Z　ボム: X　低速: Shift\n決定: Z　キャンセル: X" data-en="Move: ↑←↓→  Shot: Z  Bomb: X  Slow: Shift\nSelect: Z  Cancel: X">移動: ↑←↓→　ショット: Z　ボム: X　低速: Shift
+決定: Z　キャンセル: X</p>
+                        <div class="title-menu">
+                            <button class="title-menu-item selected" data-action="start" data-ja="ゲームスタート" data-en="Game Start">ゲームスタート</button>
+                            <button class="title-menu-item" data-action="ranking" data-ja="ランキング" data-en="Ranking">ランキング</button>
+                            <button class="title-menu-item" data-action="exit" data-ja="ゲームを終了する" data-en="Exit Game">ゲームを終了する</button>
+                        </div>
                     </div>
                     <div id="game-difficulty-screen" hidden>
                         <h3 data-ja="難易度選択" data-en="Difficulty">難易度選択</h3>
@@ -483,12 +488,17 @@
                             <input type="text" id="game-name" maxlength="12" placeholder="AAA" autocomplete="off">
                         </div>
                         <button id="game-submit-btn" class="game-btn" data-ja="スコア送信" data-en="Submit Score">スコア送信</button>
-                        <button id="game-retry-btn" class="game-btn" data-ja="リトライ" data-en="Retry">リトライ</button>
                     </div>
                     <div id="game-ranking-screen" hidden>
                         <h3 data-ja="ランキング" data-en="Ranking">ランキング</h3>
+                        <div class="ranking-tabs" id="game-ranking-tabs">
+                            <button class="ranking-tab" data-diff="easy">Easy</button>
+                            <button class="ranking-tab active" data-diff="normal">Normal</button>
+                            <button class="ranking-tab" data-diff="hard">Hard</button>
+                            <button class="ranking-tab" data-diff="lunatic">Lunatic</button>
+                        </div>
                         <ol id="game-ranking-list"></ol>
-                        <button id="game-ranking-close" class="game-btn" data-ja="戻る" data-en="Back">戻る</button>
+                        <div id="game-ranking-btns"></div>
                     </div>
                 </div>
             </div>
@@ -496,6 +506,10 @@
                 <div>
                     <div class="hud-label">SCORE</div>
                     <div class="hud-value" id="hud-score">0</div>
+                </div>
+                <div>
+                    <div class="hud-label">GRAZE</div>
+                    <div class="hud-value" id="hud-graze">0</div>
                 </div>
                 <div>
                     <div class="hud-label">LIVES</div>

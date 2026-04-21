@@ -11,10 +11,11 @@ const GameRanking = (function () {
         }
     }
 
-    async function submitScore(name, score) {
+    async function submitScore(name, score, difficulty) {
         const entry = {
             name: name || 'AAA',
             score: score,
+            difficulty: difficulty || 'normal',
             date: new Date().toISOString()
         };
 
@@ -23,6 +24,7 @@ const GameRanking = (function () {
                 await db.collection(COLLECTION).add({
                     name: entry.name,
                     score: entry.score,
+                    difficulty: entry.difficulty,
                     date: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 return true;
@@ -35,17 +37,19 @@ const GameRanking = (function () {
         const rankings = JSON.parse(localStorage.getItem(LOCAL_KEY) || '[]');
         rankings.push(entry);
         rankings.sort((a, b) => b.score - a.score);
-        if (rankings.length > 50) rankings.length = 50;
+        if (rankings.length > 200) rankings.length = 200;
         localStorage.setItem(LOCAL_KEY, JSON.stringify(rankings));
         return true;
     }
 
-    async function fetchRanking(limit) {
+    async function fetchRanking(difficulty, limit) {
         limit = limit || 10;
+        difficulty = difficulty || 'normal';
 
         if (db) {
             try {
                 const snap = await db.collection(COLLECTION)
+                    .where('difficulty', '==', difficulty)
                     .orderBy('score', 'desc')
                     .limit(limit)
                     .get();
@@ -60,8 +64,10 @@ const GameRanking = (function () {
 
         // localStorage fallback
         const rankings = JSON.parse(localStorage.getItem(LOCAL_KEY) || '[]');
-        rankings.sort((a, b) => b.score - a.score);
-        return rankings.slice(0, limit);
+        return rankings
+            .filter(r => r.difficulty === difficulty)
+            .sort((a, b) => b.score - a.score)
+            .slice(0, limit);
     }
 
     return { init: init, submitScore: submitScore, fetchRanking: fetchRanking };
