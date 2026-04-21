@@ -233,7 +233,7 @@ function openModal(workId) {
     videoArea.innerHTML = '';
     const vid = data.video;
     if (!vid || vid.type === 'placeholder' || !vid.src) {
-        videoArea.innerHTML = '<div class="media-placeholder">VIDEO</div>';
+        videoArea.innerHTML = '<div class="media-placeholder">' + (currentLang === 'ja' ? '準備中…' : 'Coming soon...') + '</div>';
     } else if (vid.type === 'video') {
         const v = document.createElement('video');
         v.src = vid.src; v.controls = true; v.autoplay = true;
@@ -320,7 +320,7 @@ function openModal(workId) {
             ssArea.appendChild(nextBtn);
         }
     } else {
-        ssArea.innerHTML = '<div class="media-placeholder">SCREENSHOT</div>';
+        ssArea.innerHTML = '<div class="media-placeholder">' + (currentLang === 'ja' ? '準備中…' : 'Coming soon...') + '</div>';
     }
 
     // 説明文
