@@ -1,0 +1,193 @@
+/* ===== Game START Button ===== */
+.game-start-btn {
+    display: inline-block;
+    padding: 8px 32px;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    background: transparent;
+    font-size: 0.8rem;
+    letter-spacing: 0.15em;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background 0.3s, color 0.3s, box-shadow 0.3s;
+    margin-bottom: 12px;
+}
+.game-start-btn:hover {
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 0 20px var(--accent-glow);
+}
+
+/* ===== Game Modal ===== */
+.game-modal-content {
+    max-width: 420px;
+    padding: 0;
+    overflow: hidden;
+    background: #000;
+    border: 1px solid var(--accent);
+}
+
+.game-wrapper {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 9/16;
+    max-height: 85vh;
+    margin: 0 auto;
+    overflow: hidden;
+}
+
+#game-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+/* ===== Game HUD ===== */
+#game-hud {
+    position: absolute;
+    top: 8px;
+    left: 12px;
+    right: 12px;
+    display: flex;
+    justify-content: space-between;
+    font-family: "Courier New", monospace;
+    font-size: 0.85rem;
+    color: #fff;
+    z-index: 2;
+    pointer-events: none;
+    text-shadow: 0 0 6px rgba(0, 0, 0, 0.8);
+}
+
+/* ===== Game Overlay (Title / GameOver / Ranking) ===== */
+#game-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3;
+}
+#game-overlay[hidden] {
+    display: none;
+}
+#game-overlay h3 {
+    font-size: 1.8rem;
+    font-weight: 900;
+    letter-spacing: 0.1em;
+    color: #fff;
+    margin-bottom: 16px;
+}
+
+#game-title-screen,
+#game-over-screen,
+#game-ranking-screen {
+    text-align: center;
+    color: #fff;
+    padding: 20px;
+}
+#game-title-screen[hidden],
+#game-over-screen[hidden],
+#game-ranking-screen[hidden] {
+    display: none;
+}
+
+#game-instructions {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+}
+
+.game-btn {
+    display: inline-block;
+    padding: 10px 36px;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    background: transparent;
+    font-size: 0.85rem;
+    letter-spacing: 0.1em;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background 0.3s, color 0.3s;
+    margin: 6px;
+}
+.game-btn:hover {
+    background: var(--accent);
+    color: #fff;
+}
+
+/* ===== Name Input ===== */
+.game-name-input {
+    margin: 16px 0;
+}
+.game-name-input label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+}
+.game-name-input input {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--border);
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: var(--radius);
+    font-size: 1rem;
+    text-align: center;
+    width: 160px;
+    letter-spacing: 0.1em;
+}
+.game-name-input input:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+/* ===== Final Score ===== */
+#game-final-score {
+    font-family: "Courier New", monospace;
+    font-size: 1.4rem;
+    color: var(--accent);
+    margin: 12px 0;
+}
+
+/* ===== Ranking List ===== */
+#game-ranking-list {
+    list-style: none;
+    padding: 0;
+    margin: 16px 0;
+    text-align: left;
+    max-width: 260px;
+    margin-left: auto;
+    margin-right: auto;
+}
+#game-ranking-list li {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    font-family: "Courier New", monospace;
+    font-size: 0.8rem;
+    color: var(--text);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+#game-ranking-list li .rank {
+    color: var(--accent);
+    width: 28px;
+}
+#game-ranking-list li .name {
+    flex: 1;
+}
+#game-ranking-list li .score {
+    text-align: right;
+    min-width: 70px;
+}
+
+/* ===== Mobile ===== */
+@media (max-width: 768px) {
+    .game-modal-content {
+        width: 95%;
+        max-width: none;
+    }
+    .game-wrapper {
+        max-height: 80vh;
+    }
+}
