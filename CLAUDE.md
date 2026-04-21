@@ -56,8 +56,23 @@
 
 ※ RE:GAMMAは製作中のため非表示（HTMLコメントアウト）
 
+## 隠しミニゲーム（東方風シューティング）
+- フッターの START ボタンから起動
+- HTML5 Canvas + JavaScript（640x480、4:3、東方原作スタイルのフィールド+HUD）
+- 構成: js/game.js, js/game-firebase.js, css/game.css, assets/game/（スプライト素材）
+- Firebase Firestore によるオンラインランキング（localStorage フォールバック付き）
+- 4難易度（Easy/Normal/Hard/Lunatic）
+- Wave Script制御による敵出現パターン（隊列、左右横断、上部自機狙い、サインウェーブ等）
+- 弾幕パターン: down, way3, way5, circle, aimed, diagonal, random
+- スプライト素材: 弾（小中大）、ボス魔法陣、弾消去エフェクト
+- HUD英語表記: HI SCORE, SCORE, PLAYER, BOMB, POWER, GRAZE, STAGE
+- 低速移動時の集中ショット、アイテム引き寄せ（本家準拠挙動）
+- 被弾時Power扇状ばらまき、敵撃破アイテム真上→自由落下
+- モバイル対応（タッチD-Pad + アクションボタン）
+- ゲーム情報: 操作方法（方向キー/Z/X/Shift）→概要（制作経緯・東方春三校との差分）の順で表示
+
 ## 未完了・予定
 - プロフィール写真（現在プレースホルダー）
 - 各作品のPV動画追加
 - 各作品のダウンロードURL追加
-- 隠しミニゲーム（縦スクロールシューティング、STARTボタンから起動）
+- ミニゲーム使用素材クレジット（現在 Coming Soon）
