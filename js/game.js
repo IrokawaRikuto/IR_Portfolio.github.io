@@ -62,14 +62,14 @@
     var MAX_BOMBS = 3;
     var MIN_POWER = 100;
     var MAX_POWER = 400;
-    var INVINCIBLE_FRAMES = 120;
+    var INVINCIBLE_FRAMES = 180;
     var BOMB_DURATION = 60;
     var ITEM_ATTRACT_RADIUS = 60;
     var ITEM_AUTO_COLLECT_Y = 100;
     var GRAZE_RADIUS = 24;
 
     var DIFF = {
-        easy:    { bullets: 0.5, bossHp: 0.6, speed: 0.8, label: 'Easy' },
+        easy:    { bullets: 0.5, bossHp: 0.8, speed: 0.8, label: 'Easy' },
         normal:  { bullets: 1.0, bossHp: 1.0, speed: 1.0, label: 'Normal' },
         hard:    { bullets: 1.5, bossHp: 1.5, speed: 1.2, label: 'Hard' },
         lunatic: { bullets: 2.0, bossHp: 2.5, speed: 1.4, label: 'Lunatic' }
@@ -262,6 +262,7 @@
     }
 
     function firePlayerShot() {
+        var slow = keys['ShiftLeft'] || keys['ShiftRight'] || mobileKeys.slow;
         var lvl = Math.floor(power / 100);
         var bx = player.x, by = player.y - PLAYER_SIZE;
 
@@ -271,16 +272,33 @@
             pBullets.push({ x: bx - 5, y: by, vx: 0, vy: -10, w: 3, h: 14 });
             pBullets.push({ x: bx + 5, y: by, vx: 0, vy: -10, w: 3, h: 14 });
         } else if (lvl === 3) {
-            pBullets.push({ x: bx, y: by, vx: 0, vy: -10, w: 3, h: 14 });
-            pBullets.push({ x: bx - 10, y: by, vx: -0.5, vy: -10, w: 3, h: 12 });
-            pBullets.push({ x: bx + 10, y: by, vx: 0.5, vy: -10, w: 3, h: 12 });
+            if (slow) {
+                // 低速時: 集中ショット
+                pBullets.push({ x: bx, y: by, vx: 0, vy: -10, w: 4, h: 16 });
+                pBullets.push({ x: bx - 6, y: by, vx: -0.1, vy: -10, w: 3, h: 14 });
+                pBullets.push({ x: bx + 6, y: by, vx: 0.1, vy: -10, w: 3, h: 14 });
+            } else {
+                pBullets.push({ x: bx, y: by, vx: 0, vy: -10, w: 3, h: 14 });
+                pBullets.push({ x: bx - 10, y: by, vx: -0.5, vy: -10, w: 3, h: 12 });
+                pBullets.push({ x: bx + 10, y: by, vx: 0.5, vy: -10, w: 3, h: 12 });
+            }
         } else {
-            pBullets.push({ x: bx - 4, y: by, vx: 0, vy: -10, w: 4, h: 16 });
-            pBullets.push({ x: bx + 4, y: by, vx: 0, vy: -10, w: 4, h: 16 });
-            pBullets.push({ x: bx - 14, y: by, vx: -0.6, vy: -10, w: 3, h: 12 });
-            pBullets.push({ x: bx + 14, y: by, vx: 0.6, vy: -10, w: 3, h: 12 });
-            pBullets.push({ x: bx - 22, y: by + 4, vx: -1.2, vy: -9, w: 3, h: 10 });
-            pBullets.push({ x: bx + 22, y: by + 4, vx: 1.2, vy: -9, w: 3, h: 10 });
+            if (slow) {
+                // 低速時: 高威力集中ショット
+                pBullets.push({ x: bx - 3, y: by, vx: 0, vy: -10, w: 4, h: 16 });
+                pBullets.push({ x: bx + 3, y: by, vx: 0, vy: -10, w: 4, h: 16 });
+                pBullets.push({ x: bx - 8, y: by, vx: -0.1, vy: -10, w: 3, h: 14 });
+                pBullets.push({ x: bx + 8, y: by, vx: 0.1, vy: -10, w: 3, h: 14 });
+                pBullets.push({ x: bx - 13, y: by + 2, vx: -0.2, vy: -10, w: 3, h: 12 });
+                pBullets.push({ x: bx + 13, y: by + 2, vx: 0.2, vy: -10, w: 3, h: 12 });
+            } else {
+                pBullets.push({ x: bx - 4, y: by, vx: 0, vy: -10, w: 4, h: 16 });
+                pBullets.push({ x: bx + 4, y: by, vx: 0, vy: -10, w: 4, h: 16 });
+                pBullets.push({ x: bx - 14, y: by, vx: -0.6, vy: -10, w: 3, h: 12 });
+                pBullets.push({ x: bx + 14, y: by, vx: 0.6, vy: -10, w: 3, h: 12 });
+                pBullets.push({ x: bx - 22, y: by + 4, vx: -1.2, vy: -9, w: 3, h: 10 });
+                pBullets.push({ x: bx + 22, y: by + 4, vx: 1.2, vy: -9, w: 3, h: 10 });
+            }
         }
     }
 
@@ -491,7 +509,7 @@
         };
         var patRoll = Math.random();
         if (type === 'small') {
-            e.hp = 3; e.maxHp = 3; e.size = 8;
+            e.hp = 2; e.maxHp = 2; e.size = 8;
             e.speed = 1.5 + Math.random() * 1;
             e.fireRate = Math.floor(180 / diff.bullets);
             e.bulletPattern = pickBulletPattern('small');
@@ -521,8 +539,8 @@
         for (var i = 0; i < count; i++) {
             enemies.push({
                 x: startX - dir * spacing * i,
-                y: baseY,  // 一直線
-                hp: 3, maxHp: 3, speed: spd, type: 'small',
+                y: baseY,
+                hp: 2, maxHp: 2, speed: spd, type: 'small',
                 pattern: 'drift', fireRate: Math.floor(180 / diff.bullets),
                 fireTimer: Math.floor(Math.random() * 60),
                 size: 8, age: 0, baseX: 0, dir: dir,
@@ -531,15 +549,154 @@
         }
     }
 
+    // 左右から大量の小型が水平移動（Cross Stream）
+    function spawnCrossStream(countPerSide) {
+        countPerSide = countPerSide || (4 + Math.floor(Math.random() * 3));
+        var yL = 30 + Math.random() * 40;
+        var yR = 50 + Math.random() * 40;
+        var spd = 1.8 + Math.random() * 0.5;
+        for (var i = 0; i < countPerSide; i++) {
+            enemies.push({
+                x: -15 - i * 25, y: yL, hp: 2, maxHp: 2, speed: spd, type: 'small',
+                pattern: 'drift', fireRate: Math.floor(200 / diff.bullets),
+                fireTimer: 30 + Math.floor(Math.random() * 40),
+                size: 8, age: 0, baseX: 0, dir: 1, bulletPattern: 'aimed'
+            });
+            enemies.push({
+                x: W + 15 + i * 25, y: yR, hp: 2, maxHp: 2, speed: spd, type: 'small',
+                pattern: 'drift', fireRate: Math.floor(200 / diff.bullets),
+                fireTimer: 30 + Math.floor(Math.random() * 40),
+                size: 8, age: 0, baseX: 0, dir: -1, bulletPattern: 'aimed'
+            });
+        }
+    }
+
+    // 画面上部に出現して自機狙い一斉射撃後に退場
+    function spawnTopAimedWave(count) {
+        count = count || (4 + Math.floor(Math.random() * 3));
+        var spacing = (W - 60) / (count - 1 || 1);
+        for (var i = 0; i < count; i++) {
+            var ex = 30 + spacing * i;
+            enemies.push({
+                x: ex, y: -15, hp: 2, maxHp: 2, speed: 1.0, type: 'small',
+                pattern: 'topHover', fireRate: Math.floor(100 / diff.bullets),
+                fireTimer: 0,
+                size: 8, age: 0, baseX: ex, dir: 1,
+                bulletPattern: 'aimed',
+                targetY: 35 + Math.random() * 25,
+                hoverTime: 0, maxHover: 150 + Math.floor(Math.random() * 60)
+            });
+        }
+    }
+
+    // サインウェーブ編隊（横移動＋縦の揺れ）
+    function spawnSineFormation(count) {
+        count = count || (6 + Math.floor(Math.random() * 4));
+        var dir = Math.random() > 0.5 ? 1 : -1;
+        var startX = dir > 0 ? -15 : W + 15;
+        var baseY = 50 + Math.random() * 40;
+        var spd = 1.5 + Math.random() * 0.5;
+        for (var i = 0; i < count; i++) {
+            enemies.push({
+                x: startX - dir * 22 * i, y: baseY, hp: 2, maxHp: 2, speed: spd, type: 'small',
+                pattern: 'sineDrift', fireRate: Math.floor(220 / diff.bullets),
+                fireTimer: Math.floor(Math.random() * 60),
+                size: 8, age: 0, baseX: 0, baseY: baseY, dir: dir,
+                bulletPattern: 'down'
+            });
+        }
+    }
+
+    // ===== Wave Script System =====
+    var waveScript = [];
+    var waveScriptIdx = 0;
+
+    function buildWaveScript() {
+        waveScript = [];
+        waveScriptIdx = 0;
+        var t = 30;
+        var stage = waveIndex;
+        var stageScale = 1 + stage * 0.15;
+
+        // 基本パターンプール
+        var pool = ['streamL', 'streamR', 'formation'];
+        if (stage >= 1) { pool.push('crossStream', 'topAimed'); }
+        if (stage >= 2) { pool.push('sineWave', 'mediumEscort'); }
+        if (stage >= 3) { pool.push('largeTank', 'topAimedHeavy'); }
+
+        // シャッフル
+        var shuffled = [];
+        var copy = pool.slice();
+        while (copy.length > 0) shuffled.push(copy.splice(Math.floor(Math.random() * copy.length), 1)[0]);
+
+        var eventCount = Math.min(10, 6 + stage);
+        for (var i = 0; i < eventCount; i++) {
+            var pat = shuffled[i % shuffled.length];
+            waveScript.push({ time: t, pattern: pat });
+            t += Math.max(80, Math.floor(200 / stageScale));
+        }
+        bossInterval = t + 60;
+    }
+
+    function executeWaveEvent(pat) {
+        switch (pat) {
+            case 'streamL': spawnDriftFormation(); break;
+            case 'streamR':
+                var count = 5 + Math.floor(Math.random() * 6);
+                var dir = Math.random() > 0.5 ? 1 : -1;
+                var baseY = 30 + Math.random() * 40;
+                var startX = dir > 0 ? -15 : W + 15;
+                for (var i = 0; i < count; i++) {
+                    enemies.push({
+                        x: startX - dir * 25 * i, y: baseY,
+                        hp: 2, maxHp: 2, speed: 1.5 + Math.random(), type: 'small',
+                        pattern: 'drift', fireRate: Math.floor(180 / diff.bullets),
+                        fireTimer: Math.floor(Math.random() * 60),
+                        size: 8, age: 0, baseX: 0, dir: dir,
+                        bulletPattern: 'way3'
+                    });
+                }
+                break;
+            case 'formation': spawnDriftFormation(); break;
+            case 'crossStream': spawnCrossStream(); break;
+            case 'topAimed': spawnTopAimedWave(); break;
+            case 'topAimedHeavy': spawnTopAimedWave(6 + Math.floor(Math.random() * 3)); break;
+            case 'sineWave': spawnSineFormation(); break;
+            case 'mediumEscort':
+                spawnEnemy('medium');
+                for (var j = 0; j < 3; j++) spawnEnemy('small');
+                break;
+            case 'largeTank':
+                spawnEnemy('large');
+                break;
+        }
+    }
+
     function spawnBoss() {
         bossActive = true;
         boss = {
             x: W / 2, y: -40,
-            hp: Math.floor(300 * diff.bossHp),
-            maxHp: Math.floor(300 * diff.bossHp),
+            hp: Math.floor(600 * diff.bossHp),
+            maxHp: Math.floor(600 * diff.bossHp),
             size: 30, phase: 0, phaseTimer: 0,
             fireTimer: 0, age: 0, entering: true
         };
+    }
+
+    function moveEnemy(e) {
+        if (e.pattern === 'straight') { e.y += e.speed; }
+        else if (e.pattern === 'sine') { e.y += e.speed; e.x = e.baseX + Math.sin(e.age * 0.04) * 40; }
+        else if (e.pattern === 'drift') { e.x += e.dir * e.speed * 1.5; e.y += Math.sin(e.age * 0.02) * 0.5; }
+        else if (e.pattern === 'hover') { if (e.y < e.targetY) e.y += e.speed; e.x += Math.sin(e.age * 0.015) * 0.8; }
+        else if (e.pattern === 'topHover') {
+            // 上から出現→停止→射撃→退場
+            if (e.y < e.targetY) { e.y += e.speed; }
+            else { e.hoverTime++; if (e.hoverTime >= e.maxHover) e.y += e.speed * 1.5; }
+        }
+        else if (e.pattern === 'sineDrift') {
+            e.x += e.dir * e.speed * 1.3;
+            e.y = e.baseY + Math.sin(e.age * 0.05) * 30;
+        }
     }
 
     function updateEnemies() {
@@ -547,15 +704,17 @@
         waveTimer++;
 
         if (preBoss) {
+            // 新しい敵は出さない。既存の敵は通常移動のまま
             for (var i = enemies.length - 1; i >= 0; i--) {
                 var e = enemies[i]; e.age++;
-                e.y += e.speed + 1.5;
-                if (e.pattern === 'drift') e.x += e.dir * e.speed * 1.5;
+                moveEnemy(e);
+                e.fireTimer++;
+                if (e.fireTimer >= e.fireRate && e.y > 10 && e.y < H * 0.65) { e.fireTimer = 0; fireEnemyBullet(e); }
+                if (e.hp <= 0) { enemyDestroyed(e); enemies.splice(i, 1); continue; }
                 if (e.y > H + 40 || e.x < -40 || e.x > W + 40) enemies.splice(i, 1);
             }
             if (enemies.length === 0) {
                 forceCollectAllItems();
-                // ボス出現時に残っている弾を消去エフェクト付きで消す
                 for (var j = 0; j < eBullets.length; j++) spawnDeleteEffect(eBullets[j].x, eBullets[j].y);
                 eBullets = [];
                 preBoss = false; spawnBoss();
@@ -563,32 +722,21 @@
             return;
         }
 
-        // Stage-based scaling
-        var stageScale = 1 + waveIndex * 0.15;
-        var spawnRate = Math.max(20, Math.floor(40 / stageScale));
-        if (waveTimer % spawnRate === 0) {
-            spawnEnemy('small');
-            if (Math.random() > 0.6 / stageScale) spawnEnemy('small');
+        // Wave Script: 定義されたパターンに従って出現
+        while (waveScriptIdx < waveScript.length && waveTimer >= waveScript[waveScriptIdx].time) {
+            executeWaveEvent(waveScript[waveScriptIdx].pattern);
+            waveScriptIdx++;
         }
-        var driftRate = Math.max(60, Math.floor(120 / stageScale));
-        if (waveTimer % driftRate === 0 && waveTimer > 60) spawnDriftFormation();
-        var medRate = Math.max(100, Math.floor(200 / stageScale));
-        if (waveTimer % medRate === 0 && waveTimer > 150) spawnEnemy('medium');
-        var lgRate = Math.max(250, Math.floor(500 / stageScale));
-        if (waveTimer % lgRate === 0 && waveTimer > 400) spawnEnemy('large');
 
         if (waveTimer >= bossInterval) {
             waveTimer = 0; waveIndex++;
-            bossInterval = Math.max(800, bossInterval - 50);
-            preBoss = true; return;
+            preBoss = true;
+            return;
         }
 
         for (var i = enemies.length - 1; i >= 0; i--) {
             var e = enemies[i]; e.age++;
-            if (e.pattern === 'straight') e.y += e.speed;
-            else if (e.pattern === 'sine') { e.y += e.speed; e.x = e.baseX + Math.sin(e.age * 0.04) * 40; }
-            else if (e.pattern === 'drift') { e.x += e.dir * e.speed * 1.5; e.y += Math.sin(e.age * 0.02) * 0.5; }
-            else if (e.pattern === 'hover') { if (e.y < e.targetY) e.y += e.speed; e.x += Math.sin(e.age * 0.015) * 0.8; }
+            moveEnemy(e);
 
             e.fireTimer++;
             if (e.fireTimer >= e.fireRate && e.y > 10 && e.y < H * 0.65) { e.fireTimer = 0; fireEnemyBullet(e); }
@@ -741,6 +889,8 @@
         else spawnItems(boss.x, boss.y, 'bomb', 1);
         for (var i = 0; i < eBullets.length; i++) spawnDeleteEffect(eBullets[i].x, eBullets[i].y);
         eBullets = []; boss = null; bossActive = false;
+        waveTimer = 0;
+        buildWaveScript();
     }
 
     function drawBoss() {
@@ -944,75 +1094,66 @@
         ctx.fillText(diff.label.toUpperCase(), rightX, py);
         py += 28;
 
-        // ハイスコア (HiScore)
+        // HI SCORE
         ctx.textAlign = 'left';
         ctx.font = '11px "Courier New", monospace';
         ctx.fillStyle = '#888';
-        ctx.fillText('\u30CF\u30A4\u30B9\u30B3\u30A2', px, py);
+        ctx.fillText('HI SCORE', px, py);
         ctx.textAlign = 'right';
         ctx.fillStyle = '#ccc';
         ctx.font = '13px "Courier New", monospace';
         ctx.fillText(formatScore(Math.max(score, 0)), rightX, py);
         py += 20;
 
-        // スコア (Score)
+        // SCORE
         ctx.textAlign = 'left';
         ctx.font = '11px "Courier New", monospace';
         ctx.fillStyle = '#888';
-        ctx.fillText('\u30B9\u30B3\u30A2', px, py);
+        ctx.fillText('SCORE', px, py);
         ctx.textAlign = 'right';
         ctx.fillStyle = '#fff';
         ctx.font = 'bold 15px "Courier New", monospace';
         ctx.fillText(formatScore(score), rightX, py);
         py += 30;
 
-        // 残り人数 (Lives)
+        // PLAYER (Lives)
         ctx.textAlign = 'left';
         ctx.font = '11px "Courier New", monospace';
         ctx.fillStyle = '#888';
-        ctx.fillText('\u6B8B\u308A\u4EBA\u6570', px, py);
+        ctx.fillText('PLAYER', px, py);
         py += 16;
         for (var i = 0; i < Math.max(MAX_LIVES, lives); i++) {
             drawStar(px + 8 + i * 16, py + 5, i < lives ? 6 : 5, i < lives ? '#ff4444' : '#222');
         }
         py += 22;
 
-        // スペルカード (Bombs)
+        // BOMB
         ctx.textAlign = 'left';
         ctx.font = '11px "Courier New", monospace';
         ctx.fillStyle = '#888';
-        ctx.fillText('\u30B9\u30DA\u30EB\u30AB\u30FC\u30C9', px, py);
+        ctx.fillText('BOMB', px, py);
         py += 16;
         for (var i = 0; i < Math.max(MAX_BOMBS, bombs); i++) {
             drawStar(px + 8 + i * 16, py + 5, i < bombs ? 6 : 5, i < bombs ? '#44ff44' : '#222');
         }
         py += 30;
 
-        // 霊力 (Power)
+        // POWER (数値のみ、ゲージなし)
         ctx.textAlign = 'left';
         ctx.font = '11px "Courier New", monospace';
         ctx.fillStyle = '#888';
-        ctx.fillText('\u970A\u529B', px, py);
+        ctx.fillText('POWER', px, py);
         ctx.textAlign = 'right';
         ctx.fillStyle = '#ffaa44';
         ctx.font = 'bold 14px "Courier New", monospace';
         ctx.fillText((power / 100).toFixed(2) + ' / ' + (MAX_POWER / 100).toFixed(2), rightX, py);
-        py += 22;
+        py += 26;
 
-        // Power bar
-        var barW = HUD_W;
-        var barH = 4;
-        ctx.fillStyle = '#1a1a2a';
-        ctx.fillRect(px, py, barW, barH);
-        ctx.fillStyle = '#ffaa44';
-        ctx.fillRect(px, py, barW * (power / MAX_POWER), barH);
-        py += 18;
-
-        // グレイズ (Graze)
+        // GRAZE
         ctx.textAlign = 'left';
         ctx.font = '11px "Courier New", monospace';
         ctx.fillStyle = '#888';
-        ctx.fillText('\u30B0\u30EC\u30A4\u30BA', px, py);
+        ctx.fillText('GRAZE', px, py);
         ctx.textAlign = 'right';
         ctx.fillStyle = '#ccc';
         ctx.font = 'bold 14px "Courier New", monospace';
@@ -1042,6 +1183,7 @@
         pBullets = []; enemies = []; eBullets = []; items = []; particles = [];
         deleteEffects = [];
         initBgParticles();
+        buildWaveScript();
     }
 
     function startGame() {
