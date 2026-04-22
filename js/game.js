@@ -59,7 +59,7 @@
     var PLAYER_HITBOX = 2;
     var FIRE_INTERVAL = 4;
     var MAX_LIVES = 3;
-    var MAX_BOMBS = 3;
+    var MAX_BOMBS = 2;
     var MIN_POWER = 100;
     var MAX_POWER = 400;
     var INVINCIBLE_FRAMES = 180;
@@ -437,7 +437,7 @@
             case 'score':  score += 1000; break;
             case 'powerS': power = Math.min(MAX_POWER, power + 1); break;   // +0.01
             case 'power':  power = Math.min(MAX_POWER, power + 10); break;  // +0.10
-            case 'bomb':   bombs = Math.min(MAX_BOMBS + 2, bombs + 1); break;
+            case 'bomb':   bombs = Math.min(MAX_BOMBS + 3, bombs + 1); break;
             case 'life':   lives++; break;
         }
     }
@@ -535,18 +535,18 @@
         if (type === 'small') {
             e.hp = 1; e.maxHp = 1; e.size = 8;
             e.speed = 1.5 + Math.random() * 1;
-            e.fireRate = Math.floor(180 / diff.bullets);
+            e.fireRate = Math.floor(120 / diff.bullets);
             e.bulletPattern = pickBulletPattern('small');
             if (patRoll > 0.7) { e.pattern = 'sine'; e.baseX = e.x; }
         } else if (type === 'medium') {
             e.hp = 15; e.maxHp = 15; e.size = 14;
             e.speed = 1 + Math.random() * 0.5;
-            e.fireRate = Math.floor(100 / diff.bullets);
+            e.fireRate = Math.floor(70 / diff.bullets);
             e.bulletPattern = pickBulletPattern('medium');
             if (patRoll > 0.5) { e.pattern = 'sine'; e.baseX = e.x; }
         } else if (type === 'large') {
             e.hp = 50; e.maxHp = 50; e.size = 20; e.speed = 0.4;
-            e.fireRate = Math.floor(60 / diff.bullets);
+            e.fireRate = Math.floor(45 / diff.bullets);
             e.bulletPattern = pickBulletPattern('large');
             e.pattern = 'hover'; e.targetY = 60 + Math.random() * 60;
         }
@@ -565,7 +565,7 @@
                 x: startX - dir * spacing * i,
                 y: baseY,
                 hp: 1, maxHp: 1, speed: spd, type: 'small',
-                pattern: 'drift', fireRate: Math.floor(180 / diff.bullets),
+                pattern: 'drift', fireRate: Math.floor(110 / diff.bullets),
                 fireTimer: Math.floor(Math.random() * 60),
                 size: 8, age: 0, baseX: 0, dir: dir,
                 bulletPattern: pickBulletPattern('small')
@@ -582,13 +582,13 @@
         for (var i = 0; i < countPerSide; i++) {
             enemies.push({
                 x: -15 - i * 25, y: yL, hp: 1, maxHp: 1, speed: spd, type: 'small',
-                pattern: 'drift', fireRate: Math.floor(200 / diff.bullets),
+                pattern: 'drift', fireRate: Math.floor(130 / diff.bullets),
                 fireTimer: 30 + Math.floor(Math.random() * 40),
                 size: 8, age: 0, baseX: 0, dir: 1, bulletPattern: 'aimed'
             });
             enemies.push({
                 x: W + 15 + i * 25, y: yR, hp: 1, maxHp: 1, speed: spd, type: 'small',
-                pattern: 'drift', fireRate: Math.floor(200 / diff.bullets),
+                pattern: 'drift', fireRate: Math.floor(130 / diff.bullets),
                 fireTimer: 30 + Math.floor(Math.random() * 40),
                 size: 8, age: 0, baseX: 0, dir: -1, bulletPattern: 'aimed'
             });
@@ -603,7 +603,7 @@
             var ex = 30 + spacing * i;
             enemies.push({
                 x: ex, y: -15, hp: 1, maxHp: 1, speed: 1.0, type: 'small',
-                pattern: 'topHover', fireRate: Math.floor(100 / diff.bullets),
+                pattern: 'topHover', fireRate: Math.floor(70 / diff.bullets),
                 fireTimer: 0,
                 size: 8, age: 0, baseX: ex, dir: 1,
                 bulletPattern: 'aimed',
@@ -623,7 +623,7 @@
         for (var i = 0; i < count; i++) {
             enemies.push({
                 x: startX - dir * 22 * i, y: baseY, hp: 1, maxHp: 1, speed: spd, type: 'small',
-                pattern: 'sineDrift', fireRate: Math.floor(220 / diff.bullets),
+                pattern: 'sineDrift', fireRate: Math.floor(140 / diff.bullets),
                 fireTimer: Math.floor(Math.random() * 60),
                 size: 8, age: 0, baseX: 0, baseY: baseY, dir: dir,
                 bulletPattern: 'down'
@@ -674,7 +674,7 @@
                     enemies.push({
                         x: startX - dir * 25 * i, y: baseY,
                         hp: 1, maxHp: 1, speed: 1.5 + Math.random(), type: 'small',
-                        pattern: 'drift', fireRate: Math.floor(180 / diff.bullets),
+                        pattern: 'drift', fireRate: Math.floor(110 / diff.bullets),
                         fireTimer: Math.floor(Math.random() * 60),
                         size: 8, age: 0, baseX: 0, dir: dir,
                         bulletPattern: 'way3'
@@ -1050,6 +1050,7 @@
 
     function playerHit() {
         lives--;
+        bombs = MAX_BOMBS; // 残機減少時ボム初期化
         invTimer = INVINCIBLE_FRAMES;
         var px = player.x, py = player.y;
         var oldPower = power;
