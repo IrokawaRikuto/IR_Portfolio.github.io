@@ -586,6 +586,7 @@
         // 爆発範囲の敵にダメージ
         for (var j = 0; j < enemies.length; j++) {
             var e = enemies[j];
+            if (e.type === 'spawner') continue; // スポナーは無敵
             var dx = e.x - orb.x, dy = e.y - orb.y;
             if (dx * dx + dy * dy < BOMB_ORB_EXPLODE_RADIUS * BOMB_ORB_EXPLODE_RADIUS) {
                 e.hp -= BOMB_ORB_EXPLODE_DAMAGE;
@@ -1409,15 +1410,7 @@
                     ctx.fillStyle = '#ffffff';
                     ctx.beginPath(); ctx.arc(0, 0, e.size, 0, Math.PI * 2); ctx.fill();
                 }
-                // HP残量インジケータ（小さい弧）
-                if (e.hp < e.maxHp) {
-                    var ratio = e.hp / e.maxHp;
-                    ctx.strokeStyle = ratio > 0.5 ? '#ffff66' : '#ff6644';
-                    ctx.lineWidth = 2;
-                    ctx.beginPath();
-                    ctx.arc(0, 0, e.size + 3, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * ratio);
-                    ctx.stroke();
-                }
+                // スポナーはHP表示なし（無敵・寿命で消滅）
                 ctx.restore();
                 continue;
             }
@@ -1950,6 +1943,7 @@
             var b = pBullets[i];
             for (var j = enemies.length - 1; j >= 0; j--) {
                 var e = enemies[j];
+                if (e.type === 'spawner') continue; // スポナーは無敵
                 if (Math.abs(b.x - e.x) < e.size + 4 && Math.abs(b.y - e.y) < e.size + 4) {
                     e.hp -= 1; pBullets.splice(i, 1); spawnParticle(b.x, b.y, '#ffffff', 1); break;
                 }
