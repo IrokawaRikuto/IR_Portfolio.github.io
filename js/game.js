@@ -1872,9 +1872,9 @@
 
             if (bt === 'star') {
                 var starColor = BULLET_TYPE_COLORS[col] || '#ff4444';
-                // 星ごとに固有のスピン + フレーム依存の共通回転で常時回転
+                // 星ごとに固有のスピン + フレーム依存の共通回転（ゆっくり）
                 var spin = (b.spin !== undefined) ? b.spin : 0;
-                drawBulletStar(b.x, b.y, b.size * 2, starColor, col, frame * 0.12 + spin);
+                drawBulletStar(b.x, b.y, b.size * 3, starColor, col, frame * 0.04 + spin);
             } else if (bt === 'wedge' && useSpriteW) {
                 // 楔弾: 進行方向に回転、144x16 の 9 コマ
                 var drawSize = b.size * 4;
