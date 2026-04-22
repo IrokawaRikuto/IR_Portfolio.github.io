@@ -87,23 +87,28 @@
 - 発動時にアイテム全回収
 
 ### 敵・弾幕
-- 弾幕パターン: down, way3, way5, circle, aimed, diagonal, random, spread, turretDual
+- 弾幕パターン: down, way3, way5, circle, aimed, diagonal, random, spread, cross, fan, split, turretDual
+- cross=十字4方向+自機狙い1発、fan=広角7扇、split=左右平行ストリーム+真下
 - すべてのパターンは最低3発を同時発射（単発弾禁止）。down=縦3列、aimed=自機狙い3発扇、diagonal=斜め2方向+真下、random=小3/中4/大5発
+- 中型は中弾、大型は大弾を放つ（bulletType=medium/large、サイズ自動切替）
 - 小型HP=1、中型HP=15、大型HP=50（中型・大型のHPバー非表示）
 - 敵弾の当たり判定は見た目の40%（中央の白い部分のみ）
-- 星弾は常時回転（frame*0.12 + 個別spin）
+- 星弾は常時回転（frame*0.12 + 個別spin）、ボスPhase1の全方位回転星弾は大型化（size 8-9）
 - スプライト素材: 弾（小・中・大）、星弾（ボス全方位用）、ボス魔法陣、弾消去エフェクト、ボスHPバー
 
 ### 敵出現パターン（Wave Script）
 - 最大3パターン同時出現
 - streamL/streamR: 横断隊列（6-11体）
-- crossStream: 左右同時横断（各5-8体）
+- crossStream: 左右同時横断（各14-17体、合計28-34体規模）
 - topAimed/topAimedHeavy: 上部停止→自機狙い一斉射撃→退場
 - sineWave: サインウェーブ編隊（7-11体）
 - mediumEscort: 中型1+小型5の護衛編成
-- largeTank: 大型1+���型3
+- largeTank: 大型1+小型3
 - dualTurret: 画面上部左右に大型2体固定、自機狙い全方位(中弾)+回転全方位(大弾、左右逆回転)
 - massRush: 40体が5列で左右からランダム横断、全員自機狙い
+- invertedU: 左右の下から∩を描いて反対側へ抜ける（各4-5体×2 = 8-10体、小弾）
+- sCurve: 左右の上から正弦波S字で降下（6-8体、自機狙い）
+- zCurve: 左右の上からジグザグZ字で降下（6-8体、下向き）
 - 被弾時Power扇状ばらまき（画面内に収まる）、敵撃破アイテム真上→自由落下
 - 回収エリア（画面上部）のアイテム引き寄せ速度=12
 
