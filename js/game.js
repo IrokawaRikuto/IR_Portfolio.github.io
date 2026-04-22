@@ -379,15 +379,16 @@
         }
     }
 
-    // 被弾時パワーばらまき: プレイヤーから扇状に真上へ飛ばす
+    // 被弾時パワーばらまき: プレイヤーから扇状に真上へ飛ばす（画面内に収める）
     function spawnDeathPowerItems(x, y, type, count) {
-        var fanAngle = Math.PI * 0.6; // 扇の角度
+        var fanAngle = Math.PI * 0.4; // 扇の角度（狭めて画面内に収める）
         var baseAngle = -Math.PI / 2; // 真上
         for (var i = 0; i < count; i++) {
             var a = baseAngle - fanAngle / 2 + (count > 1 ? fanAngle * (i / (count - 1)) : 0);
-            var spd = 4 + Math.random() * 2;
+            var spd = 3 + Math.random() * 1.5;
+            var ix = Math.max(10, Math.min(W - 10, x));
             items.push({
-                x: x, y: y,
+                x: ix, y: y,
                 vx: Math.cos(a) * spd, vy: Math.sin(a) * spd,
                 type: type, age: 0, attracted: false
             });
@@ -399,10 +400,13 @@
             var it = items[i];
             var dx = player.x - it.x, dy = player.y - it.y;
             var dist = Math.sqrt(dx * dx + dy * dy);
-            if (player.y < ITEM_AUTO_COLLECT_Y) it.attracted = true;
+            var autoCollect = player.y < ITEM_AUTO_COLLECT_Y;
+            if (autoCollect) it.attracted = true;
             if (slow && dist < ITEM_ATTRACT_RADIUS) it.attracted = true;
             if (it.attracted && dist > 1) {
-                it.vx = dx / dist * 4.5; it.vy = dy / dist * 4.5;
+                // 回収エリアでの引き寄せはほぼ一瞬
+                var speed = autoCollect ? 20 : 4.5;
+                it.vx = dx / dist * speed; it.vy = dy / dist * speed;
             }
         }
     }
@@ -417,6 +421,10 @@
             it.age++;
             if (!it.attracted) { it.vy += 0.03; if (it.vy > 1.5) it.vy = 1.5; }
             it.x += it.vx; it.y += it.vy;
+            // 画面内に収める（左右の壁で跳ね返り）
+            if (it.x < 6) { it.x = 6; it.vx = Math.abs(it.vx) * 0.5; }
+            if (it.x > W - 6) { it.x = W - 6; it.vx = -Math.abs(it.vx) * 0.5; }
+            if (it.y < -40) { it.y = -40; it.vy = Math.abs(it.vy) * 0.3; }
             var dx = player.x - it.x, dy = player.y - it.y;
             if (dx * dx + dy * dy < 16 * 16) { collectItem(it); items.splice(i, 1); continue; }
             if (it.y > H + 20) items.splice(i, 1);
@@ -497,10 +505,10 @@
     }
 
     // ===== Enemies =====
-    // Bullet patterns: 'down', 'way3', 'way5', 'circle', 'aimed', 'diagonal', 'random'
+    // Bullet patterns: 'down', 'way3', 'way5', 'circle', 'aimed', 'diagonal', 'random', 'spread'
     var BULLET_PATTERNS_SMALL = ['down', 'aimed', 'diagonal'];
-    var BULLET_PATTERNS_MEDIUM = ['way3', 'aimed', 'diagonal', 'random'];
-    var BULLET_PATTERNS_LARGE = ['way5', 'circle', 'way3', 'random'];
+    var BULLET_PATTERNS_MEDIUM = ['way3', 'aimed', 'diagonal', 'random', 'spread'];
+    var BULLET_PATTERNS_LARGE = ['way5', 'circle', 'way3', 'random', 'spread'];
 
     function pickBulletPattern(type) {
         var pool;
@@ -508,8 +516,8 @@
         else if (type === 'medium') pool = BULLET_PATTERNS_MEDIUM;
         else pool = BULLET_PATTERNS_LARGE;
         if (waveIndex >= 2 && type === 'small') pool = ['down', 'aimed', 'diagonal', 'way3'];
-        if (waveIndex >= 4 && type === 'small') pool = ['down', 'aimed', 'diagonal', 'way3', 'random'];
-        if (waveIndex >= 3 && type === 'medium') pool = ['way3', 'way5', 'aimed', 'diagonal', 'circle', 'random'];
+        if (waveIndex >= 4 && type === 'small') pool = ['down', 'aimed', 'diagonal', 'way3', 'random', 'spread'];
+        if (waveIndex >= 3 && type === 'medium') pool = ['way3', 'way5', 'aimed', 'diagonal', 'circle', 'random', 'spread'];
         return pool[Math.floor(Math.random() * pool.length)];
     }
 
@@ -525,7 +533,7 @@
         };
         var patRoll = Math.random();
         if (type === 'small') {
-            e.hp = 2; e.maxHp = 2; e.size = 8;
+            e.hp = 1; e.maxHp = 1; e.size = 8;
             e.speed = 1.5 + Math.random() * 1;
             e.fireRate = Math.floor(180 / diff.bullets);
             e.bulletPattern = pickBulletPattern('small');
@@ -546,7 +554,7 @@
     }
 
     function spawnDriftFormation() {
-        var count = 5 + Math.floor(Math.random() * 6); // 5-10体
+        var count = 6 + Math.floor(Math.random() * 6); // 6-11体
         var dir = Math.random() > 0.5 ? 1 : -1;
         var baseY = 30 + Math.random() * 40;
         var startX = dir > 0 ? -15 : W + 15;
@@ -556,7 +564,7 @@
             enemies.push({
                 x: startX - dir * spacing * i,
                 y: baseY,
-                hp: 2, maxHp: 2, speed: spd, type: 'small',
+                hp: 1, maxHp: 1, speed: spd, type: 'small',
                 pattern: 'drift', fireRate: Math.floor(180 / diff.bullets),
                 fireTimer: Math.floor(Math.random() * 60),
                 size: 8, age: 0, baseX: 0, dir: dir,
@@ -567,19 +575,19 @@
 
     // 左右から大量の小型が水平移動（Cross Stream）
     function spawnCrossStream(countPerSide) {
-        countPerSide = countPerSide || (4 + Math.floor(Math.random() * 3));
+        countPerSide = countPerSide || (5 + Math.floor(Math.random() * 4));
         var yL = 30 + Math.random() * 40;
         var yR = 50 + Math.random() * 40;
         var spd = 1.8 + Math.random() * 0.5;
         for (var i = 0; i < countPerSide; i++) {
             enemies.push({
-                x: -15 - i * 25, y: yL, hp: 2, maxHp: 2, speed: spd, type: 'small',
+                x: -15 - i * 25, y: yL, hp: 1, maxHp: 1, speed: spd, type: 'small',
                 pattern: 'drift', fireRate: Math.floor(200 / diff.bullets),
                 fireTimer: 30 + Math.floor(Math.random() * 40),
                 size: 8, age: 0, baseX: 0, dir: 1, bulletPattern: 'aimed'
             });
             enemies.push({
-                x: W + 15 + i * 25, y: yR, hp: 2, maxHp: 2, speed: spd, type: 'small',
+                x: W + 15 + i * 25, y: yR, hp: 1, maxHp: 1, speed: spd, type: 'small',
                 pattern: 'drift', fireRate: Math.floor(200 / diff.bullets),
                 fireTimer: 30 + Math.floor(Math.random() * 40),
                 size: 8, age: 0, baseX: 0, dir: -1, bulletPattern: 'aimed'
@@ -589,12 +597,12 @@
 
     // 画面上部に出現して自機狙い一斉射撃後に退場
     function spawnTopAimedWave(count) {
-        count = count || (4 + Math.floor(Math.random() * 3));
+        count = count || (5 + Math.floor(Math.random() * 4));
         var spacing = (W - 60) / (count - 1 || 1);
         for (var i = 0; i < count; i++) {
             var ex = 30 + spacing * i;
             enemies.push({
-                x: ex, y: -15, hp: 2, maxHp: 2, speed: 1.0, type: 'small',
+                x: ex, y: -15, hp: 1, maxHp: 1, speed: 1.0, type: 'small',
                 pattern: 'topHover', fireRate: Math.floor(100 / diff.bullets),
                 fireTimer: 0,
                 size: 8, age: 0, baseX: ex, dir: 1,
@@ -607,14 +615,14 @@
 
     // サインウェーブ編隊（横移動＋縦の揺れ）
     function spawnSineFormation(count) {
-        count = count || (6 + Math.floor(Math.random() * 4));
+        count = count || (7 + Math.floor(Math.random() * 5));
         var dir = Math.random() > 0.5 ? 1 : -1;
         var startX = dir > 0 ? -15 : W + 15;
         var baseY = 50 + Math.random() * 40;
         var spd = 1.5 + Math.random() * 0.5;
         for (var i = 0; i < count; i++) {
             enemies.push({
-                x: startX - dir * 22 * i, y: baseY, hp: 2, maxHp: 2, speed: spd, type: 'small',
+                x: startX - dir * 22 * i, y: baseY, hp: 1, maxHp: 1, speed: spd, type: 'small',
                 pattern: 'sineDrift', fireRate: Math.floor(220 / diff.bullets),
                 fireTimer: Math.floor(Math.random() * 60),
                 size: 8, age: 0, baseX: 0, baseY: baseY, dir: dir,
@@ -645,27 +653,27 @@
         var copy = pool.slice();
         while (copy.length > 0) shuffled.push(copy.splice(Math.floor(Math.random() * copy.length), 1)[0]);
 
-        var eventCount = Math.min(10, 6 + stage);
+        var eventCount = Math.min(14, 8 + stage);
         for (var i = 0; i < eventCount; i++) {
             var pat = shuffled[i % shuffled.length];
             waveScript.push({ time: t, pattern: pat });
-            t += Math.max(80, Math.floor(200 / stageScale));
+            t += Math.max(100, Math.floor(250 / stageScale));
         }
-        bossInterval = t + 60;
+        bossInterval = t + 180;
     }
 
     function executeWaveEvent(pat) {
         switch (pat) {
             case 'streamL': spawnDriftFormation(); break;
             case 'streamR':
-                var count = 5 + Math.floor(Math.random() * 6);
+                var count = 6 + Math.floor(Math.random() * 6);
                 var dir = Math.random() > 0.5 ? 1 : -1;
                 var baseY = 30 + Math.random() * 40;
                 var startX = dir > 0 ? -15 : W + 15;
                 for (var i = 0; i < count; i++) {
                     enemies.push({
                         x: startX - dir * 25 * i, y: baseY,
-                        hp: 2, maxHp: 2, speed: 1.5 + Math.random(), type: 'small',
+                        hp: 1, maxHp: 1, speed: 1.5 + Math.random(), type: 'small',
                         pattern: 'drift', fireRate: Math.floor(180 / diff.bullets),
                         fireTimer: Math.floor(Math.random() * 60),
                         size: 8, age: 0, baseX: 0, dir: dir,
@@ -680,10 +688,11 @@
             case 'sineWave': spawnSineFormation(); break;
             case 'mediumEscort':
                 spawnEnemy('medium');
-                for (var j = 0; j < 3; j++) spawnEnemy('small');
+                for (var j = 0; j < 5; j++) spawnEnemy('small');
                 break;
             case 'largeTank':
                 spawnEnemy('large');
+                for (var j = 0; j < 3; j++) spawnEnemy('small');
                 break;
         }
     }
@@ -768,7 +777,8 @@
         var bp = e.bulletPattern || 'down';
         // Assign sprite color based on bullet pattern
         var col = bp === 'aimed' ? 0 : bp === 'way3' ? 3 : bp === 'way5' ? 4 :
-                  bp === 'circle' ? 5 : bp === 'diagonal' ? 1 : bp === 'random' ? 6 : 0;
+                  bp === 'circle' ? 5 : bp === 'diagonal' ? 1 : bp === 'random' ? 6 :
+                  bp === 'spread' ? 2 : 0;
 
         switch (bp) {
             case 'down':
@@ -816,6 +826,19 @@
                 }
                 break;
             }
+            case 'spread': {
+                // 全方向バラマキ（弾幕STG風）
+                var n = e.type === 'large' ? Math.floor(12 * diff.bullets) :
+                        e.type === 'medium' ? Math.floor(8 * diff.bullets) :
+                        Math.floor(5 * diff.bullets);
+                var offset = e.age * 0.08; // 回転するバラマキ
+                var s = spd * 0.7;
+                for (var i = 0; i < n; i++) {
+                    var a = (Math.PI * 2 / n) * i + offset;
+                    eBullets.push({ x: e.x, y: e.y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, size: sz, grazed: false, color: col });
+                }
+                break;
+            }
         }
     }
 
@@ -849,11 +872,6 @@
             ctx.closePath(); ctx.fill();
             ctx.fillStyle = '#fff'; ctx.beginPath();
             ctx.arc(0, 0, e.size * 0.2, 0, Math.PI * 2); ctx.fill();
-            if (e.type !== 'small') {
-                var bw = e.size * 1.6;
-                ctx.fillStyle = '#333'; ctx.fillRect(-bw / 2, -e.size - 6, bw, 3);
-                ctx.fillStyle = '#ff4444'; ctx.fillRect(-bw / 2, -e.size - 6, bw * (e.hp / e.maxHp), 3);
-            }
             ctx.restore();
         }
     }
