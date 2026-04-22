@@ -537,13 +537,13 @@
             e.speed = 1.5 + Math.random() * 1;
             e.fireRate = Math.floor(120 / diff.bullets);
             e.bulletPattern = pickBulletPattern('small');
-            if (patRoll > 0.7) { e.pattern = 'sine'; e.baseX = e.x; }
+            if (patRoll > 0.7) { e.pattern = 'sine'; e.baseX = Math.max(50, Math.min(W - 50, e.x)); }
         } else if (type === 'medium') {
             e.hp = 15; e.maxHp = 15; e.size = 14;
             e.speed = 1 + Math.random() * 0.5;
             e.fireRate = Math.floor(70 / diff.bullets);
             e.bulletPattern = pickBulletPattern('medium');
-            if (patRoll > 0.5) { e.pattern = 'sine'; e.baseX = e.x; }
+            if (patRoll > 0.5) { e.pattern = 'sine'; e.baseX = Math.max(55, Math.min(W - 55, e.x)); }
         } else if (type === 'large') {
             e.hp = 50; e.maxHp = 50; e.size = 20; e.speed = 0.4;
             e.fireRate = Math.floor(45 / diff.bullets);
@@ -631,6 +631,22 @@
         }
     }
 
+    // 画面上部左右に大型2体が固定して弾幕を放つ
+    function spawnDualTurrets() {
+        var positions = [{ x: 60, y: 50 }, { x: W - 60, y: 50 }];
+        for (var i = 0; i < 2; i++) {
+            enemies.push({
+                x: positions[i].x, y: -20,
+                hp: 40, maxHp: 40, speed: 0.8, type: 'large',
+                pattern: 'hover', fireRate: Math.floor(35 / diff.bullets),
+                fireTimer: Math.floor(Math.random() * 20),
+                size: 20, age: 0, baseX: positions[i].x, dir: 1,
+                bulletPattern: 'spread',
+                targetY: positions[i].y
+            });
+        }
+    }
+
     // ===== Wave Script System =====
     var waveScript = [];
     var waveScriptIdx = 0;
@@ -646,6 +662,7 @@
         var pool = ['streamL', 'streamR', 'formation'];
         if (stage >= 1) { pool.push('crossStream', 'topAimed'); }
         if (stage >= 2) { pool.push('sineWave', 'mediumEscort'); }
+        if (stage >= 2) { pool.push('dualTurret'); }
         if (stage >= 3) { pool.push('largeTank', 'topAimedHeavy'); }
 
         // シャッフル
@@ -655,9 +672,14 @@
 
         var eventCount = Math.min(14, 8 + stage);
         for (var i = 0; i < eventCount; i++) {
-            var pat = shuffled[i % shuffled.length];
-            waveScript.push({ time: t, pattern: pat });
-            t += Math.max(100, Math.floor(250 / stageScale));
+            // 最大3パターン同時出現
+            var simultaneous = 1 + Math.floor(Math.random() * 3); // 1~3
+            for (var s = 0; s < simultaneous && i + s < eventCount; s++) {
+                var pat = shuffled[(i + s) % shuffled.length];
+                waveScript.push({ time: t, pattern: pat });
+            }
+            i += simultaneous - 1;
+            t += Math.max(120, Math.floor(300 / stageScale));
         }
         bossInterval = t + 180;
     }
@@ -694,6 +716,9 @@
                 spawnEnemy('large');
                 for (var j = 0; j < 3; j++) spawnEnemy('small');
                 break;
+            case 'dualTurret':
+                spawnDualTurrets();
+                break;
         }
     }
 
@@ -710,11 +735,18 @@
 
     function moveEnemy(e) {
         if (e.pattern === 'straight') { e.y += e.speed; }
-        else if (e.pattern === 'sine') { e.y += e.speed; e.x = e.baseX + Math.sin(e.age * 0.04) * 40; }
+        else if (e.pattern === 'sine') {
+            e.y += e.speed;
+            var target = e.baseX + Math.sin(e.age * 0.04) * 40;
+            e.x = Math.max(e.size, Math.min(W - e.size, target));
+        }
         else if (e.pattern === 'drift') { e.x += e.dir * e.speed * 1.5; e.y += Math.sin(e.age * 0.02) * 0.5; }
-        else if (e.pattern === 'hover') { if (e.y < e.targetY) e.y += e.speed; e.x += Math.sin(e.age * 0.015) * 0.8; }
+        else if (e.pattern === 'hover') {
+            if (e.y < e.targetY) e.y += e.speed;
+            e.x += Math.sin(e.age * 0.015) * 0.8;
+            e.x = Math.max(e.size, Math.min(W - e.size, e.x));
+        }
         else if (e.pattern === 'topHover') {
-            // 上から出現→停止→射撃→退場
             if (e.y < e.targetY) { e.y += e.speed; }
             else { e.hoverTime++; if (e.hoverTime >= e.maxHover) e.y += e.speed * 1.5; }
         }
