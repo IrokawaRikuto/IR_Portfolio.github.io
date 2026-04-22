@@ -234,12 +234,23 @@
         var spd = slow ? PLAYER_SLOW_SPEED : PLAYER_SPEED;
         var dx = 0, dy = 0;
 
-        if (keys['ArrowLeft'] || mobileKeys.left) dx = -1;
-        if (keys['ArrowRight'] || mobileKeys.right) dx = 1;
-        if (keys['ArrowUp'] || mobileKeys.up) dy = -1;
-        if (keys['ArrowDown'] || mobileKeys.down) dy = 1;
+        if (keys['ArrowLeft']) dx = -1;
+        if (keys['ArrowRight']) dx = 1;
+        if (keys['ArrowUp']) dy = -1;
+        if (keys['ArrowDown']) dy = 1;
 
-        if (dx !== 0 && dy !== 0) { dx *= 0.707; dy *= 0.707; }
+        // スライドパッド（アナログ入力）が操作中なら上書き
+        if (mobileAxis.x !== 0 || mobileAxis.y !== 0) {
+            dx = mobileAxis.x;
+            dy = mobileAxis.y;
+        } else if (dx !== 0 && dy !== 0) {
+            // キーボードの対角移動を正規化
+            dx *= 0.707; dy *= 0.707;
+        }
+
+        // アナログでも最大1に正規化
+        var mag = Math.sqrt(dx * dx + dy * dy);
+        if (mag > 1) { dx /= mag; dy /= mag; }
 
         player.x += dx * spd;
         player.y += dy * spd;
@@ -250,8 +261,8 @@
 
         if (invTimer > 0) invTimer--;
 
-        // Fire
-        if (keys['KeyZ'] || mobileKeys.shot) {
+        // Fire: PCは Z 押下、タッチ端末は自動発射
+        if (keys['KeyZ'] || isTouchDevice) {
             fireTimer++;
             if (fireTimer >= FIRE_INTERVAL) {
                 fireTimer = 0;
@@ -2405,8 +2416,14 @@
     document.addEventListener('keyup', function (e) { keys[e.code] = false; });
 
     // ===== Mobile Controls =====
-    var mobileKeys = { up: false, down: false, left: false, right: false, shot: false, bomb: false, slow: false };
-    function resetMobileKeys() { for (var k in mobileKeys) mobileKeys[k] = false; }
+    // タッチ端末判定（hover なし + ポインタ粗め）
+    var isTouchDevice = !!(window.matchMedia && window.matchMedia('(hover: none) and (pointer: coarse)').matches);
+    var mobileKeys = { bomb: false, slow: false };
+    var mobileAxis = { x: 0, y: 0 };
+    function resetMobileKeys() {
+        for (var k in mobileKeys) mobileKeys[k] = false;
+        mobileAxis.x = 0; mobileAxis.y = 0;
+    }
 
     function setupMobileBtn(selector, key) {
         var el = modal.querySelector(selector); if (!el) return;
@@ -2414,9 +2431,65 @@
         el.addEventListener('touchend', function (e) { e.preventDefault(); mobileKeys[key] = false; el.classList.remove('active'); }, { passive: false });
         el.addEventListener('touchcancel', function () { mobileKeys[key] = false; el.classList.remove('active'); });
     }
-    setupMobileBtn('.dpad-up', 'up'); setupMobileBtn('.dpad-down', 'down');
-    setupMobileBtn('.dpad-left', 'left'); setupMobileBtn('.dpad-right', 'right');
-    setupMobileBtn('.shot-btn', 'shot'); setupMobileBtn('.bomb-btn', 'bomb'); setupMobileBtn('.slow-btn', 'slow');
+    setupMobileBtn('.bomb-btn', 'bomb'); setupMobileBtn('.slow-btn', 'slow');
+
+    // スライドパッド（アナログスティック）
+    (function setupSlidePad() {
+        var pad = modal.querySelector('.slide-pad');
+        var knob = modal.querySelector('.slide-pad-knob');
+        if (!pad || !knob) return;
+        var padRect = null;
+        var maxR = 42;
+        var deadZone = 0.14;
+        var activeId = null;
+
+        function findTouch(touchList) {
+            for (var i = 0; i < touchList.length; i++) {
+                if (touchList[i].identifier === activeId) return touchList[i];
+            }
+            return null;
+        }
+        function applyDelta(clientX, clientY) {
+            if (!padRect) return;
+            var cx = padRect.left + padRect.width / 2;
+            var cy = padRect.top + padRect.height / 2;
+            var dx = clientX - cx;
+            var dy = clientY - cy;
+            var dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist > maxR) { dx = dx / dist * maxR; dy = dy / dist * maxR; }
+            knob.style.transform = 'translate(calc(-50% + ' + dx + 'px), calc(-50% + ' + dy + 'px))';
+            var ax = dx / maxR;
+            var ay = dy / maxR;
+            var mag = Math.sqrt(ax * ax + ay * ay);
+            if (mag < deadZone) { ax = 0; ay = 0; }
+            mobileAxis.x = ax;
+            mobileAxis.y = ay;
+        }
+        pad.addEventListener('touchstart', function (e) {
+            e.preventDefault();
+            var t = e.changedTouches[0];
+            activeId = t.identifier;
+            padRect = pad.getBoundingClientRect();
+            pad.classList.add('active');
+            applyDelta(t.clientX, t.clientY);
+        }, { passive: false });
+        pad.addEventListener('touchmove', function (e) {
+            e.preventDefault();
+            var t = findTouch(e.changedTouches);
+            if (!t) return;
+            applyDelta(t.clientX, t.clientY);
+        }, { passive: false });
+        function endHandler(e) {
+            var t = findTouch(e.changedTouches);
+            if (!t) return;
+            activeId = null;
+            pad.classList.remove('active');
+            knob.style.transform = 'translate(-50%, -50%)';
+            mobileAxis.x = 0; mobileAxis.y = 0;
+        }
+        pad.addEventListener('touchend', endHandler, { passive: false });
+        pad.addEventListener('touchcancel', endHandler);
+    })();
 
     // ===== Event Listeners =====
     startBtn.addEventListener('click', openGameModal);
