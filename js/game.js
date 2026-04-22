@@ -388,8 +388,8 @@
             if (autoCollect) it.attracted = true;
             if (slow && dist < ITEM_ATTRACT_RADIUS) it.attracted = true;
             if (it.attracted && dist > 1) {
-                // 回収エリアでの引き寄せはほぼ一瞬
-                var speed = autoCollect ? 20 : 4.5;
+                // 回収エリアでの引き寄せは高速
+                var speed = autoCollect ? 12 : 4.5;
                 it.vx = dx / dist * speed; it.vy = dy / dist * speed;
             }
         }
@@ -496,7 +496,7 @@
 
     function launchBombOrbs() {
         bombOrbs = [];
-        // まず散らばるフェーズ（spread）→追尾フェーズ（homing）→爆発（explode）
+        forceCollectAllItems(); // ボム発動時にアイテム全回収
         for (var i = 0; i < BOMB_ORB_COUNT; i++) {
             var a = (Math.PI * 2 / BOMB_ORB_COUNT) * i - Math.PI / 2;
             bombOrbs.push({
@@ -806,7 +806,7 @@
 
     // 画面上部左右に大型2体が固定して弾幕を放つ
     function spawnDualTurrets() {
-        var positions = [{ x: 60, y: 50 }, { x: W - 60, y: 50 }];
+        var positions = [{ x: 60, y: 50, spin: 1 }, { x: W - 60, y: 50, spin: -1 }];
         for (var i = 0; i < 2; i++) {
             enemies.push({
                 x: positions[i].x, y: -20,
@@ -814,7 +814,8 @@
                 pattern: 'hover', fireRate: Math.floor(35 / diff.bullets),
                 fireTimer: Math.floor(Math.random() * 20),
                 size: 20, age: 0, baseX: positions[i].x, dir: 1,
-                bulletPattern: 'spread',
+                bulletPattern: 'turretDual',
+                spinDir: positions[i].spin, // 左=-1(左回転), 右=1(右回転)
                 targetY: positions[i].y
             });
         }
@@ -932,7 +933,7 @@
             hp: Math.floor(600 * diff.bossHp),
             maxHp: Math.floor(600 * diff.bossHp),
             size: 30, phase: 0, phaseTimer: 0,
-            fireTimer: 0, age: 0, entering: true
+            fireTimer: 0, age: 0, entering: true, firing: false
         };
     }
 
@@ -1074,6 +1075,25 @@
                 }
                 break;
             }
+            case 'turretDual': {
+                // 自機狙い全方位（中弾）
+                var aimedN = Math.floor(6 * diff.bullets);
+                var aimedSpread = 0.5;
+                for (var i = 0; i < aimedN; i++) {
+                    var a = angle - aimedSpread + (aimedSpread * 2 / Math.max(aimedN - 1, 1)) * i;
+                    eBullets.push({ x: e.x, y: e.y, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd, size: 5, grazed: false, color: 0, bulletType: 'medium' });
+                }
+                // 回転全方位（大弾）: 左の敵は左回転、右の敵は右回転
+                var spinN = Math.floor(10 * diff.bullets);
+                var spinDir = e.spinDir || 1;
+                var spinOffset = e.age * 0.06 * spinDir;
+                var s = spd * 0.65;
+                for (var i = 0; i < spinN; i++) {
+                    var a = (Math.PI * 2 / spinN) * i + spinOffset;
+                    eBullets.push({ x: e.x, y: e.y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, size: 6, grazed: false, color: 5, bulletType: 'large' });
+                }
+                break;
+            }
         }
     }
 
@@ -1124,26 +1144,30 @@
     }
 
     function fireBossBullets() {
+        boss.firing = true;
         var spd = 2 * diff.speed, phase = boss.phase % 3;
         if (phase === 0) {
+            // 自機狙い扇状
             var angle = Math.atan2(player.y - boss.y, player.x - boss.x);
             var n = Math.floor(3 * diff.bullets), spread = 0.4;
             for (var i = 0; i < n; i++) {
                 var a = angle - spread + (spread * 2 / Math.max(n - 1, 1)) * i;
-                eBullets.push({ x: boss.x, y: boss.y + boss.size, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd, size: 5, grazed: false, color: 0 });
+                eBullets.push({ x: boss.x, y: boss.y + boss.size, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd, size: 5, grazed: false, color: 0, bulletType: 'medium' });
             }
         } else if (phase === 1) {
-            var n = Math.floor(4 * diff.bullets);
+            // 全方位回転（星弾）
+            var n = Math.floor(6 * diff.bullets);
             for (var i = 0; i < n; i++) {
                 var a = (Math.PI * 2 / n) * i + boss.age * 0.05;
-                eBullets.push({ x: boss.x, y: boss.y + boss.size * 0.5, vx: Math.cos(a) * spd * 0.9, vy: Math.sin(a) * spd * 0.9, size: 4, grazed: false, color: 5 });
+                eBullets.push({ x: boss.x, y: boss.y + boss.size * 0.5, vx: Math.cos(a) * spd * 0.9, vy: Math.sin(a) * spd * 0.9, size: 5, grazed: false, color: 5, bulletType: 'star' });
             }
         } else {
-            var n = Math.floor(6 * diff.bullets);
+            // ランダム散らし（星弾）
+            var n = Math.floor(8 * diff.bullets);
             for (var i = 0; i < n; i++) {
                 var a = Math.random() * Math.PI * 0.8 + Math.PI * 0.1;
                 var s = spd * (0.7 + Math.random() * 0.6);
-                eBullets.push({ x: boss.x + (Math.random() - 0.5) * 30, y: boss.y + boss.size, vx: Math.cos(a) * s, vy: Math.sin(a) * s, size: 4, grazed: false, color: 6 });
+                eBullets.push({ x: boss.x + (Math.random() - 0.5) * 30, y: boss.y + boss.size, vx: Math.cos(a) * s, vy: Math.sin(a) * s, size: 5, grazed: false, color: 6, bulletType: 'star' });
             }
         }
         if (boss.phaseTimer > 300) { boss.phase++; boss.phaseTimer = 0; }
@@ -1164,29 +1188,48 @@
 
     function drawBoss() {
         if (!boss) return;
-        // Magic circle behind boss
-        if (isSpriteReady('magicCircle')) {
+        ctx.save(); ctx.translate(boss.x, boss.y);
+
+        // 魔法陣（射撃中のみ、時計回り回転）
+        if (boss.firing && !boss.entering && isSpriteReady('magicCircle')) {
             var mc = sprites.magicCircle;
             ctx.save();
-            ctx.translate(boss.x, boss.y);
-            ctx.rotate(boss.age * 0.02);
-            ctx.globalAlpha = 0.4;
-            var mcSize = boss.size * 3;
+            ctx.rotate(boss.age * 0.03); // 時計回り
+            ctx.globalAlpha = 0.5;
+            var mcSize = boss.size * 3.5;
             ctx.drawImage(mc, -mcSize / 2, -mcSize / 2, mcSize, mcSize);
             ctx.globalAlpha = 1;
             ctx.restore();
         }
-        ctx.save(); ctx.translate(boss.x, boss.y);
+
+        // ボス本体
         ctx.fillStyle = '#cc2222'; ctx.beginPath(); ctx.arc(0, 0, boss.size, 0, Math.PI * 2); ctx.fill();
         ctx.fillStyle = '#991111';
         ctx.beginPath(); ctx.moveTo(-boss.size, 0); ctx.lineTo(-boss.size * 1.8, -boss.size * 0.5); ctx.lineTo(-boss.size * 0.5, -boss.size * 0.3); ctx.closePath(); ctx.fill();
         ctx.beginPath(); ctx.moveTo(boss.size, 0); ctx.lineTo(boss.size * 1.8, -boss.size * 0.5); ctx.lineTo(boss.size * 0.5, -boss.size * 0.3); ctx.closePath(); ctx.fill();
         ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(0, 0, boss.size * 0.25, 0, Math.PI * 2); ctx.fill();
+
+        // 円形HPバー（12時始まり、時計回りに消える）
+        var hpRatio = Math.max(0, boss.hp / boss.maxHp);
+        var hpRadius = boss.size + 8;
+        var startAngle = -Math.PI / 2; // 12時
+        var endAngle = startAngle + Math.PI * 2 * hpRatio;
+        // 背景（暗いリング）
+        ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(0, 0, hpRadius, 0, Math.PI * 2);
+        ctx.stroke();
+        // HPリング
+        if (hpRatio > 0) {
+            ctx.strokeStyle = hpRatio > 0.5 ? '#ff2222' : hpRatio > 0.25 ? '#ff8800' : '#ffff00';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(0, 0, hpRadius, startAngle, endAngle);
+            ctx.stroke();
+        }
+
         ctx.restore();
-        // Boss HP bar at top of field
-        var bw = W * 0.7, bx = (W - bw) / 2;
-        ctx.fillStyle = '#333'; ctx.fillRect(bx, 8, bw, 5);
-        ctx.fillStyle = '#ff2222'; ctx.fillRect(bx, 8, bw * Math.max(0, boss.hp / boss.maxHp), 5);
     }
 
     // ===== Enemy Bullets =====
@@ -1196,14 +1239,51 @@
             if (b.x < -20 || b.x > W + 20 || b.y < -20 || b.y > H + 20) eBullets.splice(i, 1);
         }
     }
+    function drawBulletStar(x, y, r, color, col) {
+        // 星型描画
+        ctx.save(); ctx.translate(x, y);
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        for (var i = 0; i < 5; i++) {
+            var a = -Math.PI / 2 + (i * Math.PI * 2) / 5;
+            var a2 = a + Math.PI / 5;
+            if (i === 0) ctx.moveTo(Math.cos(a) * r, Math.sin(a) * r);
+            else ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+            ctx.lineTo(Math.cos(a2) * r * 0.4, Math.sin(a2) * r * 0.4);
+        }
+        ctx.closePath(); ctx.fill();
+        // 中心の白い点
+        ctx.fillStyle = 'rgba(255,255,255,0.8)';
+        ctx.beginPath(); ctx.arc(0, 0, r * 0.25, 0, Math.PI * 2); ctx.fill();
+        ctx.restore();
+    }
+
+    var BULLET_TYPE_COLORS = ['#ff4444', '#ff8844', '#ffff44', '#44ff44', '#44ffff', '#4444ff', '#aa44ff', '#aaaaaa', '#ffffff'];
+
     function drawEBullets() {
-        var useSprite = isSpriteReady('bulletS');
+        var useSpriteS = isSpriteReady('bulletS');
+        var useSpriteM = isSpriteReady('bulletM');
+        var useSpriteL = isSpriteReady('bulletL');
         var imgS = sprites.bulletS;
+        var imgM = sprites.bulletM;
+        var imgL = sprites.bulletL;
         for (var i = 0; i < eBullets.length; i++) {
             var b = eBullets[i];
-            if (useSprite) {
-                // Small bullet sprite: 144x16, 9 sprites of 16x16
-                var col = (b.color !== undefined) ? b.color : 0;
+            var col = (b.color !== undefined) ? b.color : 0;
+            var bt = b.bulletType || 'small';
+
+            if (bt === 'star') {
+                var starColor = BULLET_TYPE_COLORS[col] || '#ff4444';
+                drawBulletStar(b.x, b.y, b.size * 2, starColor, col);
+            } else if (bt === 'large' && useSpriteL) {
+                // Large bullet sprite: 1024x64, 8 sprites of 128x64
+                var drawSize = b.size * 5;
+                ctx.drawImage(imgL, col * 128, 0, 128, 64, b.x - drawSize / 2, b.y - drawSize / 4, drawSize, drawSize / 2);
+            } else if (bt === 'medium' && useSpriteM) {
+                // Medium bullet sprite: 512x32, 8 sprites of 64x32
+                var drawSize = b.size * 4;
+                ctx.drawImage(imgM, col * 64, 0, 64, 32, b.x - drawSize / 2, b.y - drawSize / 4, drawSize, drawSize / 2);
+            } else if (useSpriteS) {
                 var drawSize = b.size * 4;
                 ctx.drawImage(imgS, col * 16, 0, 16, 16, b.x - drawSize / 2, b.y - drawSize / 2, drawSize, drawSize);
             } else {
@@ -1242,7 +1322,8 @@
             var b = eBullets[i]; if (b.grazed) continue;
             var dx = b.x - player.x, dy = b.y - player.y;
             var dist = Math.sqrt(dx * dx + dy * dy);
-            if (dist < GRAZE_RADIUS && dist > PLAYER_HITBOX + b.size) {
+            var bHitSize = b.size * 0.4;
+            if (dist < GRAZE_RADIUS && dist > PLAYER_HITBOX + bHitSize) {
                 b.grazed = true; graze++; score += 10;
                 spawnParticle(player.x + dx * 0.3, player.y + dy * 0.3, '#ffffff', 1);
             }
@@ -1270,7 +1351,9 @@
         if (invTimer > 0 || bombTimer > 0) return;
         for (var i = eBullets.length - 1; i >= 0; i--) {
             var b = eBullets[i]; var dx = b.x - player.x, dy = b.y - player.y;
-            if (dx * dx + dy * dy < (PLAYER_HITBOX + b.size) * (PLAYER_HITBOX + b.size)) { eBullets.splice(i, 1); playerHit(); return; }
+            // 当たり判定は弾の中心部分のみ（見た目の40%）
+            var hitSize = b.size * 0.4;
+            if (dx * dx + dy * dy < (PLAYER_HITBOX + hitSize) * (PLAYER_HITBOX + hitSize)) { eBullets.splice(i, 1); playerHit(); return; }
         }
         for (var i = 0; i < enemies.length; i++) {
             var e = enemies[i]; var dx = e.x - player.x, dy = e.y - player.y;
