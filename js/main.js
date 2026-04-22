@@ -21,19 +21,56 @@ langBtn.addEventListener('click', () => {
     setLang(currentLang === 'ja' ? 'en' : 'ja');
 });
 
-// ハンバーガーメニュー
-const toggle = document.querySelector('.nav-toggle');
-const navLinks = document.querySelector('.nav-links');
+// ===== ナビメニュー（ドロップダウン） =====
+const navToggle = document.querySelector('.nav-toggle');
+const navDropdown = document.querySelector('.nav-dropdown');
 
-toggle.addEventListener('click', () => {
-    navLinks.classList.toggle('active');
+function openDropdown() {
+    navDropdown.hidden = false;
+    requestAnimationFrame(() => navDropdown.classList.add('open'));
+    navToggle.setAttribute('aria-expanded', 'true');
+}
+
+function closeDropdown() {
+    navDropdown.classList.remove('open');
+    navToggle.setAttribute('aria-expanded', 'false');
+    setTimeout(() => {
+        if (!navDropdown.classList.contains('open')) navDropdown.hidden = true;
+    }, 200);
+}
+
+navToggle.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (navDropdown.classList.contains('open')) closeDropdown();
+    else openDropdown();
 });
 
-// ナビリンクをクリックしたらメニューを閉じる
-navLinks.querySelectorAll('a').forEach(link => {
-    link.addEventListener('click', () => {
-        navLinks.classList.remove('active');
-    });
+// 外側クリックで閉じる
+document.addEventListener('click', (e) => {
+    if (navDropdown.classList.contains('open') && !e.target.closest('.nav-menu')) {
+        closeDropdown();
+    }
+});
+
+// Escで閉じる
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && navDropdown.classList.contains('open')) closeDropdown();
+});
+
+// ===== 背景モーションON/OFF =====
+const bgToggle = document.getElementById('bg-anim-toggle');
+const bgSaved = localStorage.getItem('bgAnimEnabled');
+let bgEnabled = bgSaved !== 'false';
+bgToggle.setAttribute('aria-checked', bgEnabled ? 'true' : 'false');
+
+bgToggle.addEventListener('click', () => {
+    bgEnabled = !bgEnabled;
+    bgToggle.setAttribute('aria-checked', bgEnabled ? 'true' : 'false');
+    localStorage.setItem('bgAnimEnabled', bgEnabled ? 'true' : 'false');
+    if (window.bgAnimation) {
+        if (bgEnabled) window.bgAnimation.start();
+        else window.bgAnimation.stop();
+    }
 });
 
 // スクロールアニメーション（フェードイン）
@@ -305,6 +342,7 @@ function openModal(workId) {
         const img = document.createElement('img');
         img.src = screenshots[0];
         img.alt = 'screenshot';
+        img.loading = 'lazy';
         img.addEventListener('click', () => openLightbox(currentSSIndex));
         ssArea.appendChild(img);
         if (screenshots.length > 1) {
@@ -391,6 +429,7 @@ document.querySelectorAll('.work-card[data-work]').forEach(card => {
             img.src = data.screenshots[0];
             img.alt = card.dataset.work;
             img.className = 'work-card-thumb';
+            img.loading = 'lazy';
             placeholder.replaceWith(img);
         }
     }

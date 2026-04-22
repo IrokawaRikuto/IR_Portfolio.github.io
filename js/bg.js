@@ -181,7 +181,11 @@
         lines.push(line);
     }
 
+    let running = false;
+    let rafId = null;
+
     function animate() {
+        if (!running) return;
         ctx.clearRect(0, 0, w, h);
 
         for (const glow of glows) {
@@ -194,8 +198,30 @@
             line.draw();
         }
 
-        requestAnimationFrame(animate);
+        rafId = requestAnimationFrame(animate);
     }
 
-    animate();
+    function start() {
+        if (running) return;
+        running = true;
+        canvas.style.display = '';
+        animate();
+    }
+
+    function stop() {
+        running = false;
+        if (rafId) cancelAnimationFrame(rafId);
+        ctx.clearRect(0, 0, w, h);
+        canvas.style.display = 'none';
+    }
+
+    window.bgAnimation = { start, stop };
+
+    // 初期状態（localStorageから復元、デフォルトON）
+    const saved = localStorage.getItem('bgAnimEnabled');
+    if (saved === 'false') {
+        stop();
+    } else {
+        start();
+    }
 })();
