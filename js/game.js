@@ -680,18 +680,18 @@
 
     // ===== Enemies =====
     // Bullet patterns: 'down', 'way3', 'way5', 'circle', 'aimed', 'diagonal', 'random', 'spread'
-    var BULLET_PATTERNS_SMALL = ['down', 'aimed', 'diagonal'];
-    var BULLET_PATTERNS_MEDIUM = ['way3', 'aimed', 'diagonal', 'random', 'spread'];
-    var BULLET_PATTERNS_LARGE = ['way5', 'circle', 'way3', 'random', 'spread'];
+    var BULLET_PATTERNS_SMALL = ['down', 'aimed', 'diagonal', 'split'];
+    var BULLET_PATTERNS_MEDIUM = ['way3', 'aimed', 'diagonal', 'random', 'spread', 'fan', 'split'];
+    var BULLET_PATTERNS_LARGE = ['way5', 'circle', 'way3', 'random', 'spread', 'fan', 'cross'];
 
     function pickBulletPattern(type) {
         var pool;
         if (type === 'small') pool = BULLET_PATTERNS_SMALL;
         else if (type === 'medium') pool = BULLET_PATTERNS_MEDIUM;
         else pool = BULLET_PATTERNS_LARGE;
-        if (waveIndex >= 2 && type === 'small') pool = ['down', 'aimed', 'diagonal', 'way3'];
-        if (waveIndex >= 4 && type === 'small') pool = ['down', 'aimed', 'diagonal', 'way3', 'random', 'spread'];
-        if (waveIndex >= 3 && type === 'medium') pool = ['way3', 'way5', 'aimed', 'diagonal', 'circle', 'random', 'spread'];
+        if (waveIndex >= 2 && type === 'small') pool = ['down', 'aimed', 'diagonal', 'way3', 'split'];
+        if (waveIndex >= 4 && type === 'small') pool = ['down', 'aimed', 'diagonal', 'way3', 'random', 'spread', 'fan', 'split'];
+        if (waveIndex >= 3 && type === 'medium') pool = ['way3', 'way5', 'aimed', 'diagonal', 'circle', 'random', 'spread', 'fan', 'split', 'cross'];
         return pool[Math.floor(Math.random() * pool.length)];
     }
 
@@ -747,24 +747,89 @@
         }
     }
 
-    // 左右から大量の小型が水平移動（Cross Stream）
+    // 左右から大量の小型が水平移動（Cross Stream）：30体規模
     function spawnCrossStream(countPerSide) {
-        countPerSide = countPerSide || (5 + Math.floor(Math.random() * 4));
-        var yL = 30 + Math.random() * 40;
-        var yR = 50 + Math.random() * 40;
+        countPerSide = countPerSide || (14 + Math.floor(Math.random() * 4)); // 14-17/side ≈ 28-34
+        var yL = 28 + Math.random() * 30;
+        var yR = 52 + Math.random() * 30;
         var spd = 1.8 + Math.random() * 0.5;
         for (var i = 0; i < countPerSide; i++) {
+            var jitterL = (Math.random() - 0.5) * 10;
+            var jitterR = (Math.random() - 0.5) * 10;
             enemies.push({
-                x: -15 - i * 25, y: yL, hp: 1, maxHp: 1, speed: spd, type: 'small',
+                x: -15 - i * 22, y: yL + jitterL, hp: 1, maxHp: 1, speed: spd, type: 'small',
                 pattern: 'drift', fireRate: Math.floor(130 / diff.bullets),
                 fireTimer: 30 + Math.floor(Math.random() * 40),
                 size: 8, age: 0, baseX: 0, dir: 1, bulletPattern: 'aimed'
             });
             enemies.push({
-                x: W + 15 + i * 25, y: yR, hp: 1, maxHp: 1, speed: spd, type: 'small',
+                x: W + 15 + i * 22, y: yR + jitterR, hp: 1, maxHp: 1, speed: spd, type: 'small',
                 pattern: 'drift', fireRate: Math.floor(130 / diff.bullets),
                 fireTimer: 30 + Math.floor(Math.random() * 40),
                 size: 8, age: 0, baseX: 0, dir: -1, bulletPattern: 'aimed'
+            });
+        }
+    }
+
+    // 左右の下から出現し逆U字（∩）で反対側へ抜ける編隊
+    function spawnInvertedU() {
+        var countPerSide = 4 + Math.floor(Math.random() * 2); // 4-5/side = 8-10体
+        var peakY = 45 + Math.random() * 20;
+        var duration = 180; // ∩を描ききるフレーム数
+        for (var side = 0; side < 2; side++) {
+            var startX = side === 0 ? 40 : W - 40;
+            var endX = side === 0 ? W - 40 : 40;
+            for (var i = 0; i < countPerSide; i++) {
+                enemies.push({
+                    x: startX, y: H + 30,
+                    hp: 1, maxHp: 1, speed: 1, type: 'small',
+                    pattern: 'arcPath',
+                    pathT: -i * 0.18,
+                    pathSpeed: 1 / duration,
+                    pathStartX: startX, pathEndX: endX, pathPeakY: peakY,
+                    fireRate: Math.floor(70 / diff.bullets),
+                    fireTimer: Math.floor(Math.random() * 30),
+                    size: 8, age: 0, baseX: 0, dir: side === 0 ? 1 : -1,
+                    bulletPattern: 'down'
+                });
+            }
+        }
+    }
+
+    // 左右の上からS字を描いて降下する編隊
+    function spawnSCurveFormation() {
+        var side = Math.random() > 0.5 ? 1 : -1;
+        var count = 6 + Math.floor(Math.random() * 3); // 6-8
+        var startX = side > 0 ? 40 : W - 40;
+        for (var i = 0; i < count; i++) {
+            enemies.push({
+                x: startX, y: -20 - i * 32,
+                hp: 1, maxHp: 1, speed: 1.4, type: 'small',
+                pattern: 'sCurve',
+                entrySide: side, entryX: startX,
+                fireRate: Math.floor(100 / diff.bullets),
+                fireTimer: Math.floor(Math.random() * 40),
+                size: 8, age: 0, baseX: 0, dir: side,
+                bulletPattern: 'aimed'
+            });
+        }
+    }
+
+    // 左右の上からZ字（ジグザグ）で降下する編隊
+    function spawnZCurveFormation() {
+        var side = Math.random() > 0.5 ? 1 : -1;
+        var count = 6 + Math.floor(Math.random() * 3); // 6-8
+        var startX = side > 0 ? 30 : W - 30;
+        for (var i = 0; i < count; i++) {
+            enemies.push({
+                x: startX, y: -20 - i * 30,
+                hp: 1, maxHp: 1, speed: 1.5, type: 'small',
+                pattern: 'zCurve',
+                entrySide: side, entryX: startX,
+                fireRate: Math.floor(110 / diff.bullets),
+                fireTimer: Math.floor(Math.random() * 40),
+                size: 8, age: 0, baseX: 0, dir: side,
+                bulletPattern: 'down'
             });
         }
     }
@@ -861,11 +926,11 @@
         var stageScale = 1 + stage * 0.15;
 
         // 基本パターンプール
-        var pool = ['streamL', 'streamR', 'formation'];
-        if (stage >= 1) { pool.push('crossStream', 'topAimed', 'massRush'); }
-        if (stage >= 2) { pool.push('sineWave', 'mediumEscort'); }
+        var pool = ['streamL', 'streamR', 'formation', 'sCurve', 'zCurve'];
+        if (stage >= 1) { pool.push('crossStream', 'topAimed', 'massRush', 'invertedU'); }
+        if (stage >= 2) { pool.push('sineWave', 'mediumEscort', 'sCurve', 'zCurve'); }
         if (stage >= 2) { pool.push('dualTurret'); }
-        if (stage >= 3) { pool.push('largeTank', 'topAimedHeavy'); }
+        if (stage >= 3) { pool.push('largeTank', 'topAimedHeavy', 'invertedU'); }
 
         // シャッフル
         var shuffled = [];
@@ -924,6 +989,15 @@
             case 'massRush':
                 spawnMassRush();
                 break;
+            case 'invertedU':
+                spawnInvertedU();
+                break;
+            case 'sCurve':
+                spawnSCurveFormation();
+                break;
+            case 'zCurve':
+                spawnZCurveFormation();
+                break;
         }
     }
 
@@ -965,6 +1039,38 @@
         else if (e.pattern === 'sineDrift') {
             e.x += e.dir * e.speed * 1.3;
             e.y = e.baseY + Math.sin(e.age * 0.05) * 30;
+        }
+        else if (e.pattern === 'arcPath') {
+            e.pathT += e.pathSpeed;
+            if (e.pathT < 0) {
+                e.x = e.pathStartX; e.y = H + 30;
+            } else if (e.pathT <= 1) {
+                e.x = e.pathStartX + (e.pathEndX - e.pathStartX) * e.pathT;
+                e.y = (H + 30) - Math.sin(e.pathT * Math.PI) * (H + 30 - e.pathPeakY);
+            } else {
+                e.y += 4;
+            }
+        }
+        else if (e.pattern === 'sCurve') {
+            e.y += e.speed;
+            if (e.y > -10) {
+                // S字: 上→中央寄り膨らみ→下へ。振幅を画面内に収める
+                var u = Math.max(0, Math.min(1, e.y / H));
+                var swing = Math.sin(u * Math.PI * 2) * 100;
+                e.x = e.entryX + e.entrySide * swing;
+                if (e.x < 20) e.x = 20;
+                if (e.x > W - 20) e.x = W - 20;
+            }
+        }
+        else if (e.pattern === 'zCurve') {
+            e.y += e.speed;
+            if (e.y > 0) {
+                var zone = Math.floor(Math.min(H - 1, e.y) / (H / 3)); // 0,1,2
+                var horzDir = (zone === 1) ? -e.entrySide : e.entrySide;
+                e.x += horzDir * 1.7;
+                if (e.x < 20) e.x = 20;
+                if (e.x > W - 20) e.x = W - 20;
+            }
         }
     }
 
@@ -1017,12 +1123,14 @@
     function fireEnemyBullet(e) {
         var angle = Math.atan2(player.y - e.y, player.x - e.x);
         var spd = (1.5 + Math.random() * 0.5) * diff.speed;
-        var sz = e.type === 'small' ? 3 : 4;
+        var sz = e.type === 'small' ? 3 : e.type === 'medium' ? 5 : 6;
+        var bt = e.type === 'large' ? 'large' : e.type === 'medium' ? 'medium' : 'small';
         var bp = e.bulletPattern || 'down';
         // Assign sprite color based on bullet pattern
         var col = bp === 'aimed' ? 0 : bp === 'way3' ? 3 : bp === 'way5' ? 4 :
                   bp === 'circle' ? 5 : bp === 'diagonal' ? 1 : bp === 'random' ? 6 :
-                  bp === 'spread' ? 2 : 0;
+                  bp === 'spread' ? 2 : bp === 'cross' ? 4 : bp === 'fan' ? 2 :
+                  bp === 'split' ? 1 : 0;
 
         switch (bp) {
             case 'down': {
@@ -1030,7 +1138,7 @@
                 var base = Math.PI / 2;
                 for (var i = -1; i <= 1; i++) {
                     var a = base + i * 0.12;
-                    eBullets.push({ x: e.x + i * 6, y: e.y, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd, size: sz, grazed: false, color: col });
+                    eBullets.push({ x: e.x + i * 6, y: e.y, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd, size: sz, grazed: false, color: col, bulletType: bt });
                 }
                 break;
             }
@@ -1038,7 +1146,7 @@
                 var base = Math.PI / 2;
                 for (var i = -1; i <= 1; i++) {
                     var a = base + i * 0.3;
-                    eBullets.push({ x: e.x, y: e.y, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd, size: sz, grazed: false, color: col });
+                    eBullets.push({ x: e.x, y: e.y, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd, size: sz, grazed: false, color: col, bulletType: bt });
                 }
                 break;
             }
@@ -1046,7 +1154,7 @@
                 var base = Math.PI / 2;
                 for (var i = -2; i <= 2; i++) {
                     var a = base + i * 0.25;
-                    eBullets.push({ x: e.x, y: e.y, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd, size: sz, grazed: false, color: col });
+                    eBullets.push({ x: e.x, y: e.y, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd, size: sz, grazed: false, color: col, bulletType: bt });
                 }
                 break;
             }
@@ -1054,7 +1162,7 @@
                 var n = Math.max(3, Math.floor(5 * diff.bullets));
                 for (var i = 0; i < n; i++) {
                     var a = (Math.PI * 2 / n) * i + e.age * 0.03;
-                    eBullets.push({ x: e.x, y: e.y, vx: Math.cos(a) * spd * 0.8, vy: Math.sin(a) * spd * 0.8, size: sz, grazed: false, color: col });
+                    eBullets.push({ x: e.x, y: e.y, vx: Math.cos(a) * spd * 0.8, vy: Math.sin(a) * spd * 0.8, size: sz, grazed: false, color: col, bulletType: bt });
                 }
                 break;
             }
@@ -1063,16 +1171,16 @@
                 var n = 3, spread = 0.18;
                 for (var i = 0; i < n; i++) {
                     var a = angle - spread + (spread * 2 / (n - 1)) * i;
-                    eBullets.push({ x: e.x, y: e.y, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd, size: sz, grazed: false, color: col });
+                    eBullets.push({ x: e.x, y: e.y, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd, size: sz, grazed: false, color: col, bulletType: bt });
                 }
                 break;
             }
             case 'diagonal': {
                 // 3方向: 自機側斜め、反対斜め、真下
                 var dirX = e.x < W / 2 ? 1 : -1;
-                eBullets.push({ x: e.x, y: e.y, vx: dirX * spd * 0.7, vy: spd * 0.7, size: sz, grazed: false, color: col });
-                eBullets.push({ x: e.x, y: e.y, vx: -dirX * spd * 0.5, vy: spd * 0.85, size: sz, grazed: false, color: col });
-                eBullets.push({ x: e.x, y: e.y, vx: 0, vy: spd, size: sz, grazed: false, color: col });
+                eBullets.push({ x: e.x, y: e.y, vx: dirX * spd * 0.7, vy: spd * 0.7, size: sz, grazed: false, color: col, bulletType: bt });
+                eBullets.push({ x: e.x, y: e.y, vx: -dirX * spd * 0.5, vy: spd * 0.85, size: sz, grazed: false, color: col, bulletType: bt });
+                eBullets.push({ x: e.x, y: e.y, vx: 0, vy: spd, size: sz, grazed: false, color: col, bulletType: bt });
                 break;
             }
             case 'random': {
@@ -1081,7 +1189,7 @@
                 for (var i = 0; i < n; i++) {
                     var a = Math.PI * 0.15 + Math.random() * Math.PI * 0.7;
                     var s = spd * (0.7 + Math.random() * 0.6);
-                    eBullets.push({ x: e.x, y: e.y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, size: sz, grazed: false, color: col });
+                    eBullets.push({ x: e.x, y: e.y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, size: sz, grazed: false, color: col, bulletType: bt });
                 }
                 break;
             }
@@ -1094,8 +1202,42 @@
                 var s = spd * 0.7;
                 for (var i = 0; i < n; i++) {
                     var a = (Math.PI * 2 / n) * i + offset;
-                    eBullets.push({ x: e.x, y: e.y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, size: sz, grazed: false, color: col });
+                    eBullets.push({ x: e.x, y: e.y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, size: sz, grazed: false, color: col, bulletType: bt });
                 }
+                break;
+            }
+            case 'cross': {
+                // 十字4方向＋自機狙い1発（計5発）
+                var rot = e.age * 0.04;
+                for (var i = 0; i < 4; i++) {
+                    var a = rot + (Math.PI * 2 / 4) * i;
+                    eBullets.push({ x: e.x, y: e.y, vx: Math.cos(a) * spd * 0.9, vy: Math.sin(a) * spd * 0.9, size: sz, grazed: false, color: col, bulletType: bt });
+                }
+                eBullets.push({ x: e.x, y: e.y, vx: Math.cos(angle) * spd * 1.1, vy: Math.sin(angle) * spd * 1.1, size: sz, grazed: false, color: 0, bulletType: bt });
+                break;
+            }
+            case 'fan': {
+                // 広角7方向扇（下向き、±60度）
+                var base = Math.PI / 2;
+                var half = Math.PI / 3;
+                var n = 7;
+                for (var i = 0; i < n; i++) {
+                    var a = base - half + (half * 2 / (n - 1)) * i;
+                    var s = spd * (0.8 + (i % 2) * 0.2);
+                    eBullets.push({ x: e.x, y: e.y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, size: sz, grazed: false, color: col, bulletType: bt });
+                }
+                break;
+            }
+            case 'split': {
+                // 左右の平行ストリーム（各2発＝4発）＋真下1発
+                var sideSpd = spd * 0.9;
+                var sideAng = Math.PI / 2 + 0.5;
+                var sideAng2 = Math.PI / 2 - 0.5;
+                eBullets.push({ x: e.x - 6, y: e.y, vx: Math.cos(sideAng) * sideSpd, vy: Math.sin(sideAng) * sideSpd, size: sz, grazed: false, color: col, bulletType: bt });
+                eBullets.push({ x: e.x - 10, y: e.y + 4, vx: Math.cos(sideAng) * sideSpd, vy: Math.sin(sideAng) * sideSpd, size: sz, grazed: false, color: col, bulletType: bt });
+                eBullets.push({ x: e.x + 6, y: e.y, vx: Math.cos(sideAng2) * sideSpd, vy: Math.sin(sideAng2) * sideSpd, size: sz, grazed: false, color: col, bulletType: bt });
+                eBullets.push({ x: e.x + 10, y: e.y + 4, vx: Math.cos(sideAng2) * sideSpd, vy: Math.sin(sideAng2) * sideSpd, size: sz, grazed: false, color: col, bulletType: bt });
+                eBullets.push({ x: e.x, y: e.y, vx: 0, vy: spd, size: sz, grazed: false, color: col, bulletType: bt });
                 break;
             }
             case 'turretDual': {
@@ -1228,17 +1370,17 @@
                 eBullets.push({ x: boss.x, y: boss.y + boss.size, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd, size: 5, grazed: false, color: 0, bulletType: 'medium' });
             }
         } else if (phase === 1) {
-            // 全方位回転（星弾）2層逆回転
+            // 全方位回転（星弾）2層逆回転：弾を大きめに
             var n = Math.max(6, Math.floor(7 * diff.bullets));
             for (var i = 0; i < n; i++) {
                 var a = (Math.PI * 2 / n) * i + boss.age * 0.05;
-                eBullets.push({ x: boss.x, y: boss.y + boss.size * 0.5, vx: Math.cos(a) * spd * 0.9, vy: Math.sin(a) * spd * 0.9, size: 5, grazed: false, color: 5, bulletType: 'star', spin: Math.random() * Math.PI * 2 });
+                eBullets.push({ x: boss.x, y: boss.y + boss.size * 0.5, vx: Math.cos(a) * spd * 0.9, vy: Math.sin(a) * spd * 0.9, size: 9, grazed: false, color: 5, bulletType: 'star', spin: Math.random() * Math.PI * 2 });
             }
             if ((boss.phaseTimer / 18) % 2 < 1) {
                 var n2 = Math.max(5, Math.floor(5 * diff.bullets));
                 for (var i = 0; i < n2; i++) {
                     var a = (Math.PI * 2 / n2) * i - boss.age * 0.05;
-                    eBullets.push({ x: boss.x, y: boss.y + boss.size * 0.5, vx: Math.cos(a) * spd * 1.1, vy: Math.sin(a) * spd * 1.1, size: 5, grazed: false, color: 6, bulletType: 'star', spin: Math.random() * Math.PI * 2 });
+                    eBullets.push({ x: boss.x, y: boss.y + boss.size * 0.5, vx: Math.cos(a) * spd * 1.1, vy: Math.sin(a) * spd * 1.1, size: 8, grazed: false, color: 6, bulletType: 'star', spin: Math.random() * Math.PI * 2 });
                 }
             }
         } else if (phase === 2) {
