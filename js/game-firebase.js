@@ -38,8 +38,10 @@ const GameRanking = (function () {
                 });
                 return true;
             } catch (e) {
-                console.warn('Firebase write failed, keeping localStorage copy', e);
+                console.error('[Ranking] Firebase write failed. Score kept in localStorage only.', e);
             }
+        } else {
+            console.warn('[Ranking] Firebase not initialized. Score kept in localStorage only.');
         }
         return true;
     }
@@ -58,19 +60,21 @@ const GameRanking = (function () {
         let remote = null;
         if (db) {
             try {
-                // source: 'server' でキャッシュ起因の古データを回避
                 const snap = await db.collection(COLLECTION)
                     .where('difficulty', '==', difficulty)
                     .orderBy('score', 'desc')
                     .limit(limit * 2)
-                    .get({ source: 'server' });
+                    .get();
                 remote = snap.docs.map(function (doc) {
                     var d = doc.data();
                     return { name: d.name, score: d.score };
                 });
+                console.log('[Ranking] Firebase read OK:', difficulty, 'count=', remote.length);
             } catch (e) {
-                console.warn('Firebase read failed, using localStorage', e);
+                console.error('[Ranking] Firebase read failed. Falling back to localStorage.', e);
             }
+        } else {
+            console.warn('[Ranking] Firebase not initialized. Using localStorage only.');
         }
 
         // Firebase成功時はremote + local(直近送信の保険) を name+score で重複除去してマージ
