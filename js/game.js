@@ -49,6 +49,7 @@
     loadSprite('bulletWedge', 'assets/game/bullet_wedge.png');
     loadSprite('bulletIce', 'assets/game/bullet_ice.png');
     loadSprite('bulletSeal', 'assets/game/bullet_seal.png');
+    loadSprite('bulletStar', 'assets/game/bullet_star.png');
     loadSprite('magicCircle', 'assets/game/boss_magic_circle.png');
     loadSprite('deleteEffect', 'assets/game/bullet_delete_effect.png');
     loadSprite('bossHpBar', 'assets/game/boss_hpbar.png');
@@ -1854,6 +1855,7 @@
         var useSpriteW = isSpriteReady('bulletWedge');
         var useSpriteI = isSpriteReady('bulletIce');
         var useSpriteSeal = isSpriteReady('bulletSeal');
+        var useSpriteStar = isSpriteReady('bulletStar');
         var imgS = sprites.bulletS;
         var imgM = sprites.bulletM;
         var imgL = sprites.bulletL;
@@ -1863,10 +1865,18 @@
             var bt = b.bulletType || 'small';
 
             if (bt === 'star') {
-                var starColor = BULLET_TYPE_COLORS[col] || '#ff4444';
                 // 星ごとに固有のスピン + フレーム依存の共通回転（ゆっくり）
                 var spin = (b.spin !== undefined) ? b.spin : 0;
-                drawBulletStar(b.x, b.y, b.size * 3, starColor, col, frame * 0.04 + spin);
+                var starRot = frame * 0.04 + spin;
+                if (useSpriteStar) {
+                    var drawSize = b.size * 3;
+                    ctx.save(); ctx.translate(b.x, b.y); ctx.rotate(starRot);
+                    ctx.drawImage(sprites.bulletStar, col * 16, 0, 16, 16, -drawSize / 2, -drawSize / 2, drawSize, drawSize);
+                    ctx.restore();
+                } else {
+                    var starColor = BULLET_TYPE_COLORS[col] || '#ff4444';
+                    drawBulletStar(b.x, b.y, b.size * 3, starColor, col, starRot);
+                }
             } else if (bt === 'wedge' && useSpriteW) {
                 // 楔弾: 進行方向に回転、144x16 の 9 コマ
                 var drawSize = b.size * 4;
