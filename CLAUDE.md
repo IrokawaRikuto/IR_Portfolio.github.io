@@ -99,8 +99,14 @@
 
 ### 敵・弾幕
 - 弾幕パターン: down, way3, way5, circle, aimed, diagonal, random, spread, cross, fan, split, turretDual
-- cross=十字4方向+自機狙い1発、fan=広角7扇、split=左右平行ストリーム+真下
-- すべてのパターンは最低3発を同時発射（単発弾禁止）。down=縦3列、aimed=自機狙い3発扇、diagonal=斜め2方向+真下、random=小3/中4/大5発
+- cross=十字4方向+自機狙い(aimedCount発)、fan=下向き広角扇(wayCount+2発)、split=左右平行ストリーム+真下
+- 難易度別の弾数スケーリング（`DIFF.aimedCount` / `DIFF.wayCount`）:
+  - 自機狙い (aimed, cross のaimed部分, spawnerRing のaimed部分, ボス phase0/phase3): Easy=1 / Normal=3 / Hard=5 / Lunatic=7
+  - 連射系 (down, way3): Easy=3 / Normal=5 / Hard=7 / Lunatic=9
+  - way5, fan, ボス phase3 の way部分: wayCount+2 (Easy=5 / Normal=7 / Hard=9 / Lunatic=11)
+  - turretDual の自機狙い扇: aimedCount+2 (Easy=3 / Normal=5 / Hard=7 / Lunatic=9)
+  - Easy で aimed=1 のとき単発、それ以外は扇形で発射（弾数増加に応じて spread を広げる）
+- diagonal / random / split / spread / circle は従来通り（パターン構造維持 or `diff.bullets` 倍率依存）
 - 中型は中弾、大型は大弾を放つ（bulletType=medium/large、サイズ自動切替）
 - 小型HP=1、中型HP=15、大型HP=50（中型・大型のHPバー非表示）
 - 敵弾の当たり判定は見た目の40%（中央の白い部分のみ）
@@ -136,12 +142,12 @@
 - HPバー着色はオフスクリーン canvas 上で `source-atop` を適用してから本体 ctx に描画（clip 領域内の他描画へ漏れるのを防止）
 - 魔法陣: 射撃中のみボス背面に拡大表示（通常4.8倍、大技5.8倍）。大技中は逆回転の二重魔法陣
 - 通常4フェーズ（360Fで循環）
-  - Phase 0: 自機狙い扇5発 + sine移動
+  - Phase 0: 自機狙い扇 (aimedCount発) + sine移動
   - Phase 1: 全方位回転2層（逆回転、弾は大型化） + 中央固定
   - Phase 2: ランダム散らし + dashワープ移動
-  - Phase 3: way5 + 自機狙い3発 + figure-8移動
-- 大技（スペルカード）2種: HP70%で大技1（中央固定、逆回転2層リング＋自機狙いバースト）、HP35%で大技2（ワープ移動＋放射爆発＋回転リング）。発動時は画面の敵弾を一掃＋光波紋エフェクト、約9秒持続
-- スポナー召喚: 定期的（15-18秒間隔）にボスが2体のスポナーを召喚。白い大弾＋小さい魔法陣で表示、無敵（HPゲージなし、ショット・ボムで破壊不可）、寿命約12秒で自然消滅。ボスと同じ弾種でリング弾幕＋自機狙い3発を発射。撃破不可のためアイテム・スコアは落とさない。ボス撃破で自動除去
+  - Phase 3: way (wayCount+2発) + 自機狙い (aimedCount発) + figure-8移動
+- 大技（スペルカード）2種: HP70%で大技1（中央固定、逆回転2層リング＋自機狙いバースト aimedCount+2発）、HP35%で大技2（ワープ移動＋放射爆発＋回転リング＋自機狙い aimedCount発）。発動時は画面の敵弾を一掃＋光波紋エフェクト、約9秒持続
+- スポナー召喚: 定期的（15-18秒間隔）にボスが2体のスポナーを召喚。白い大弾＋小さい魔法陣で表示、**破壊可能**（HP30、HPバー非表示）。寿命約12秒で自然消滅。ボスと同じ弾種でリング弾幕＋自機狙い(aimedCount発)を発射。破壊・寿命消滅いずれの場合もアイテム・スコアを落とさず消えるだけ。ボス撃破で自動除去
 - スポナーの白い大弾は `bullet_large.png` の中央 64x64 を切り抜き正方形で描画し、魔法陣と視覚中心が一致するよう調整
 - sine/hover敵はフィールド内にクランプ（画面端の出入り防止）
 

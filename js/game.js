@@ -92,11 +92,13 @@
     var ITEM_AUTO_COLLECT_Y = 100;
     var GRAZE_RADIUS = 24;
 
+    // aimedCount: 自機狙い弾の本数（1/3/5/7）
+    // wayCount: way系連射弾の基準本数（3/5/7/9）。way5/fan 等は +2 して使う
     var DIFF = {
-        easy:    { bullets: 0.5, speed: 0.8, label: 'Easy' },
-        normal:  { bullets: 1.0, speed: 1.0, label: 'Normal' },
-        hard:    { bullets: 1.5, speed: 1.2, label: 'Hard' },
-        lunatic: { bullets: 2.0, speed: 1.4, label: 'Lunatic' }
+        easy:    { bullets: 0.5, speed: 0.8, aimedCount: 1, wayCount: 3, label: 'Easy' },
+        normal:  { bullets: 1.0, speed: 1.0, aimedCount: 3, wayCount: 5, label: 'Normal' },
+        hard:    { bullets: 1.5, speed: 1.2, aimedCount: 5, wayCount: 7, label: 'Hard' },
+        lunatic: { bullets: 2.0, speed: 1.4, aimedCount: 7, wayCount: 9, label: 'Lunatic' }
     };
 
     // ===== State =====
@@ -590,7 +592,6 @@
         // 画面内の敵全員にダメージ（範囲制限なし）
         for (var j = 0; j < enemies.length; j++) {
             var e = enemies[j];
-            if (e.type === 'spawner') continue; // スポナーは無敵
             if (e.y < -10 || e.y > H + 20) continue; // 画面外は対象外
             e.hp -= BOMB_ORB_EXPLODE_DAMAGE;
         }
@@ -1207,26 +1208,35 @@
 
         switch (bp) {
             case 'down': {
-                // 3発を縦に広げて発射（単発禁止）
+                // 縦方向の連射（Easy 3 / Normal 5 / Hard 7 / Lunatic 9）
                 var base = Math.PI / 2;
-                for (var i = -1; i <= 1; i++) {
-                    var a = base + i * 0.12;
-                    eBullets.push({ x: e.x + i * 6, y: e.y, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd, size: sz, grazed: false, color: col, bulletType: bt });
+                var n = diff.wayCount;
+                var half = (n - 1) / 2;
+                for (var i = 0; i < n; i++) {
+                    var k = i - half;
+                    var a = base + k * 0.12;
+                    eBullets.push({ x: e.x + k * 6, y: e.y, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd, size: sz, grazed: false, color: col, bulletType: bt });
                 }
                 break;
             }
             case 'way3': {
                 var base = Math.PI / 2;
-                for (var i = -1; i <= 1; i++) {
-                    var a = base + i * 0.3;
+                var n = diff.wayCount;
+                var half = (n - 1) / 2;
+                for (var i = 0; i < n; i++) {
+                    var k = i - half;
+                    var a = base + k * 0.3;
                     eBullets.push({ x: e.x, y: e.y, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd, size: sz, grazed: false, color: col, bulletType: bt });
                 }
                 break;
             }
             case 'way5': {
                 var base = Math.PI / 2;
-                for (var i = -2; i <= 2; i++) {
-                    var a = base + i * 0.25;
+                var n = diff.wayCount + 2; // way3より常に密度が高い
+                var half = (n - 1) / 2;
+                for (var i = 0; i < n; i++) {
+                    var k = i - half;
+                    var a = base + k * 0.25;
                     eBullets.push({ x: e.x, y: e.y, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd, size: sz, grazed: false, color: col, bulletType: bt });
                 }
                 break;
@@ -1240,11 +1250,16 @@
                 break;
             }
             case 'aimed': {
-                // 自機狙い3発（わずかな広がり、連射で自機依存ストリーム）
-                var n = 3, spread = 0.18;
-                for (var i = 0; i < n; i++) {
-                    var a = angle - spread + (spread * 2 / (n - 1)) * i;
-                    eBullets.push({ x: e.x, y: e.y, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd, size: sz, grazed: false, color: col, bulletType: bt });
+                // 自機狙い: Easy 1 / Normal 3 / Hard 5 / Lunatic 7
+                var n = diff.aimedCount;
+                if (n <= 1) {
+                    eBullets.push({ x: e.x, y: e.y, vx: Math.cos(angle) * spd, vy: Math.sin(angle) * spd, size: sz, grazed: false, color: col, bulletType: bt });
+                } else {
+                    var spread = 0.18 + 0.04 * (n - 3); // 弾数増加に合わせて扇を広げる
+                    for (var i = 0; i < n; i++) {
+                        var a = angle - spread + (spread * 2 / (n - 1)) * i;
+                        eBullets.push({ x: e.x, y: e.y, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd, size: sz, grazed: false, color: col, bulletType: bt });
+                    }
                 }
                 break;
             }
@@ -1280,20 +1295,29 @@
                 break;
             }
             case 'cross': {
-                // 十字4方向＋自機狙い1発（計5発）
+                // 十字4方向 + 自機狙い（aimedCount発）
                 var rot = e.age * 0.04;
                 for (var i = 0; i < 4; i++) {
                     var a = rot + (Math.PI * 2 / 4) * i;
                     eBullets.push({ x: e.x, y: e.y, vx: Math.cos(a) * spd * 0.9, vy: Math.sin(a) * spd * 0.9, size: sz, grazed: false, color: col, bulletType: bt });
                 }
-                eBullets.push({ x: e.x, y: e.y, vx: Math.cos(angle) * spd * 1.1, vy: Math.sin(angle) * spd * 1.1, size: sz, grazed: false, color: 0, bulletType: bt });
+                var an = diff.aimedCount;
+                if (an <= 1) {
+                    eBullets.push({ x: e.x, y: e.y, vx: Math.cos(angle) * spd * 1.1, vy: Math.sin(angle) * spd * 1.1, size: sz, grazed: false, color: 0, bulletType: bt });
+                } else {
+                    var asp = 0.18 + 0.04 * (an - 3);
+                    for (var i = 0; i < an; i++) {
+                        var aa = angle - asp + (asp * 2 / (an - 1)) * i;
+                        eBullets.push({ x: e.x, y: e.y, vx: Math.cos(aa) * spd * 1.1, vy: Math.sin(aa) * spd * 1.1, size: sz, grazed: false, color: 0, bulletType: bt });
+                    }
+                }
                 break;
             }
             case 'fan': {
-                // 広角7方向扇（下向き、±60度）
+                // 広角扇（下向き±60度）、弾数は wayCount+2（5/7/9/11）
                 var base = Math.PI / 2;
                 var half = Math.PI / 3;
-                var n = 7;
+                var n = diff.wayCount + 2;
                 for (var i = 0; i < n; i++) {
                     var a = base - half + (half * 2 / (n - 1)) * i;
                     var s = spd * (0.8 + (i % 2) * 0.2);
@@ -1330,19 +1354,29 @@
                     var a = (Math.PI * 2 / n) * i + rot;
                     eBullets.push({ x: e.x, y: e.y, vx: Math.cos(a) * ringSpd, vy: Math.sin(a) * ringSpd, size: sh.size, grazed: false, color: sh.color, bulletType: sh.bulletType, spin: Math.random() * Math.PI * 2 });
                 }
-                for (var i = -1; i <= 1; i++) {
-                    var a2 = angle + i * 0.22;
-                    eBullets.push({ x: e.x, y: e.y, vx: Math.cos(a2) * spd, vy: Math.sin(a2) * spd, size: sh.size, grazed: false, color: 0, bulletType: sh.bulletType, spin: Math.random() * Math.PI * 2 });
+                var an = diff.aimedCount;
+                if (an <= 1) {
+                    eBullets.push({ x: e.x, y: e.y, vx: Math.cos(angle) * spd, vy: Math.sin(angle) * spd, size: sh.size, grazed: false, color: 0, bulletType: sh.bulletType, spin: Math.random() * Math.PI * 2 });
+                } else {
+                    var asp = 0.2 + 0.04 * (an - 3);
+                    for (var i = 0; i < an; i++) {
+                        var a2 = angle - asp + (asp * 2 / (an - 1)) * i;
+                        eBullets.push({ x: e.x, y: e.y, vx: Math.cos(a2) * spd, vy: Math.sin(a2) * spd, size: sh.size, grazed: false, color: 0, bulletType: sh.bulletType, spin: Math.random() * Math.PI * 2 });
+                    }
                 }
                 break;
             }
             case 'turretDual': {
-                // 自機狙い全方位（中弾）
-                var aimedN = Math.floor(6 * diff.bullets);
+                // 自機狙い広角扇（中弾）: aimedCount+2 (3/5/7/9)
+                var aimedN = diff.aimedCount + 2;
                 var aimedSpread = 0.5;
-                for (var i = 0; i < aimedN; i++) {
-                    var a = angle - aimedSpread + (aimedSpread * 2 / Math.max(aimedN - 1, 1)) * i;
-                    eBullets.push({ x: e.x, y: e.y, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd, size: 5, grazed: false, color: 0, bulletType: 'medium' });
+                if (aimedN <= 1) {
+                    eBullets.push({ x: e.x, y: e.y, vx: Math.cos(angle) * spd, vy: Math.sin(angle) * spd, size: 5, grazed: false, color: 0, bulletType: 'medium' });
+                } else {
+                    for (var i = 0; i < aimedN; i++) {
+                        var a = angle - aimedSpread + (aimedSpread * 2 / (aimedN - 1)) * i;
+                        eBullets.push({ x: e.x, y: e.y, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd, size: 5, grazed: false, color: 0, bulletType: 'medium' });
+                    }
                 }
                 // 回転全方位（大弾）: 左の敵は左回転、右の敵は右回転
                 var spinN = Math.floor(10 * diff.bullets);
@@ -1412,7 +1446,7 @@
                     ctx.fillStyle = '#ffffff';
                     ctx.beginPath(); ctx.arc(0, 0, e.size, 0, Math.PI * 2); ctx.fill();
                 }
-                // スポナーはHP表示なし（無敵・寿命で消滅）
+                // スポナーはHPバー非表示（破壊可能・寿命でも消滅）
                 ctx.restore();
                 continue;
             }
@@ -1549,12 +1583,17 @@
     function fireBossBullets() {
         var spd = 2 * diff.speed, phase = boss.phase % 4;
         if (phase === 0) {
-            // 自機狙い扇5発
+            // 自機狙い扇: Easy 1 / Normal 3 / Hard 5 / Lunatic 7
             var angle = Math.atan2(player.y - boss.y, player.x - boss.x);
-            var n = Math.max(5, Math.floor(5 * diff.bullets)), spread = 0.5;
-            for (var i = 0; i < n; i++) {
-                var a = angle - spread + (spread * 2 / (n - 1)) * i;
-                pushBossBullet(boss.x, boss.y + boss.size, Math.cos(a) * spd, Math.sin(a) * spd);
+            var n = diff.aimedCount;
+            if (n <= 1) {
+                pushBossBullet(boss.x, boss.y + boss.size, Math.cos(angle) * spd, Math.sin(angle) * spd);
+            } else {
+                var spread = 0.3 + 0.08 * (n - 3); // 弾数に応じて扇を広げる
+                for (var i = 0; i < n; i++) {
+                    var a = angle - spread + (spread * 2 / (n - 1)) * i;
+                    pushBossBullet(boss.x, boss.y + boss.size, Math.cos(a) * spd, Math.sin(a) * spd);
+                }
             }
         } else if (phase === 1) {
             // 全方位回転2層逆回転：大きめ
@@ -1579,16 +1618,25 @@
                 pushBossBullet(boss.x + (Math.random() - 0.5) * 30, boss.y + boss.size, Math.cos(a) * s, Math.sin(a) * s);
             }
         } else {
-            // way5 + 自機狙い3発
+            // way (wayCount+2) + 自機狙い (aimedCount)
             var base = Math.PI / 2;
-            for (var i = -2; i <= 2; i++) {
-                var a = base + i * 0.25;
+            var wn = diff.wayCount + 2;
+            var whalf = (wn - 1) / 2;
+            for (var i = 0; i < wn; i++) {
+                var k = i - whalf;
+                var a = base + k * 0.25;
                 pushBossBullet(boss.x, boss.y + boss.size, Math.cos(a) * spd, Math.sin(a) * spd);
             }
             var angle = Math.atan2(player.y - boss.y, player.x - boss.x);
-            for (var i = -1; i <= 1; i++) {
-                var a = angle + i * 0.2;
-                pushBossBullet(boss.x, boss.y + boss.size, Math.cos(a) * spd * 1.2, Math.sin(a) * spd * 1.2);
+            var an = diff.aimedCount;
+            if (an <= 1) {
+                pushBossBullet(boss.x, boss.y + boss.size, Math.cos(angle) * spd * 1.2, Math.sin(angle) * spd * 1.2);
+            } else {
+                var asp = 0.2 + 0.05 * (an - 3);
+                for (var i = 0; i < an; i++) {
+                    var aa = angle - asp + (asp * 2 / (an - 1)) * i;
+                    pushBossBullet(boss.x, boss.y + boss.size, Math.cos(aa) * spd * 1.2, Math.sin(aa) * spd * 1.2);
+                }
             }
         }
     }
@@ -1639,9 +1687,15 @@
             }
             if (t % 100 === 80) {
                 var angle = Math.atan2(player.y - boss.y, player.x - boss.x);
-                for (var i = -2; i <= 2; i++) {
-                    var a = angle + i * 0.16;
-                    pushBossBullet(boss.x, boss.y, Math.cos(a) * 2.8 * diff.speed, Math.sin(a) * 2.8 * diff.speed);
+                var bn = diff.aimedCount + 2; // 大技中の自機狙いはやや多め (3/5/7/9)
+                if (bn <= 1) {
+                    pushBossBullet(boss.x, boss.y, Math.cos(angle) * 2.8 * diff.speed, Math.sin(angle) * 2.8 * diff.speed);
+                } else {
+                    var bsp = 0.16 + 0.04 * (bn - 3);
+                    for (var i = 0; i < bn; i++) {
+                        var a = angle - bsp + (bsp * 2 / (bn - 1)) * i;
+                        pushBossBullet(boss.x, boss.y, Math.cos(a) * 2.8 * diff.speed, Math.sin(a) * 2.8 * diff.speed);
+                    }
                 }
             }
         } else if (boss.spellIdx === 1) {
@@ -1676,9 +1730,15 @@
             }
             if (t % 70 === 50) {
                 var angle = Math.atan2(player.y - boss.y, player.x - boss.x);
-                for (var i = -1; i <= 1; i++) {
-                    var a = angle + i * 0.22;
-                    pushBossBullet(boss.x, boss.y, Math.cos(a) * 3 * diff.speed, Math.sin(a) * 3 * diff.speed);
+                var bn = diff.aimedCount;
+                if (bn <= 1) {
+                    pushBossBullet(boss.x, boss.y, Math.cos(angle) * 3 * diff.speed, Math.sin(angle) * 3 * diff.speed);
+                } else {
+                    var bsp = 0.22 + 0.04 * (bn - 3);
+                    for (var i = 0; i < bn; i++) {
+                        var a = angle - bsp + (bsp * 2 / (bn - 1)) * i;
+                        pushBossBullet(boss.x, boss.y, Math.cos(a) * 3 * diff.speed, Math.sin(a) * 3 * diff.speed);
+                    }
                 }
             }
         }
@@ -1971,7 +2031,6 @@
             var b = pBullets[i];
             for (var j = enemies.length - 1; j >= 0; j--) {
                 var e = enemies[j];
-                if (e.type === 'spawner') continue; // スポナーは無敵
                 if (Math.abs(b.x - e.x) < e.size + 4 && Math.abs(b.y - e.y) < e.size + 4) {
                     e.hp -= 1; pBullets.splice(i, 1); spawnParticle(b.x, b.y, '#ffffff', 1); break;
                 }
