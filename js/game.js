@@ -93,10 +93,10 @@
     var GRAZE_RADIUS = 24;
 
     var DIFF = {
-        easy:    { bullets: 0.5, bossHp: 0.8, speed: 0.8, label: 'Easy' },
-        normal:  { bullets: 1.0, bossHp: 1.0, speed: 1.0, label: 'Normal' },
-        hard:    { bullets: 1.5, bossHp: 1.5, speed: 1.2, label: 'Hard' },
-        lunatic: { bullets: 2.0, bossHp: 2.5, speed: 1.4, label: 'Lunatic' }
+        easy:    { bullets: 0.5, speed: 0.8, label: 'Easy' },
+        normal:  { bullets: 1.0, speed: 1.0, label: 'Normal' },
+        hard:    { bullets: 1.5, speed: 1.2, label: 'Hard' },
+        lunatic: { bullets: 2.0, speed: 1.4, label: 'Lunatic' }
     };
 
     // ===== State =====
@@ -524,10 +524,11 @@
     }
 
     // ===== Bomb Orbs（夢想封印） =====
-    var BOMB_ORB_RADIUS = 40;
+    var BOMB_ORB_RADIUS = 60;
     var BOMB_ORB_COUNT = 6;
-    var BOMB_ORB_EXPLODE_RADIUS = 70;
-    var BOMB_ORB_EXPLODE_DAMAGE = 40;
+    var BOMB_ORB_EXPLODE_RADIUS = 140; // 弾消し範囲＆爆発見た目
+    var BOMB_ORB_EXPLODE_DAMAGE = 8;   // 雑魚向け（6オーブ累計48: 中型は確殺、大型はHP50で生存）
+    var BOMB_ORB_BOSS_DAMAGE = 18;     // ボス向け（6オーブ累計108）
 
     function launchBombOrbs() {
         bombOrbs = [];
@@ -586,20 +587,15 @@
                 score += 10;
             }
         }
-        // 爆発範囲の敵にダメージ
+        // 画面内の敵全員にダメージ（範囲制限なし）
         for (var j = 0; j < enemies.length; j++) {
             var e = enemies[j];
             if (e.type === 'spawner') continue; // スポナーは無敵
-            var dx = e.x - orb.x, dy = e.y - orb.y;
-            if (dx * dx + dy * dy < BOMB_ORB_EXPLODE_RADIUS * BOMB_ORB_EXPLODE_RADIUS) {
-                e.hp -= BOMB_ORB_EXPLODE_DAMAGE;
-            }
+            if (e.y < -10 || e.y > H + 20) continue; // 画面外は対象外
+            e.hp -= BOMB_ORB_EXPLODE_DAMAGE;
         }
         if (boss && !boss.entering) {
-            var dx = boss.x - orb.x, dy = boss.y - orb.y;
-            if (dx * dx + dy * dy < BOMB_ORB_EXPLODE_RADIUS * BOMB_ORB_EXPLODE_RADIUS) {
-                boss.hp -= BOMB_ORB_EXPLODE_DAMAGE;
-            }
+            boss.hp -= BOMB_ORB_BOSS_DAMAGE;
         }
     }
 
@@ -1050,8 +1046,8 @@
         var kind = BOSS_KINDS[Math.floor(Math.random() * BOSS_KINDS.length)];
         boss = {
             x: W / 2, y: -40,
-            hp: Math.floor(600 * diff.bossHp),
-            maxHp: Math.floor(600 * diff.bossHp),
+            hp: 600,
+            maxHp: 600,
             size: 30, phase: 0, phaseTimer: 0,
             fireTimer: 0, age: 0, entering: true, firing: false,
             // ボス種類
