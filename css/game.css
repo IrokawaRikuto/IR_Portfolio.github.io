@@ -20,7 +20,7 @@
 
 /* ===== Game Body ===== */
 .game-body {
-    padding: 40px 32px;
+    padding: 56px 32px 40px; /* top を広めに：右上の閉じる×ボタンと canvas が重ならないようにする */
 }
 
 /* ===== Canvas Container ===== */
@@ -45,12 +45,13 @@
 /* ===== Game Detail Grid (作品紹介スタイル) ===== */
 .game-detail-grid {
     display: grid;
-    grid-template-columns: 1fr 1.5fr;
+    grid-template-columns: 1fr 1fr;
     gap: 24px;
     border-top: 1px solid var(--border);
     padding-top: 20px;
     max-width: 700px;
     margin: 0 auto;
+    align-items: start;
 }
 .game-detail-left,
 .game-detail-right {
@@ -73,6 +74,41 @@
     text-transform: uppercase;
     font-weight: 400;
 }
+
+/* ===== ゲーム内スクリーンショット枠 ===== */
+.game-detail-screenshot {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+.game-detail-screenshot img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    display: block;
+}
+.game-detail-screenshot img:hover {
+    opacity: 0.85;
+}
+.game-detail-screenshot .media-placeholder {
+    width: auto;
+    aspect-ratio: auto;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    padding: 0;
+}
+
 @media (max-width: 768px) {
     .game-detail-grid {
         grid-template-columns: 1fr;
@@ -377,7 +413,7 @@
 /* ===== Mobile Layout ===== */
 @media (max-width: 768px) {
     .game-body {
-        padding: 20px 12px;
+        padding: 56px 12px 20px; /* 右上の閉じる×ボタンとの重なりを避けるため top は維持 */
     }
     .game-canvas-container {
         margin-bottom: 0;

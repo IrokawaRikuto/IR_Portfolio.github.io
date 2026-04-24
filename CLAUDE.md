@@ -74,7 +74,10 @@
 - 4難易度（Easy/Normal/Hard/Lunatic）。ボスHPは固定600（難易度非依存）、変化するのは弾幕密度（bullets）と速度（speed）のみ
 - モバイル対応（スライドパッド + BOMB/SLOWボタン、自動発射、キャンバス直下・詳細情報の上に配置）。表示条件は `@media (hover: none) and (pointer: coarse)` のタッチ端末のみ（PCで窓を狭めても出ない）
 - HUD英語表記: HI SCORE, SCORE, PLAYER, BOMB, POWER, GRAZE, STAGE
-- ゲーム情報: 操作方法（方向キー/Z/X/Shift）→概要（制作経緯・東方春三校との差分）の順で表示
+- ゲーム情報レイアウト（2カラム grid）:
+  - 左: 操作方法 / 制作年 / 開発環境 / 使用素材
+  - 右: スクリーンショット（4:3 枠、現状は「準備中…」プレースホルダ）/ 概要
+- `.game-body` の padding-top を 56px に拡大し、ウィンドウ幅が細い時に右上の閉じる×ボタンが canvas（HUD領域）と重ならないように調整済み（モバイル時も padding-top: 56px を維持）
 
 ### 自機
 - 低速移動時の集中ショット、アイテム引き寄せ（本家準拠挙動）
