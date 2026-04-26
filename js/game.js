@@ -2399,7 +2399,10 @@
         practicePatternKey = patternKey;
 
         frame = 0; score = 0; graze = 0; lives = 1; bombs = 0;
-        power = MAX_POWER; invTimer = 0; fireTimer = 0; bombTimer = 0;
+        // 道中はPower=1（MIN_POWER）、ボスはMAX
+        var isBossPattern = patternKey.indexOf('boss_') === 0;
+        power = isBossPattern ? MAX_POWER : MIN_POWER;
+        invTimer = 0; fireTimer = 0; bombTimer = 0;
         waveTimer = 0; waveIndex = 0; bossActive = false; boss = null;
         bossInterval = Number.POSITIVE_INFINITY; preBoss = false;
         waveScript = []; waveScriptIdx = 0;
