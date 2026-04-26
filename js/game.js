@@ -2644,7 +2644,9 @@
             if (state !== 'GAMEOVER') e.preventDefault();
         }
         keys[e.code] = true;
-        if (state !== 'PLAYING') handleMenuKey(e.code);
+        // 自動リピート（長押し）ではメニュー決定を発火しない。
+        // PLAYING中に押していたZ/Enter等が画面遷移直後に決定を誤発火するのを防ぐ
+        if (state !== 'PLAYING' && !e.repeat) handleMenuKey(e.code);
     });
     document.addEventListener('keyup', function (e) { keys[e.code] = false; });
 
