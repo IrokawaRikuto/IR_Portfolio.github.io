@@ -741,10 +741,11 @@
             var alpha = Math.min(1, orb.life / 30);
             ctx.save();
             ctx.translate(orb.x, orb.y);
+            ctx.rotate(orb.spin); // 常に反時計回り（spin は減算で更新）
 
             var r = orb.radius;
 
-            // 外側虹色グロー
+            // 虹色グロー（外側）
             var grd = ctx.createRadialGradient(0, 0, r * 0.2, 0, 0, r * 1.6);
             grd.addColorStop(0, 'hsla(' + orb.hue + ', 100%, 85%, ' + (alpha * 0.9) + ')');
             grd.addColorStop(0.3, 'hsla(' + ((orb.hue + 60) % 360) + ', 100%, 65%, ' + (alpha * 0.6) + ')');
@@ -755,27 +756,14 @@
             ctx.arc(0, 0, r * 1.6, 0, Math.PI * 2);
             ctx.fill();
 
-            // 反時計回りに回転する虹色花弁（6枚）
-            ctx.save();
-            ctx.rotate(orb.spin);
-            for (var k = 0; k < 6; k++) {
-                var pa = (Math.PI * 2 / 6) * k;
-                var ph = (orb.hue + k * 60) % 360;
-                ctx.fillStyle = 'hsla(' + ph + ', 100%, 70%, ' + (alpha * 0.85) + ')';
-                ctx.beginPath();
-                ctx.ellipse(Math.cos(pa) * r * 0.55, Math.sin(pa) * r * 0.55, r * 0.34, r * 0.18, pa, 0, Math.PI * 2);
-                ctx.fill();
-            }
-            ctx.restore();
-
-            // 中央コア
-            var coreGrd = ctx.createRadialGradient(0, 0, 0, 0, 0, r * 0.55);
+            // コア
+            var coreGrd = ctx.createRadialGradient(0, 0, 0, 0, 0, r);
             coreGrd.addColorStop(0, 'rgba(255,255,255,' + alpha + ')');
-            coreGrd.addColorStop(0.5, 'hsla(' + orb.hue + ', 100%, 80%, ' + (alpha * 0.9) + ')');
-            coreGrd.addColorStop(1, 'hsla(' + ((orb.hue + 180) % 360) + ', 80%, 55%, 0)');
+            coreGrd.addColorStop(0.4, 'hsla(' + orb.hue + ', 100%, 80%, ' + (alpha * 0.9) + ')');
+            coreGrd.addColorStop(1, 'hsla(' + ((orb.hue + 180) % 360) + ', 80%, 55%, ' + (alpha * 0.2) + ')');
             ctx.fillStyle = coreGrd;
             ctx.beginPath();
-            ctx.arc(0, 0, r * 0.55, 0, Math.PI * 2);
+            ctx.arc(0, 0, r, 0, Math.PI * 2);
             ctx.fill();
 
             ctx.restore();
