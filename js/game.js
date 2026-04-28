@@ -62,6 +62,7 @@
     loadSprite('bulletStarSmall', 'assets/game/bullet_small_star.png');
     loadSprite('bulletPlayer', 'assets/game/bullet_player_main.png');
     loadSprite('items', 'assets/game/items.png');
+    loadSprite('bombOrb', 'assets/game/bomb_orb.png');
     loadSprite('magicCircle', 'assets/game/boss_magic_circle.png');
     loadSprite('deleteEffect', 'assets/game/bullet_delete_effect.png');
     loadSprite('bossHpBar', 'assets/game/boss_hpbar.png');
@@ -749,6 +750,7 @@
     }
 
     function drawBombOrbs() {
+        var useSprite = isSpriteReady('bombOrb');
         for (var i = 0; i < bombOrbs.length; i++) {
             var orb = bombOrbs[i];
             var alpha = Math.min(1, orb.life / 30);
@@ -757,27 +759,32 @@
             ctx.rotate(orb.spin); // 常に反時計回り（spin は減算で更新）
 
             var r = orb.radius;
-
-            // 虹色グロー（外側）
-            var grd = ctx.createRadialGradient(0, 0, r * 0.2, 0, 0, r * 1.6);
-            grd.addColorStop(0, 'hsla(' + orb.hue + ', 100%, 85%, ' + (alpha * 0.9) + ')');
-            grd.addColorStop(0.3, 'hsla(' + ((orb.hue + 60) % 360) + ', 100%, 65%, ' + (alpha * 0.6) + ')');
-            grd.addColorStop(0.6, 'hsla(' + ((orb.hue + 120) % 360) + ', 100%, 55%, ' + (alpha * 0.3) + ')');
-            grd.addColorStop(1, 'hsla(' + ((orb.hue + 180) % 360) + ', 100%, 50%, 0)');
-            ctx.fillStyle = grd;
-            ctx.beginPath();
-            ctx.arc(0, 0, r * 1.6, 0, Math.PI * 2);
-            ctx.fill();
-
-            // コア
-            var coreGrd = ctx.createRadialGradient(0, 0, 0, 0, 0, r);
-            coreGrd.addColorStop(0, 'rgba(255,255,255,' + alpha + ')');
-            coreGrd.addColorStop(0.4, 'hsla(' + orb.hue + ', 100%, 80%, ' + (alpha * 0.9) + ')');
-            coreGrd.addColorStop(1, 'hsla(' + ((orb.hue + 180) % 360) + ', 80%, 55%, ' + (alpha * 0.2) + ')');
-            ctx.fillStyle = coreGrd;
-            ctx.beginPath();
-            ctx.arc(0, 0, r, 0, Math.PI * 2);
-            ctx.fill();
+            if (useSprite) {
+                // プレイヤースプライト下部の虹色グローを使用。サイズは旧描画の見た目（半径 r*1.6 ＝直径 r*3.2）に合わせる
+                var ds = r * 3.2;
+                ctx.globalAlpha = alpha;
+                ctx.drawImage(sprites.bombOrb, -ds / 2, -ds / 2, ds, ds);
+                ctx.globalAlpha = 1;
+            } else {
+                // フォールバック: 動的な radial gradient
+                var grd = ctx.createRadialGradient(0, 0, r * 0.2, 0, 0, r * 1.6);
+                grd.addColorStop(0, 'hsla(' + orb.hue + ', 100%, 85%, ' + (alpha * 0.9) + ')');
+                grd.addColorStop(0.3, 'hsla(' + ((orb.hue + 60) % 360) + ', 100%, 65%, ' + (alpha * 0.6) + ')');
+                grd.addColorStop(0.6, 'hsla(' + ((orb.hue + 120) % 360) + ', 100%, 55%, ' + (alpha * 0.3) + ')');
+                grd.addColorStop(1, 'hsla(' + ((orb.hue + 180) % 360) + ', 100%, 50%, 0)');
+                ctx.fillStyle = grd;
+                ctx.beginPath();
+                ctx.arc(0, 0, r * 1.6, 0, Math.PI * 2);
+                ctx.fill();
+                var coreGrd = ctx.createRadialGradient(0, 0, 0, 0, 0, r);
+                coreGrd.addColorStop(0, 'rgba(255,255,255,' + alpha + ')');
+                coreGrd.addColorStop(0.4, 'hsla(' + orb.hue + ', 100%, 80%, ' + (alpha * 0.9) + ')');
+                coreGrd.addColorStop(1, 'hsla(' + ((orb.hue + 180) % 360) + ', 80%, 55%, ' + (alpha * 0.2) + ')');
+                ctx.fillStyle = coreGrd;
+                ctx.beginPath();
+                ctx.arc(0, 0, r, 0, Math.PI * 2);
+                ctx.fill();
+            }
 
             ctx.restore();
         }
