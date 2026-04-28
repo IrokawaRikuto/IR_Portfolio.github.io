@@ -2327,12 +2327,17 @@
         titleScreen.hidden = true; diffScreen.hidden = true;
         overScreen.hidden = false; rankingScreen.hidden = true;
         finalScoreEl.textContent = 'SCORE: ' + score;
-        // コンティニュー使用時はランキング登録不可
+        // コンティニュー使用時: ランキング関連を隠して リトライ/タイトル ボタンのみ表示
         var noteEl = document.getElementById('game-continue-note');
         var nameRow = document.getElementById('game-name-row');
+        var retryBtn = document.getElementById('game-over-retry-btn');
+        var titleBtn = document.getElementById('game-over-title-btn');
         if (noteEl) noteEl.hidden = !usedContinue;
         if (nameRow) nameRow.hidden = usedContinue;
         if (submitBtn) submitBtn.hidden = usedContinue;
+        if (skipBtn) skipBtn.hidden = usedContinue;
+        if (retryBtn) retryBtn.hidden = !usedContinue;
+        if (titleBtn) titleBtn.hidden = !usedContinue;
         nameInput.value = '';
         if (!usedContinue) setTimeout(function () { nameInput.focus(); }, 100);
     }
@@ -2707,8 +2712,13 @@
 
     function handleMenuKey(code) {
         if (state === 'GAMEOVER') {
-            if (code === 'Enter' && !usedContinue) { playSE('decide'); submitBtn.click(); }
-            else if (code === 'KeyX' || code === 'Escape' || (code === 'Enter' && usedContinue)) { playSE('decide'); skipBtn.click(); }
+            if (usedContinue) {
+                if (code === 'KeyZ' || code === 'Enter') { playSE('decide'); var rb = document.getElementById('game-over-retry-btn'); if (rb) rb.click(); }
+                else if (code === 'KeyX' || code === 'Escape') { playSE('decide'); var tb = document.getElementById('game-over-title-btn'); if (tb) tb.click(); }
+            } else {
+                if (code === 'Enter') { playSE('decide'); submitBtn.click(); }
+                else if (code === 'KeyX' || code === 'Escape') { playSE('decide'); skipBtn.click(); }
+            }
             return;
         }
         if (state === 'CONTINUE_PROMPT') {
@@ -2985,6 +2995,18 @@
         playSE('decide');
         showRanking('gameover', diffKey);
     });
+
+    // コンティニュー使用時のゲームオーバー: リトライ / タイトル
+    var goRetryBtn = document.getElementById('game-over-retry-btn');
+    var goTitleBtn = document.getElementById('game-over-title-btn');
+    if (goRetryBtn) {
+        goRetryBtn.addEventListener('click', function () { playSE('decide'); startGame(); });
+        goRetryBtn.addEventListener('mouseenter', function () { playSE('select'); });
+    }
+    if (goTitleBtn) {
+        goTitleBtn.addEventListener('click', function () { playSE('decide'); goToTitle(); });
+        goTitleBtn.addEventListener('mouseenter', function () { playSE('select'); });
+    }
 
     rankingTabs.querySelectorAll('.ranking-tab').forEach(function (tab) {
         tab.addEventListener('click', function () {
