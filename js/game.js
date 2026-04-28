@@ -27,6 +27,7 @@
     var practiceResultTitle = document.getElementById('practice-result-title');
     var practiceBackBtn = document.getElementById('practice-back-btn');
     var pauseScreen = document.getElementById('game-pause-screen');
+    var continueScreen = document.getElementById('game-continue-screen');
 
     // Canvas & Field size (東方スタイル: 左にフィールド、右にHUD)
     var CANVAS_W = 640, CANVAS_H = 480;
@@ -91,11 +92,20 @@
     var PLAYER_SIZE = 10;
     var PLAYER_HITBOX = 2;
     var FIRE_INTERVAL = 4;
-    var MAX_LIVES = 3;
+    var MAX_LIVES = 3;          // 初期残機（HUD最低表示数も兼ねる）
+    var LIFE_CAP = 8;            // 残機の上限（1UP取得で増えるが上限あり）
     var MAX_BOMBS = 2;
     var MIN_POWER = 100;
     var MAX_POWER = 400;
     var INVINCIBLE_FRAMES = 180;
+    // 本家準拠の弾当たり判定: bulletType ごとにヒット半径(b.size 倍率)を返す
+    function bulletHitRadius(b) {
+        var s = b.size || 4;
+        var t = b.bulletType || 'small';
+        if (t === 'star') return s * 0.55;                                  // 大きめ星弾は中央コアのみ
+        if (t === 'wedge' || t === 'ice' || t === 'seal') return s * 0.55;  // 細長弾は本体細め
+        return s * 0.7;                                                     // 丸弾 (small/medium/large)
+    }
     var BOMB_DURATION = 60;
     var ITEM_ATTRACT_RADIUS = 36;
     var ITEM_AUTO_COLLECT_Y = 100;
@@ -120,6 +130,8 @@
     var lives = 0;
     var bombs = 0;
     var power = MIN_POWER;
+    var usedContinue = false;
+    var continueDeathPos = { x: 0, y: 0 };
     var invTimer = 0;
     var fireTimer = 0;
     var bombTimer = 0;
@@ -507,7 +519,8 @@
             case 'powerS': power = Math.min(MAX_POWER, power + 1); break;   // +0.01
             case 'power':  power = Math.min(MAX_POWER, power + 10); break;  // +0.10
             case 'bomb':   bombs = Math.min(MAX_BOMBS + 3, bombs + 1); break;
-            case 'life':   lives++; break;
+            case 'life':   lives = Math.min(LIFE_CAP, lives + 1); break;
+            case 'fullpower': power = MAX_POWER; break;
         }
     }
 
@@ -1773,8 +1786,9 @@
         }
         spawnItems(boss.x, boss.y, 'score', 5); spawnItems(boss.x, boss.y, 'scoreS', 10);
         spawnItems(boss.x, boss.y, 'power', 3);
-        if (Math.random() > 0.5) spawnItems(boss.x, boss.y, 'life', 1);
-        else spawnItems(boss.x, boss.y, 'bomb', 1);
+        // ボス級撃破は 1UP を必ず1個 + ボム1個
+        spawnItems(boss.x, boss.y, 'life', 1);
+        spawnItems(boss.x, boss.y, 'bomb', 1);
         for (var i = 0; i < eBullets.length; i++) spawnDeleteEffect(eBullets[i].x, eBullets[i].y);
         eBullets = []; boss = null; bossActive = false;
         // 残存スポナーも消去
@@ -2032,7 +2046,7 @@
             var b = eBullets[i]; if (b.grazed) continue;
             var dx = b.x - player.x, dy = b.y - player.y;
             var dist = Math.sqrt(dx * dx + dy * dy);
-            var bHitSize = b.size * 0.4;
+            var bHitSize = bulletHitRadius(b);
             if (dist < GRAZE_RADIUS && dist > PLAYER_HITBOX + bHitSize) {
                 b.grazed = true; graze++; score += 10;
                 spawnParticle(player.x + dx * 0.3, player.y + dy * 0.3, '#ffffff', 1);
@@ -2061,17 +2075,17 @@
         if (invTimer > 0 || bombTimer > 0) return;
         for (var i = eBullets.length - 1; i >= 0; i--) {
             var b = eBullets[i]; var dx = b.x - player.x, dy = b.y - player.y;
-            // 当たり判定は弾の中心部分のみ（見た目の40%）
-            var hitSize = b.size * 0.4;
+            // 当たり判定: bulletType ごとに 0.55〜0.7×size の円（東方準拠の体感）
+            var hitSize = bulletHitRadius(b);
             if (dx * dx + dy * dy < (PLAYER_HITBOX + hitSize) * (PLAYER_HITBOX + hitSize)) { eBullets.splice(i, 1); playerHit(); return; }
         }
         for (var i = 0; i < enemies.length; i++) {
             var e = enemies[i]; var dx = e.x - player.x, dy = e.y - player.y;
-            if (dx * dx + dy * dy < (PLAYER_HITBOX + e.size * 0.4) * (PLAYER_HITBOX + e.size * 0.4)) { playerHit(); return; }
+            if (dx * dx + dy * dy < (PLAYER_HITBOX + e.size * 0.5) * (PLAYER_HITBOX + e.size * 0.5)) { playerHit(); return; }
         }
         if (boss && !boss.entering) {
             var dx = boss.x - player.x, dy = boss.y - player.y;
-            if (dx * dx + dy * dy < (PLAYER_HITBOX + boss.size * 0.5) * (PLAYER_HITBOX + boss.size * 0.5)) playerHit();
+            if (dx * dx + dy * dy < (PLAYER_HITBOX + boss.size * 0.55) * (PLAYER_HITBOX + boss.size * 0.55)) playerHit();
         }
     }
 
@@ -2088,19 +2102,57 @@
         var px = player.x, py = player.y;
         var oldPower = power;
         power = Math.max(MIN_POWER, power - 100); // -1.00
-        var lost = oldPower - power;
-        if (lost > 0) {
-            var dropRate = 0.4 + Math.random() * 0.2;
-            var dropAmount = Math.floor(lost * dropRate);
-            var bigCount = Math.floor(dropAmount / 10);
-            var smallCount = dropAmount - bigCount * 10;
-            if (bigCount > 0) spawnDeathPowerItems(px, py, 'power', bigCount);
-            if (smallCount > 0) spawnDeathPowerItems(px, py, 'powerS', smallCount);
+        var willGameOver = (lives <= 0);
+        if (!willGameOver) {
+            // 通常被弾: P/大Pをばらまく
+            var lost = oldPower - power;
+            if (lost > 0) {
+                var dropRate = 0.4 + Math.random() * 0.2;
+                var dropAmount = Math.floor(lost * dropRate);
+                var bigCount = Math.floor(dropAmount / 10);
+                var smallCount = dropAmount - bigCount * 10;
+                if (bigCount > 0) spawnDeathPowerItems(px, py, 'power', bigCount);
+                if (smallCount > 0) spawnDeathPowerItems(px, py, 'powerS', smallCount);
+            }
         }
         spawnExplosion(px, py, '#ffffff', 10);
         eBullets = [];
         player.x = W / 2; player.y = H - 60;
-        if (lives <= 0) gameOver();
+        if (willGameOver) {
+            if (!usedContinue) {
+                continueDeathPos.x = px; continueDeathPos.y = py;
+                showContinuePrompt();
+            } else {
+                gameOver();
+            }
+        }
+    }
+
+    function showContinuePrompt() {
+        state = 'CONTINUE_PROMPT';
+        if (animId) { cancelAnimationFrame(animId); animId = null; }
+        overlay.hidden = false;
+        if (continueScreen) continueScreen.hidden = false;
+    }
+
+    function doContinue() {
+        usedContinue = true;
+        lives = MAX_LIVES;
+        bombs = MAX_BOMBS;
+        invTimer = INVINCIBLE_FRAMES;
+        eBullets = [];
+        // 死亡位置に フルパワー × 5 を発生（fan→rise→fall の死亡ばらまき軌道）
+        spawnDeathPowerItems(continueDeathPos.x, continueDeathPos.y, 'fullpower', 5);
+        if (continueScreen) continueScreen.hidden = true;
+        overlay.hidden = true;
+        state = 'PLAYING';
+        loopLastTime = 0; loopAccum = 0;
+        if (!animId) animId = requestAnimationFrame(gameLoop);
+    }
+
+    function declineContinue() {
+        if (continueScreen) continueScreen.hidden = true;
+        gameOver();
     }
 
     // ===== Right-side HUD Panel (東方スタイル) =====
@@ -2246,6 +2298,7 @@
     function resetGame() {
         frame = 0; score = 0; graze = 0; lives = MAX_LIVES; bombs = MAX_BOMBS;
         power = MIN_POWER; invTimer = 0; fireTimer = 0; bombTimer = 0;
+        usedContinue = false;
         waveTimer = 0; waveIndex = 0; bossActive = false; boss = null;
         bossInterval = 1200; preBoss = false;
         player.x = W / 2; player.y = H - 60;
@@ -2274,8 +2327,14 @@
         titleScreen.hidden = true; diffScreen.hidden = true;
         overScreen.hidden = false; rankingScreen.hidden = true;
         finalScoreEl.textContent = 'SCORE: ' + score;
+        // コンティニュー使用時はランキング登録不可
+        var noteEl = document.getElementById('game-continue-note');
+        var nameRow = document.getElementById('game-name-row');
+        if (noteEl) noteEl.hidden = !usedContinue;
+        if (nameRow) nameRow.hidden = usedContinue;
+        if (submitBtn) submitBtn.hidden = usedContinue;
         nameInput.value = '';
-        setTimeout(function () { nameInput.focus(); }, 100);
+        if (!usedContinue) setTimeout(function () { nameInput.focus(); }, 100);
     }
 
     function showRanking(from, showDiff) {
@@ -2343,6 +2402,7 @@
         if (practiceScreen) practiceScreen.hidden = true;
         if (practiceResultScreen) practiceResultScreen.hidden = true;
         if (pauseScreen) pauseScreen.hidden = true;
+        if (continueScreen) continueScreen.hidden = true;
         updateMenuHighlight();
         initTitleParticles();
         drawTitleBg();
@@ -2647,8 +2707,13 @@
 
     function handleMenuKey(code) {
         if (state === 'GAMEOVER') {
-            if (code === 'Enter') { playSE('decide'); submitBtn.click(); }
-            else if (code === 'KeyX' || code === 'Escape') { playSE('decide'); skipBtn.click(); }
+            if (code === 'Enter' && !usedContinue) { playSE('decide'); submitBtn.click(); }
+            else if (code === 'KeyX' || code === 'Escape' || (code === 'Enter' && usedContinue)) { playSE('decide'); skipBtn.click(); }
+            return;
+        }
+        if (state === 'CONTINUE_PROMPT') {
+            if (code === 'KeyZ' || code === 'Enter') { playSE('decide'); doContinue(); }
+            else if (code === 'KeyX' || code === 'Escape') { playSE('decide'); declineContinue(); }
             return;
         }
         var items = getMenuItems();
@@ -2878,6 +2943,19 @@
         });
         btn.addEventListener('mouseenter', function () { hoverSelect(idx); });
     });
+
+    // コンティニュー画面: はい / いいえ
+    if (continueScreen) {
+        continueScreen.querySelectorAll('.game-btn').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                playSE('decide');
+                var act = btn.dataset.action;
+                if (act === 'continue-yes') doContinue();
+                else if (act === 'continue-no') declineContinue();
+            });
+            btn.addEventListener('mouseenter', function () { playSE('select'); });
+        });
+    }
 
     modal.querySelectorAll('.difficulty-btn').forEach(function (btn, idx) {
         btn.addEventListener('click', function () {

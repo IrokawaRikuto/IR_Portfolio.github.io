@@ -140,10 +140,17 @@
 #game-ranking-screen,
 #game-practice-screen,
 #game-practice-result-screen,
-#game-pause-screen {
+#game-pause-screen,
+#game-continue-screen {
     text-align: center;
     color: #fff;
     padding: 20px;
+}
+#game-continue-screen[hidden] { display: none; }
+.continue-note {
+    color: #ffaa44;
+    font-size: 0.75rem;
+    margin: 8px 0 14px;
 }
 #game-title-screen {
     padding-top: 80px;
