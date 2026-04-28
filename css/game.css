@@ -376,6 +376,7 @@
     background: var(--accent);
     color: #fff;
 }
+.game-btn[hidden] { display: none; }
 
 /* ===== Name Input ===== */
 .game-name-input {
