@@ -225,13 +225,14 @@
     transition: border-color 0.3s, color 0.3s, background 0.3s;
 }
 .practice-diff-btn.easy { color: #44ff44; border-color: #44ff4433; }
-.practice-diff-btn.easy:hover, .practice-diff-btn.easy.active { border-color: #44ff44; background: rgba(68, 255, 68, 0.12); color: #44ff44; }
+.practice-diff-btn.easy:hover, .practice-diff-btn.easy.active, .practice-diff-btn.easy.selected { border-color: #44ff44; background: rgba(68, 255, 68, 0.12); color: #44ff44; }
 .practice-diff-btn.normal { color: #44aaff; border-color: #44aaff33; }
-.practice-diff-btn.normal:hover, .practice-diff-btn.normal.active { border-color: #44aaff; background: rgba(68, 170, 255, 0.12); color: #44aaff; }
+.practice-diff-btn.normal:hover, .practice-diff-btn.normal.active, .practice-diff-btn.normal.selected { border-color: #44aaff; background: rgba(68, 170, 255, 0.12); color: #44aaff; }
 .practice-diff-btn.hard { color: #ff4444; border-color: #ff444433; }
-.practice-diff-btn.hard:hover, .practice-diff-btn.hard.active { border-color: #ff4444; background: rgba(255, 68, 68, 0.12); color: #ff4444; }
+.practice-diff-btn.hard:hover, .practice-diff-btn.hard.active, .practice-diff-btn.hard.selected { border-color: #ff4444; background: rgba(255, 68, 68, 0.12); color: #ff4444; }
 .practice-diff-btn.lunatic { color: #c466ff; border-color: #c466ff33; }
-.practice-diff-btn.lunatic:hover, .practice-diff-btn.lunatic.active { border-color: #c466ff; background: rgba(196, 102, 255, 0.12); color: #c466ff; }
+.practice-diff-btn.lunatic:hover, .practice-diff-btn.lunatic.active, .practice-diff-btn.lunatic.selected { border-color: #c466ff; background: rgba(196, 102, 255, 0.12); color: #c466ff; }
+.practice-diff-btn.selected { box-shadow: 0 0 0 2px currentColor; }
 
 .practice-list {
     text-align: left;

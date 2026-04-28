@@ -59,6 +59,7 @@
     loadSprite('bulletSeal', 'assets/game/bullet_seal.png');
     loadSprite('bulletStar', 'assets/game/bullet_star.png');
     loadSprite('bulletStarSmall', 'assets/game/bullet_small_star.png');
+    loadSprite('bulletPlayer', 'assets/game/bullet_player_main.png');
     loadSprite('magicCircle', 'assets/game/boss_magic_circle.png');
     loadSprite('deleteEffect', 'assets/game/bullet_delete_effect.png');
     loadSprite('bossHpBar', 'assets/game/boss_hpbar.png');
@@ -389,10 +390,21 @@
         }
     }
     function drawPBullets() {
-        ctx.fillStyle = '#ff4444';
-        for (var i = 0; i < pBullets.length; i++) {
-            var b = pBullets[i];
-            ctx.fillRect(b.x - b.w / 2, b.y, b.w, b.h);
+        var useSprite = isSpriteReady('bulletPlayer');
+        if (useSprite) {
+            for (var i = 0; i < pBullets.length; i++) {
+                var b = pBullets[i];
+                // bullet.h を基準に縦長に描画（スプライト 16x24）
+                var dh = b.h * 1.4;
+                var dw = dh * (16 / 24);
+                ctx.drawImage(sprites.bulletPlayer, 0, 0, 16, 24, b.x - dw / 2, b.y - dh * 0.4, dw, dh);
+            }
+        } else {
+            ctx.fillStyle = '#ff4444';
+            for (var i = 0; i < pBullets.length; i++) {
+                var b = pBullets[i];
+                ctx.fillRect(b.x - b.w / 2, b.y, b.w, b.h);
+            }
         }
     }
 
@@ -537,9 +549,11 @@
     // ===== Bomb Orbs（夢想封印） =====
     var BOMB_ORB_RADIUS = 60;
     var BOMB_ORB_COUNT = 6;
-    var BOMB_ORB_EXPLODE_RADIUS = 140; // 弾消し範囲＆爆発見た目
-    var BOMB_ORB_EXPLODE_DAMAGE = 8;   // 雑魚向け（6オーブ累計48: 中型は確殺、大型はHP50で生存）
-    var BOMB_ORB_BOSS_DAMAGE = 18;     // ボス向け（6オーブ累計108）
+    var BOMB_LIFE = 240;               // 4秒（60fps前提）
+    var BOMB_WRAP_FRAMES = 30;         // 0.5秒 自機を纏う
+    var BOMB_SPREAD_FRAMES = 20;       // 約0.33秒 放射状に広がる
+    var BOMB_ORB_EXPLODE_DAMAGE = 8;   // 1接触あたりの雑魚ダメージ
+    var BOMB_ORB_BOSS_DAMAGE = 18;     // 1接触あたりのボスダメージ
 
     function launchBombOrbs() {
         bombOrbs = [];
@@ -548,65 +562,54 @@
             var a = (Math.PI * 2 / BOMB_ORB_COUNT) * i - Math.PI / 2;
             bombOrbs.push({
                 x: player.x, y: player.y,
-                vx: Math.cos(a) * 6, vy: Math.sin(a) * 6,
+                vx: 0, vy: 0,
                 radius: BOMB_ORB_RADIUS,
-                life: 180,
+                life: BOMB_LIFE,
                 hue: (360 / BOMB_ORB_COUNT) * i,
-                phase: 'spread', // spread → homing → explode
-                spreadTimer: 20 + i * 3, // 散らばる時間（個体差）
-                target: null,
-                explodeTimer: 0
+                phase: 'wrap',                              // wrap → spread → homing
+                phaseTimer: BOMB_WRAP_FRAMES,
+                orbitAngle: a,
+                orbitRadius: 20 + Math.random() * 10,
+                orbitSpeed: 0.18 + Math.random() * 0.05,    // 反時計回り(angle 減少)
+                wobblePhase: Math.random() * Math.PI * 2,
+                spin: Math.random() * Math.PI * 2,          // 描画回転
+                hitRefs: []                                 // 重複ヒット防止
             });
         }
-        bombTimer = 180;
-        invTimer = Math.max(invTimer, 180);
+        bombTimer = BOMB_LIFE;
+        invTimer = Math.max(invTimer, BOMB_LIFE);
     }
 
-    function findNearestTarget(orb) {
+    function bombHasHit(orb, ref) {
+        for (var k = 0; k < orb.hitRefs.length; k++) if (orb.hitRefs[k] === ref) return true;
+        return false;
+    }
+
+    function findBombTarget(orb) {
         var best = null, bestDist = Infinity;
-        // ボスを優先ターゲット
-        if (boss && !boss.entering) {
+        if (boss && !boss.entering && !bombHasHit(orb, boss)) {
             var dx = boss.x - orb.x, dy = boss.y - orb.y;
             var d = dx * dx + dy * dy;
-            if (d < bestDist) { bestDist = d; best = { x: boss.x, y: boss.y, ref: 'boss' }; }
+            if (d < bestDist) { bestDist = d; best = { x: boss.x, y: boss.y, ref: boss, kind: 'boss' }; }
         }
         for (var j = 0; j < enemies.length; j++) {
             var e = enemies[j];
             if (e.y < -10) continue;
-            var dx = e.x - orb.x, dy = e.y - orb.y;
-            var d = dx * dx + dy * dy;
-            if (d < bestDist) { bestDist = d; best = { x: e.x, y: e.y, ref: e }; }
+            if (bombHasHit(orb, e)) continue;
+            var dx2 = e.x - orb.x, dy2 = e.y - orb.y;
+            var d2 = dx2 * dx2 + dy2 * dy2;
+            if (d2 < bestDist) { bestDist = d2; best = { x: e.x, y: e.y, ref: e, kind: 'enemy' }; }
+        }
+        if (best) return best;
+        // 攻撃対象なし → 敵弾を追尾
+        bestDist = Infinity;
+        for (var j = 0; j < eBullets.length; j++) {
+            var b = eBullets[j];
+            var dx3 = b.x - orb.x, dy3 = b.y - orb.y;
+            var d3 = dx3 * dx3 + dy3 * dy3;
+            if (d3 < bestDist) { bestDist = d3; best = { x: b.x, y: b.y, ref: b, kind: 'bullet' }; }
         }
         return best;
-    }
-
-    function bombOrbExplode(orb) {
-        // 爆発エフェクト
-        spawnExplosion(orb.x, orb.y, '#ffffff', 15);
-        for (var c = 0; c < 6; c++) {
-            var hue = (orb.hue + c * 60) % 360;
-            var color = 'hsl(' + hue + ',100%,70%)';
-            spawnExplosion(orb.x, orb.y, color, 4);
-        }
-        // 爆発範囲の敵弾を消去
-        for (var j = eBullets.length - 1; j >= 0; j--) {
-            var b = eBullets[j];
-            var dx = b.x - orb.x, dy = b.y - orb.y;
-            if (dx * dx + dy * dy < BOMB_ORB_EXPLODE_RADIUS * BOMB_ORB_EXPLODE_RADIUS) {
-                spawnDeleteEffect(b.x, b.y);
-                eBullets.splice(j, 1);
-                score += 10;
-            }
-        }
-        // 画面内の敵全員にダメージ（範囲制限なし）
-        for (var j = 0; j < enemies.length; j++) {
-            var e = enemies[j];
-            if (e.y < -10 || e.y > H + 20) continue; // 画面外は対象外
-            e.hp -= BOMB_ORB_EXPLODE_DAMAGE;
-        }
-        if (boss && !boss.entering) {
-            boss.hp -= BOMB_ORB_BOSS_DAMAGE;
-        }
     }
 
     function updateBombOrbs() {
@@ -614,63 +617,76 @@
             var orb = bombOrbs[i];
             orb.life--;
             orb.hue = (orb.hue + 4) % 360;
+            orb.spin -= 0.08; // 反時計回り
 
-            if (orb.phase === 'spread') {
-                // 散らばりフェーズ: 減速しながら広がる
+            if (orb.phase === 'wrap') {
+                // 自機を纏うフェーズ: 自機の周りを公転（半径ゆらぎ＋追尾遅延）
+                orb.orbitAngle -= orb.orbitSpeed;
+                var wobble = Math.sin(frame * 0.12 + orb.wobblePhase) * 5;
+                var rad = orb.orbitRadius + wobble;
+                var tx = player.x + Math.cos(orb.orbitAngle) * rad;
+                var ty = player.y + Math.sin(orb.orbitAngle) * rad;
+                orb.x += (tx - orb.x) * 0.35;
+                orb.y += (ty - orb.y) * 0.35;
+                orb.phaseTimer--;
+                if (orb.phaseTimer <= 0) {
+                    orb.phase = 'spread';
+                    orb.phaseTimer = BOMB_SPREAD_FRAMES;
+                    var sx = orb.x - player.x, sy = orb.y - player.y;
+                    var sd = Math.sqrt(sx * sx + sy * sy) || 1;
+                    orb.vx = (sx / sd) * 6.5;
+                    orb.vy = (sy / sd) * 6.5;
+                }
+            } else if (orb.phase === 'spread') {
                 orb.x += orb.vx; orb.y += orb.vy;
-                orb.vx *= 0.92; orb.vy *= 0.92;
-                orb.spreadTimer--;
-                if (orb.spreadTimer <= 0) orb.phase = 'homing';
+                orb.vx *= 0.93; orb.vy *= 0.93;
+                orb.phaseTimer--;
+                if (orb.phaseTimer <= 0) orb.phase = 'homing';
             } else if (orb.phase === 'homing') {
-                // 追尾フェーズ: 最も近い敵を追尾
-                var target = findNearestTarget(orb);
+                var target = findBombTarget(orb);
                 if (target) {
                     var dx = target.x - orb.x, dy = target.y - orb.y;
-                    var dist = Math.sqrt(dx * dx + dy * dy);
-                    if (dist < 20) {
-                        // 到達→爆発
-                        orb.phase = 'explode';
-                        orb.explodeTimer = 8;
-                        bombOrbExplode(orb);
+                    var dist = Math.sqrt(dx * dx + dy * dy) || 1;
+                    var hitR = (target.kind === 'bullet') ? (orb.radius + (target.ref.size || 4)) : 26;
+                    if (target.kind !== 'bullet' && dist < hitR) {
+                        if (target.kind === 'enemy') target.ref.hp -= BOMB_ORB_EXPLODE_DAMAGE;
+                        else if (target.kind === 'boss') target.ref.hp -= BOMB_ORB_BOSS_DAMAGE;
+                        orb.hitRefs.push(target.ref);
+                        spawnExplosion(orb.x, orb.y, '#ffffff', 4);
+                        // ヒット後はその場で減速し、次フレームで新ターゲットを探す
+                        orb.vx *= 0.4; orb.vy *= 0.4;
                     } else {
-                        // ホーミング（滑らかに旋回）
-                        var homingSpeed = 5.5;
-                        var targetVx = (dx / dist) * homingSpeed;
-                        var targetVy = (dy / dist) * homingSpeed;
-                        orb.vx += (targetVx - orb.vx) * 0.15;
-                        orb.vy += (targetVy - orb.vy) * 0.15;
-                        orb.x += orb.vx; orb.y += orb.vy;
+                        var homingSpeed = 6;
+                        var tvx = (dx / dist) * homingSpeed;
+                        var tvy = (dy / dist) * homingSpeed;
+                        orb.vx += (tvx - orb.vx) * 0.16;
+                        orb.vy += (tvy - orb.vy) * 0.16;
                     }
                 } else {
-                    // ターゲットなし: まっすぐ上に飛んで爆発
-                    orb.vy -= 0.2;
-                    orb.x += orb.vx; orb.y += orb.vy;
-                    if (orb.y < 10 || orb.life < 30) {
-                        orb.phase = 'explode';
-                        orb.explodeTimer = 8;
-                        bombOrbExplode(orb);
-                    }
+                    orb.vx *= 0.97; orb.vy *= 0.97;
                 }
-            } else if (orb.phase === 'explode') {
-                orb.explodeTimer--;
+                orb.x += orb.vx; orb.y += orb.vy;
+                // 画面端で軽くバウンド
+                if (orb.x < 12) { orb.x = 12; orb.vx = Math.abs(orb.vx) * 0.6; }
+                if (orb.x > W - 12) { orb.x = W - 12; orb.vx = -Math.abs(orb.vx) * 0.6; }
+                if (orb.y < 12) { orb.y = 12; orb.vy = Math.abs(orb.vy) * 0.6; }
+                if (orb.y > H - 12) { orb.y = H - 12; orb.vy = -Math.abs(orb.vy) * 0.6; }
             }
 
-            // 移動中も敵弾を消去
-            if (orb.phase !== 'explode') {
-                for (var j = eBullets.length - 1; j >= 0; j--) {
-                    var b = eBullets[j];
-                    var dx = b.x - orb.x, dy = b.y - orb.y;
-                    if (dx * dx + dy * dy < (orb.radius + b.size) * (orb.radius + b.size)) {
-                        spawnDeleteEffect(b.x, b.y);
-                        eBullets.splice(j, 1);
-                        score += 10;
-                    }
+            // 敵弾は「ボム弾と直接接触」したときのみ消える
+            for (var j = eBullets.length - 1; j >= 0; j--) {
+                var bb = eBullets[j];
+                var bx = bb.x - orb.x, by = bb.y - orb.y;
+                var hr = orb.radius + (bb.size || 4);
+                if (bx * bx + by * by < hr * hr) {
+                    spawnDeleteEffect(bb.x, bb.y);
+                    eBullets.splice(j, 1);
+                    score += 10;
                 }
             }
 
-            // 消去判定
-            if (orb.life <= 0 || (orb.phase === 'explode' && orb.explodeTimer <= 0)) {
-                if (orb.phase !== 'explode') bombOrbExplode(orb);
+            if (orb.life <= 0) {
+                spawnExplosion(orb.x, orb.y, 'hsl(' + orb.hue + ',100%,80%)', 6);
                 bombOrbs.splice(i, 1);
             }
         }
@@ -680,19 +696,13 @@
     function drawBombOrbs() {
         for (var i = 0; i < bombOrbs.length; i++) {
             var orb = bombOrbs[i];
-            var alpha = Math.min(1, orb.life / 20);
+            var alpha = Math.min(1, orb.life / 30);
             ctx.save();
             ctx.translate(orb.x, orb.y);
 
             var r = orb.radius;
-            if (orb.phase === 'explode') {
-                // 爆発: 急速に広がって消える
-                var t = 1 - orb.explodeTimer / 8;
-                r = orb.radius + BOMB_ORB_EXPLODE_RADIUS * t;
-                alpha *= (1 - t);
-            }
 
-            // 虹色グロー（外側）
+            // 外側虹色グロー
             var grd = ctx.createRadialGradient(0, 0, r * 0.2, 0, 0, r * 1.6);
             grd.addColorStop(0, 'hsla(' + orb.hue + ', 100%, 85%, ' + (alpha * 0.9) + ')');
             grd.addColorStop(0.3, 'hsla(' + ((orb.hue + 60) % 360) + ', 100%, 65%, ' + (alpha * 0.6) + ')');
@@ -703,17 +713,28 @@
             ctx.arc(0, 0, r * 1.6, 0, Math.PI * 2);
             ctx.fill();
 
-            // コア
-            if (orb.phase !== 'explode') {
-                var coreGrd = ctx.createRadialGradient(0, 0, 0, 0, 0, r);
-                coreGrd.addColorStop(0, 'rgba(255,255,255,' + alpha + ')');
-                coreGrd.addColorStop(0.4, 'hsla(' + orb.hue + ', 100%, 80%, ' + (alpha * 0.9) + ')');
-                coreGrd.addColorStop(1, 'hsla(' + ((orb.hue + 180) % 360) + ', 80%, 55%, ' + (alpha * 0.2) + ')');
-                ctx.fillStyle = coreGrd;
+            // 反時計回りに回転する虹色花弁（6枚）
+            ctx.save();
+            ctx.rotate(orb.spin);
+            for (var k = 0; k < 6; k++) {
+                var pa = (Math.PI * 2 / 6) * k;
+                var ph = (orb.hue + k * 60) % 360;
+                ctx.fillStyle = 'hsla(' + ph + ', 100%, 70%, ' + (alpha * 0.85) + ')';
                 ctx.beginPath();
-                ctx.arc(0, 0, r, 0, Math.PI * 2);
+                ctx.ellipse(Math.cos(pa) * r * 0.55, Math.sin(pa) * r * 0.55, r * 0.34, r * 0.18, pa, 0, Math.PI * 2);
                 ctx.fill();
             }
+            ctx.restore();
+
+            // 中央コア
+            var coreGrd = ctx.createRadialGradient(0, 0, 0, 0, 0, r * 0.55);
+            coreGrd.addColorStop(0, 'rgba(255,255,255,' + alpha + ')');
+            coreGrd.addColorStop(0.5, 'hsla(' + orb.hue + ', 100%, 80%, ' + (alpha * 0.9) + ')');
+            coreGrd.addColorStop(1, 'hsla(' + ((orb.hue + 180) % 360) + ', 80%, 55%, 0)');
+            ctx.fillStyle = coreGrd;
+            ctx.beginPath();
+            ctx.arc(0, 0, r * 0.55, 0, Math.PI * 2);
+            ctx.fill();
 
             ctx.restore();
         }
@@ -1928,9 +1949,12 @@
                 ctx.drawImage(sprites.bulletIce, col * 16, 0, 16, 16, -drawSize / 2, -drawSize / 2, drawSize, drawSize);
                 ctx.restore();
             } else if (bt === 'seal' && useSpriteSeal) {
-                // 札弾
+                // 札弾: 進行方向に回転（氷弾と同じ）
                 var drawSize = b.size * 4;
-                ctx.drawImage(sprites.bulletSeal, col * 16, 0, 16, 16, b.x - drawSize / 2, b.y - drawSize / 2, drawSize, drawSize);
+                var rot = Math.atan2(b.vy, b.vx) + Math.PI / 2;
+                ctx.save(); ctx.translate(b.x, b.y); ctx.rotate(rot);
+                ctx.drawImage(sprites.bulletSeal, col * 16, 0, 16, 16, -drawSize / 2, -drawSize / 2, drawSize, drawSize);
+                ctx.restore();
             } else if (bt === 'large' && useSpriteL) {
                 // Large bullet sprite: 256x32, 8 cells of 32x32
                 var drawSize = b.size * 5;
@@ -2297,7 +2321,7 @@
     function showPracticeSelect() {
         if (animId) { cancelAnimationFrame(animId); animId = null; }
         practiceMode = false;
-        state = 'PRACTICE_SELECT'; menuIndex = 0;
+        state = 'PRACTICE_SELECT';
         overlay.hidden = false;
         titleScreen.hidden = true; diffScreen.hidden = true;
         overScreen.hidden = true; rankingScreen.hidden = true;
@@ -2306,6 +2330,9 @@
         practiceDiffSelect.querySelectorAll('.practice-diff-btn').forEach(function (b) {
             b.classList.toggle('active', b.dataset.diff === diffKey);
         });
+        // 初期カーソルは最初のパターンボタン（難易度4個分スキップ）
+        var diffCount = practiceDiffSelect.querySelectorAll('.practice-diff-btn').length;
+        menuIndex = diffCount;
         updateMenuHighlight();
         initTitleParticles();
         drawTitleBg();
@@ -2545,7 +2572,7 @@
         if (state === 'TITLE') return titleScreen.querySelectorAll('.title-menu-item');
         if (state === 'DIFFICULTY') return diffScreen.querySelectorAll('.difficulty-btn');
         if (state === 'RANKING') return rankingBtns.querySelectorAll('.game-btn');
-        if (state === 'PRACTICE_SELECT') return practiceScreen.querySelectorAll('.practice-btn');
+        if (state === 'PRACTICE_SELECT') return practiceScreen.querySelectorAll('.practice-diff-btn, .practice-btn');
         if (state === 'PRACTICE_RESULT') return practiceResultScreen.querySelectorAll('.game-btn');
         if (state === 'PAUSED') return pauseScreen.querySelectorAll('.game-btn:not([hidden])');
         return [];
