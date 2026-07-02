@@ -92,6 +92,7 @@
 - Sand Tetris: 配布形式を `SandTetris.exe` → `SandTetris.zip` に変更（`games/SandTetris.zip` 約20KB）。カード desc に「同色の砂がフィールド左壁から右壁まで連結したときにライン消去となる独自の消去ルールを持つ」の一文を追記（data-ja 属性と表示テキストの不整合を解消）
 - RE:GAMMA を完全削除（GAMMA+ に統合済み）: `workData.regamma` 削除、HTML側のコメントアウト版 RE:GAMMA カード削除
 - Works 並び順を更新: ぺったんメイカー / RM Engine / GAMMA+ / Sand Tetris / ConsoleSTG / GAMMA / CIRCLESTRIKER / 東方春三校（年表tooltipも同順）
+- Works 並び替え: ぺったんメイカー / RM Engine を最上段（1・2番目）に。以降 ±9 / SD-MCP / Discord BOT / GAMMA+ / Sand Tetris / ConsoleSTG / GAMMA / CIRCLESTRIKER / 東方春三校（年表2026 tooltip も同順）
 - Works に Discord BOT（2026, Discord/個人制作/制作中）を枠だけ追加（SD-MCP の次、年表2026 tooltip にも追加）。本人のネット名義で制作したもののため、実名ポートフォリオでは個人特定につながる情報（BOT名・コミュニティ名・名義）は載せず「作った機能の技術紹介」程度に留める方針。技術タグ・機能説明・env は後日追記（現状プレースホルダ desc）。private リポジトリ `RMDiscordBOT` だが privacy 配慮もありリンクしない
 - Works に ±9（プラマイナイン）（2026, 戦略カードゲーム, Unity/C#/個人制作/制作中）を追加。ぺったんメイカーの次に配置、年表2026 tooltip にも追加。プロトは Unity/C#、本制作は C++ 予定（env に明記）。GitHub `https://github.com/IrokawaRikuto/puramai9` をリンク（公開リポジトリ）。画像は今後追加。自主制作のため `個人制作`（チーム化したら差し替え予定）
 - モーダルに「ソースコード（GitHub）」リンク欄を追加。`workData[id].repo` にURLを入れるとモーダルに `GitHub` ボタンが出る（`.work-detail-repo-section`、ダウンロード欄と同じ `.has-link` 表示制御・同スタイル）。GAMMA+ に `https://github.com/IrokawaRikuto/Re-GAMMA` を設定（Re-GAMMA=GAMMA+の公開リポジトリ）。private リポジトリ（TestEngine/RMDiscordBOT）は他者が閲覧不可のためリンクしない方針
@@ -126,10 +127,10 @@
 | ID | タイトル | 年 | タグ | 開発環境 | 動画 | SS | DL |
 |----|---------|-----|------|----------|------|----|----|
 | pettan-maker | ぺったんメイカー | 2026 | Unity, C#, 課題制作：チーム, 制作中 | Unity / VS | ✅ PV | ✅ 6枚 | - |
+| rm-engine | RM Engine | 2026 | C++, DirectX, 個人制作, 制作中 | VS / DX11 / Claude Code Pro | - | ✅ 6枚 | - |
 | puramai9 | ±9（プラマイナイン） | 2026 | Unity, C#, 個人制作, 制作中 | Unity/C#(proto)→C++(予定) | - | - | GitHub |
 | sd-mcp | Stable Diffusion MCP | 2026 | MCP, Python, Stable Diffusion, 個人制作 | Python / MCP / Stable Diffusion (Forge WebUI) | - | - | - |
 | discord-bot | Discord BOT | 2026 | Discord, 個人制作, 制作中 | （TBD） | - | - | - |
-| rm-engine | RM Engine | 2026 | C++, DirectX, 個人制作, 制作中 | VS / DX11 / Claude Code Pro | - | ✅ 6枚 | - |
 | gamma-plus | GAMMA+ | 2026 | C++, DirectX, リメイク, 個人制作 | VS / DX11 / Claude Code Pro | - | - | - |
 | sand-tetris | Sand Tetris | 2026 | C++, 個人制作 | VS / Claude Code Pro | - | ✅ 2枚 | ✅ SandTetris.zip |
 | console-shooter | ConsoleSTG | 2026 | C++, 個人制作 | VS / Claude Code Pro | - | ✅ 3枚 | ✅ ConsoleSTG.zip |
