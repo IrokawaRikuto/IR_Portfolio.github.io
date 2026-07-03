@@ -8,7 +8,7 @@
 
 ## 完了済み
 - ダークテーマ（赤アクセント #ff4444）のデザイン
-- セクション: Hero, About, Skills, Works（5作品表示・2列グリッド・新しい順）, Timeline, Contact, Footer
+- セクション: Hero, About, Skills, Works（年カルーセル＋年見出し付き4列グリッド・新しい順）, Contact, Footer
 - 言語切り替え（JP/EN）: data-ja/data-en属性方式
 - 作品クリックでモーダル表示（動画/スクリーンショット/説明/タグ/受賞/開発環境/DLリンク対応）
 - モーダルURL対応（#work-gammaなどで直接モーダルが開く、面接官間の共有用）
@@ -95,6 +95,7 @@
 - Works 並び替え: ぺったんメイカー / RM Engine を最上段（1・2番目）に。以降 ±9 / SD-MCP / Discord BOT / GAMMA+ / Sand Tetris / ConsoleSTG / GAMMA / CIRCLESTRIKER / 東方春三校（年表2026 tooltip も同順）
 - Works に Discord BOT（2026, Discord/個人制作/制作中）を枠だけ追加（SD-MCP の次、年表2026 tooltip にも追加）。本人のネット名義で制作したもののため、実名ポートフォリオでは個人特定につながる情報（BOT名・コミュニティ名・名義）は載せず「作った機能の技術紹介」程度に留める方針。技術タグ・機能説明・env は後日追記（現状プレースホルダ desc）。private リポジトリ `RMDiscordBOT` だが privacy 配慮もありリンクしない
 - Works に ±9（プラマイナイン）（2026, 戦略カードゲーム, Unity/C#/個人制作/制作中）を追加。ぺったんメイカーの次に配置、年表2026 tooltip にも追加。プロトは Unity/C#、本制作は C++ 予定（env に明記）。GitHub `https://github.com/IrokawaRikuto/puramai9` をリンク（公開リポジトリ）。画像は今後追加。自主制作のため `個人制作`（チーム化したら差し替え予定）
+- Works レイアウト刷新（横一直線の年表を廃止）。①上段＝年カルーセル（`.works-carousel`）：中央の年号＋`‹ ›`で年切替、大矢印で作品を横スライド、下に件数ぶんのドット。`main.js` の `initWorksCarousel` が `workData` を年でグループ化して生成（カードは `.wc-card`、クリックで `openModal`、サムネ/多言語は既存 `.work-media/.work-title/.tag` と data-ja/data-en を流用）。②下段＝`.works-grid` を2列→4列（1024px=3列 / 768px=2列）に変更し、`.year-head`（`grid-column:1/-1`）で 2026/2025/2024 の年見出しを挿入。全作品を年見出し付きで表示。旧 `.timeline` HTML は削除（CSS/JSは無害なため残置）。Playwright でスモーク確認済み（2026=8枚/ドット8、年切替=2025で1枚、カード→モーダル可）
 - モーダルに「ソースコード（GitHub）」リンク欄を追加。`workData[id].repo` にURLを入れるとモーダルに `GitHub` ボタンが出る（`.work-detail-repo-section`、ダウンロード欄と同じ `.has-link` 表示制御・同スタイル）。GAMMA+ に `https://github.com/IrokawaRikuto/Re-GAMMA` を設定（Re-GAMMA=GAMMA+の公開リポジトリ）。private リポジトリ（TestEngine/RMDiscordBOT）は他者が閲覧不可のためリンクしない方針
 - Works に Stable Diffusion MCP（2026, MCP/Python/Stable Diffusion/個人制作, 説明文のみ・画像/リンクなし）を追加。ぺったんメイカーの次（2番目）に配置。年表2026 tooltip にも同順で追加。内容＝Claude からローカルの Forge WebUI(REST API) を操作して画像生成する自作 Python MCP サーバー。5ツール(sd_generate/sd_status/sd_list_checkpoints/sd_set_checkpoint/sd_list_samplers)、アニメSDXL既定値(1024²/Euler a/steps28/Clip skip2)、オンデマンド自動起動・終了、Claude Desktop 用 .mcpb 拡張パッケージ化。「AIを使う／拡張できる」アピール。生成サンプル画像は同梱されているが本人選択により画像は未掲載（後日追加候補）
 - ミニゲーム: 難易度・出現パターン・ボムを東方準拠に調整。①難易度=`DIFF`に `fireRateMul` を追加し発射間隔（旧 `基準F / bullets`）を密度と分離→`基準F × fireRateMul`、Easy/Hard/Lunaticのカーブを引き直し（Normalは数値現状維持）。②出現パターン=`buildWaveScript` を振り付け型に改良（同時出現最大2かつ軽量のみ／重編成・砲台は単独スロットで連続禁止＋間隔確保／stage・難易度で重み付け／stage上限5でクランプ）。③ボム=`launchBombOrbs` 発動時に画面上の敵弾を全消去（緊急回避ボム準拠、以降はオーブが追撃掃討）

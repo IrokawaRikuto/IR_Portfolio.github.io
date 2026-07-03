@@ -214,41 +214,24 @@
     <div class="container">
         <h2 class="section-title">Works</h2>
 
-        <!-- 年表 -->
-        <div class="timeline">
-            <div class="timeline-line"></div>
-            <div class="timeline-year">
-                <span class="timeline-label">2024</span>
-                <span class="timeline-sub" data-ja="1年" data-en="1st Year">1年</span>
-                <div class="timeline-tooltip">
-                    <a href="#work-touhou" class="tooltip-link" data-ja="東方春三校" data-en="Touhou Harusankou">東方春三校</a>
-                    <a href="#work-circlestriker" class="tooltip-link">CIRCLESTRIKER</a>
-                </div>
+        <!-- 年カルーセル（年を選ぶと、その年の作品が横にスライド） -->
+        <div class="works-carousel">
+            <div class="wc-yearnav">
+                <button class="wc-ybtn" id="wc-year-prev" aria-label="前の年">&#8249;</button>
+                <div class="wc-year"><span class="wc-year-label" id="wc-year-label">2026</span><span class="wc-year-count" id="wc-year-count"></span></div>
+                <button class="wc-ybtn" id="wc-year-next" aria-label="次の年">&#8250;</button>
             </div>
-            <div class="timeline-year">
-                <span class="timeline-label">2025</span>
-                <span class="timeline-sub" data-ja="2年" data-en="2nd Year">2年</span>
-                <div class="timeline-tooltip">
-                    <a href="#work-gamma" class="tooltip-link">GAMMA</a>
-                </div>
+            <div class="wc-stage">
+                <button class="wc-arrow" id="wc-prev" aria-label="前の作品">&#8249;</button>
+                <div class="wc-viewport"><div class="wc-track" id="wc-track"></div></div>
+                <button class="wc-arrow" id="wc-next" aria-label="次の作品">&#8250;</button>
             </div>
-            <div class="timeline-year">
-                <span class="timeline-label">2026</span>
-                <span class="timeline-sub" data-ja="3年" data-en="3rd Year">3年</span>
-                <div class="timeline-tooltip">
-                    <a href="#work-pettan-maker" class="tooltip-link" data-ja="ぺったんメイカー" data-en="Pettan Maker">ぺったんメイカー</a>
-                    <a href="#work-rm-engine" class="tooltip-link">RM Engine</a>
-                    <a href="#work-puramai9" class="tooltip-link">±9</a>
-                    <a href="#work-sd-mcp" class="tooltip-link">Stable Diffusion MCP</a>
-                    <a href="#work-discord-bot" class="tooltip-link">Discord BOT</a>
-                    <a href="#work-gamma-plus" class="tooltip-link">GAMMA+</a>
-                    <a href="#work-sand-tetris" class="tooltip-link">Sand Tetris</a>
-                    <a href="#work-console-shooter" class="tooltip-link">ConsoleSTG</a>
-                </div>
-            </div>
+            <div class="wc-dots" id="wc-dots"></div>
         </div>
 
         <div class="works-grid">
+
+            <div class="year-head"><h3>2026</h3><span class="year-head-line"></span><span class="year-head-sub" data-ja="3年次" data-en="3rd Year">3年次</span></div>
 
             <!-- 2026: ぺったんメイカー -->
             <article class="work-card" id="work-pettan-maker" data-work="pettan-maker">
@@ -430,6 +413,8 @@
                 </div>
             </article>
 
+            <div class="year-head"><h3>2025</h3><span class="year-head-line"></span><span class="year-head-sub" data-ja="2年次" data-en="2nd Year">2年次</span></div>
+
             <!-- 2025: GAMMA -->
             <article class="work-card" id="work-gamma" data-work="gamma">
                 <div class="work-media">
@@ -451,6 +436,8 @@
                     </p>
                 </div>
             </article>
+
+            <div class="year-head"><h3>2024</h3><span class="year-head-line"></span><span class="year-head-sub" data-ja="1年次" data-en="1st Year">1年次</span></div>
 
             <!-- 2024: CIRCLESTRIKER -->
             <article class="work-card" id="work-circlestriker" data-work="circlestriker">
