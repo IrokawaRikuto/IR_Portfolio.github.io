@@ -605,9 +605,101 @@ section {
 /* ===== Works ===== */
 .works-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 24px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
 }
+@media (max-width: 1024px) {
+    .works-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* 年見出し（グリッド内、横一列にまたぐ） */
+.year-head {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 20px 0 4px;
+}
+.year-head:first-child { margin-top: 0; }
+.year-head h3 {
+    font-family: "Arial Black", "Helvetica Neue", sans-serif;
+    font-size: 1.7rem;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    color: var(--text);
+}
+.year-head-line { flex: 1; height: 1px; background: var(--border); }
+.year-head-sub { color: var(--text-muted); font-size: 0.75rem; letter-spacing: 0.12em; }
+
+/* ===== Works: 年カルーセル ===== */
+.works-carousel { margin-bottom: 52px; }
+.wc-yearnav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    margin-bottom: 22px;
+}
+.wc-ybtn {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 1.15rem;
+    cursor: pointer;
+    display: grid; place-items: center;
+    transition: border-color 0.2s, color 0.2s;
+}
+.wc-ybtn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.wc-ybtn:disabled { opacity: 0.3; cursor: default; }
+.wc-year { min-width: 120px; text-align: center; }
+.wc-year-label {
+    font-family: "Arial Black", "Helvetica Neue", sans-serif;
+    font-size: 1.6rem; font-weight: 900; letter-spacing: 0.12em;
+    font-variant-numeric: tabular-nums;
+}
+.wc-year-count { display: block; font-size: 0.68rem; color: var(--text-muted); letter-spacing: 0.15em; margin-top: 2px; }
+.wc-stage { display: flex; align-items: center; gap: 14px; }
+.wc-arrow {
+    flex: 0 0 auto;
+    width: 46px; height: 46px;
+    border-radius: 50%;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-size: 1.3rem;
+    cursor: pointer;
+    display: grid; place-items: center;
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+.wc-arrow:hover:not(:disabled) { background: var(--accent); border-color: var(--accent); color: #fff; }
+.wc-arrow:disabled { opacity: 0.25; cursor: default; }
+.wc-viewport { flex: 1 1 auto; overflow: hidden; }
+.wc-track { display: flex; gap: 20px; transition: transform 0.45s cubic-bezier(0.22, 0.61, 0.36, 1); }
+.wc-card {
+    flex: 0 0 calc((100% - 40px) / 3);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.3s, box-shadow 0.3s, transform 0.3s;
+}
+.wc-card:hover {
+    border-color: var(--accent);
+    box-shadow: 0 4px 30px var(--accent-glow);
+    transform: translateY(-3px);
+}
+.wc-dots { display: flex; gap: 8px; justify-content: center; margin-top: 24px; }
+.wc-dot {
+    width: 9px; height: 9px; border-radius: 50%;
+    background: var(--border); border: none; padding: 0; cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+}
+.wc-dot.on { background: var(--accent); transform: scale(1.25); }
+@media (max-width: 1024px) { .wc-card { flex-basis: calc((100% - 20px) / 2); } }
+@media (max-width: 640px) { .wc-card { flex-basis: 100%; } .wc-arrow { width: 40px; height: 40px; } }
 
 .work-card {
     scroll-margin-top: 80px;
@@ -1270,7 +1362,8 @@ footer {
     }
 
     .works-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
     }
 
     .contact-links {

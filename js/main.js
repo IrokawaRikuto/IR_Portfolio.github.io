@@ -558,6 +558,112 @@ document.querySelectorAll('.work-card[data-work]').forEach(card => {
     }
 });
 
+// ===== Works: 年カルーセル =====
+(function initWorksCarousel() {
+    const track = document.getElementById('wc-track');
+    if (!track) return;
+    const yearLabel = document.getElementById('wc-year-label');
+    const yearCount = document.getElementById('wc-year-count');
+    const dotsWrap = document.getElementById('wc-dots');
+    const yPrev = document.getElementById('wc-year-prev');
+    const yNext = document.getElementById('wc-year-next');
+    const cPrev = document.getElementById('wc-prev');
+    const cNext = document.getElementById('wc-next');
+
+    // Works の表示順（HTMLグリッドの data-work 順）を保ったまま年でグループ化
+    const order = ['pettan-maker', 'rm-engine', 'puramai9', 'sd-mcp', 'discord-bot',
+                   'gamma-plus', 'sand-tetris', 'console-shooter', 'gamma', 'circlestriker', 'touhou'];
+    const byYear = {};
+    order.forEach(id => {
+        const d = workData[id];
+        if (!d) return;
+        (byYear[d.year] = byYear[d.year] || []).push(id);
+    });
+    const years = Object.keys(byYear).sort((a, b) => b - a); // 新しい順
+    let yi = 0, idx = 0;
+
+    const esc = s => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const pair = t => (typeof t === 'object' ? t : { ja: t, en: t });
+
+    function cardHTML(id) {
+        const d = workData[id];
+        const title = pair(d.title);
+        let media;
+        if (d.screenshots && d.screenshots.length > 0) {
+            media = '<img class="work-card-thumb" src="' + esc(d.screenshots[0]) + '" alt="' + esc(id) + '" loading="lazy">';
+        } else {
+            media = '<div class="media-placeholder" data-ja="準備中…" data-en="Coming soon...">' + (currentLang === 'ja' ? '準備中…' : 'Coming soon...') + '</div>';
+        }
+        const tags = (d.tags || []).map(t => {
+            const o = pair(t);
+            const wip = o.ja === '制作中';
+            return '<span class="tag' + (wip ? ' tag-wip' : '') + '" data-ja="' + esc(o.ja) + '" data-en="' + esc(o.en) + '">' + esc(currentLang === 'ja' ? o.ja : o.en) + '</span>';
+        }).join('');
+        return '<article class="wc-card" data-work="' + esc(id) + '">'
+            + '<div class="work-media"><span class="work-year">' + esc(d.year) + '</span>' + media
+            + '<div class="work-overlay"><span data-ja="クリックして見る" data-en="Click to View">' + (currentLang === 'ja' ? 'クリックして見る' : 'Click to View') + '</span></div></div>'
+            + '<div class="work-info"><h3 class="work-title" data-ja="' + esc(title.ja) + '" data-en="' + esc(title.en) + '">' + esc(currentLang === 'ja' ? title.ja : title.en) + '</h3>'
+            + '<div class="work-tags">' + tags + '</div></div></article>';
+    }
+
+    function stepSize() {
+        const c = track.querySelector('.wc-card');
+        if (!c) return 0;
+        const cs = getComputedStyle(track);
+        const gap = parseFloat(cs.columnGap || cs.gap || '0') || 0;
+        return c.offsetWidth + gap;
+    }
+    function visibleCount() {
+        const s = stepSize();
+        return s ? Math.max(1, Math.round(track.parentElement.offsetWidth / s)) : 1;
+    }
+    function maxIdx() { return Math.max(0, byYear[years[yi]].length - visibleCount()); }
+
+    function updateCount() {
+        yearCount.textContent = byYear[years[yi]].length + (currentLang === 'ja' ? ' 作品' : ' works');
+    }
+    function layout(instant) {
+        idx = Math.max(0, Math.min(idx, maxIdx()));
+        if (instant) track.style.transition = 'none';
+        track.style.transform = 'translateX(' + (-idx * stepSize()) + 'px)';
+        if (instant) { void track.offsetWidth; track.style.transition = ''; }
+        cPrev.disabled = idx <= 0;
+        cNext.disabled = idx >= maxIdx();
+        Array.prototype.forEach.call(dotsWrap.children, (d, i) => d.classList.toggle('on', i === idx));
+    }
+    function renderYear() {
+        const list = byYear[years[yi]];
+        yearLabel.textContent = years[yi];
+        updateCount();
+        track.innerHTML = list.map(cardHTML).join('');
+        dotsWrap.innerHTML = '';
+        list.forEach((_, i) => {
+            const b = document.createElement('button');
+            b.className = 'wc-dot';
+            b.setAttribute('aria-label', (i + 1) + '番目');
+            b.addEventListener('click', () => { idx = Math.min(i, maxIdx()); layout(); });
+            dotsWrap.appendChild(b);
+        });
+        yPrev.disabled = yi <= 0;
+        yNext.disabled = yi >= years.length - 1;
+        idx = 0;
+        layout(true);
+    }
+
+    track.addEventListener('click', e => {
+        const card = e.target.closest('.wc-card');
+        if (card && card.dataset.work) openModal(card.dataset.work);
+    });
+    cPrev.addEventListener('click', () => { idx--; layout(); });
+    cNext.addEventListener('click', () => { idx++; layout(); });
+    yPrev.addEventListener('click', () => { if (yi > 0) { yi--; renderYear(); } });
+    yNext.addEventListener('click', () => { if (yi < years.length - 1) { yi++; renderYear(); } });
+    window.addEventListener('resize', () => layout(true));
+    if (langBtn) langBtn.addEventListener('click', () => updateCount());
+
+    renderYear();
+})();
+
 // ===== メール送信モーダル =====
 const emailModal = document.getElementById('email-modal');
 const emailForm = document.getElementById('email-form');
