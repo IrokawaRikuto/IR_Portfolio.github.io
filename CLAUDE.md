@@ -21,7 +21,7 @@
 - トップに戻るボタン（右下、48px、スクロールで出現）
 - スクロールバー非表示（ガタつき防止）
 - ファビコン（IR_favicon.png）、ナビバーロゴ（IR_favicon.png）
-- Skills: C++, C#, DirectX, JavaScript, HTML, Unity, Unreal Engine, Visual Studio, VS Code, Blender, Maya, MMD, PMXEditor, AviUtl, YMM4, Studio One 6（ゲームプログラマー重要度順ソート済み）
+- Skills: C++, C#, DirectX, JavaScript, Python, HTML, Unity, Unreal Engine, Visual Studio, VS Code, Blender, Maya, MMD, PMXEditor, AviUtl, YMM4, Studio One 6（ゲームプログラマー重要度順ソート済み。Python は JavaScript の次に配置）
 - ナビバーメニュー：常時表示ドロップダウン（右上ハンバーガー）。内部「オプション」に背景モーションON/OFFトグル（localStorage保存）
 - 背景アニメは `window.bgAnimation = { start, stop }` API経由で制御。デフォルトON
 - About〜Contactリンクはスマホ含め常時バナー表示（画面幅に応じて gap/font-size を段階的に縮小）
