@@ -614,11 +614,15 @@ document.querySelectorAll('.work-card[data-work]').forEach(card => {
     function centerOffset() { return (viewport.offsetWidth - cardW()) / 2; }
 
     function place(animate) {
-        track.style.transition = (animate && !reduce) ? '' : 'none';
+        const instant = !animate || reduce;
+        // スナップ（無限ループの折り返し等）中は track の移動もカードの active(opacity/scale) も
+        // トランジションを止めて瞬間反映（＝折り返し時の「かくっと」フラッシュを防ぐ）
+        if (instant) track.classList.add('wc-snap');
+        track.style.transition = instant ? 'none' : '';
         track.style.transform = 'translateX(' + (centerOffset() - pos * step()) + 'px)';
-        if (!animate || reduce) { void track.offsetWidth; track.style.transition = ''; }
         markActive();
         markDots();
+        if (instant) { void track.offsetWidth; track.classList.remove('wc-snap'); }
     }
     function markActive() {
         const cards = track.children;

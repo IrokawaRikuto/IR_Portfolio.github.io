@@ -717,6 +717,8 @@ section {
 .wc-viewport { flex: 1 1 auto; overflow: hidden; touch-action: pan-y; }
 .wc-viewport.dragging { cursor: grabbing; }
 .wc-track { display: flex; gap: 20px; transition: transform 0.45s cubic-bezier(0.22, 0.61, 0.36, 1); }
+/* スナップ（無限ループ折り返し）中はトラック移動もカードの明暗もアニメさせない＝一瞬のカクつき防止 */
+.wc-track.wc-snap, .wc-track.wc-snap .wc-card { transition: none !important; }
 .wc-card {
     flex: 0 0 var(--wc-w, 62%);
     cursor: pointer;
