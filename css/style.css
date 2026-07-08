@@ -633,7 +633,14 @@ section {
 .year-head-sub { color: var(--text-muted); font-size: 0.75rem; letter-spacing: 0.12em; }
 
 /* ===== Works: 年カルーセル ===== */
-.works-carousel { --wc-w: 62%; margin-bottom: 52px; }
+/* カルーセルは画面幅いっぱい（フルブリード）＝コンテナ幅で見切れず端まで表示 */
+.works-carousel {
+    --wc-w: 28%;
+    margin-bottom: 52px;
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+}
 .wc-yearnav {
     position: relative;
     display: flex;
@@ -699,22 +706,28 @@ section {
 .wc-year-opt.sel { color: var(--accent); }
 .wc-year-opt.sel::before { content: "▸ "; }
 .wc-year-opt-n { font-size: 0.66rem; font-weight: 500; color: var(--text-muted); letter-spacing: 0.1em; }
-.wc-stage { display: flex; align-items: center; gap: 14px; }
+.wc-stage { position: relative; }
 .wc-arrow {
-    flex: 0 0 auto;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 5;
     width: 46px; height: 46px;
     border-radius: 50%;
-    background: var(--bg-card);
+    background: rgba(18, 18, 26, 0.72);
     border: 1px solid var(--border);
     color: var(--text);
     font-size: 1.3rem;
     cursor: pointer;
     display: grid; place-items: center;
+    backdrop-filter: blur(3px);
     transition: background 0.2s, border-color 0.2s, color 0.2s;
 }
+#wc-prev { left: 16px; }
+#wc-next { right: 16px; }
 .wc-arrow:hover:not(:disabled) { background: var(--accent); border-color: var(--accent); color: #fff; }
 .wc-arrow:disabled { opacity: 0.25; cursor: default; }
-.wc-viewport { flex: 1 1 auto; overflow: hidden; touch-action: pan-y; }
+.wc-viewport { width: 100%; overflow: hidden; touch-action: pan-y; }
 .wc-viewport.dragging { cursor: grabbing; }
 .wc-track { display: flex; gap: 20px; transition: transform 0.45s cubic-bezier(0.22, 0.61, 0.36, 1); }
 /* スナップ（無限ループ折り返し）中はトラック移動もカードの明暗もアニメさせない＝一瞬のカクつき防止 */
@@ -755,8 +768,8 @@ section {
     transition: background 0.2s, transform 0.2s;
 }
 .wc-dot.on { background: var(--accent); transform: scale(1.25); }
-@media (max-width: 900px) { .works-carousel { --wc-w: 74%; } }
-@media (max-width: 560px) { .works-carousel { --wc-w: 86%; } .wc-arrow { width: 38px; height: 38px; } }
+@media (max-width: 1024px) { .works-carousel { --wc-w: 56%; } }
+@media (max-width: 600px) { .works-carousel { --wc-w: 82%; } .wc-arrow { width: 38px; height: 38px; } }
 
 .work-card {
     scroll-margin-top: 80px;
