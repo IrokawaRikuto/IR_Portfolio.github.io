@@ -662,8 +662,8 @@ document.querySelectorAll('.work-card[data-work]').forEach(card => {
         }
         yearLabel.textContent = years[yi];
         updateCount();
-        yPrev.disabled = yi <= 0;
-        yNext.disabled = yi >= years.length - 1;
+        // 年は一周ループ（両端で反対側へ回り込む）。年が1つしかなければ無効
+        yPrev.disabled = yNext.disabled = years.length <= 1;
         const single = n <= 1;
         cPrev.disabled = single;
         cNext.disabled = single;
@@ -719,8 +719,8 @@ document.querySelectorAll('.work-card[data-work]').forEach(card => {
     });
     cPrev.addEventListener('click', () => { go(-1); restartAuto(); });
     cNext.addEventListener('click', () => { go(1); restartAuto(); });
-    yPrev.addEventListener('click', () => setYear(yi - 1, -1));
-    yNext.addEventListener('click', () => setYear(yi + 1, 1));
+    yPrev.addEventListener('click', () => setYear((yi - 1 + years.length) % years.length, -1));
+    yNext.addEventListener('click', () => setYear((yi + 1) % years.length, 1));
     if (carousel) {
         carousel.addEventListener('mouseenter', stopAuto);
         carousel.addEventListener('mouseleave', startAuto);
