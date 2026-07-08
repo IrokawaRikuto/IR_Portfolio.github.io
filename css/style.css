@@ -607,6 +607,7 @@ section {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 18px;
+    transition: opacity 0.28s ease;
 }
 @media (max-width: 1024px) {
     .works-grid { grid-template-columns: repeat(3, 1fr); }
@@ -632,7 +633,7 @@ section {
 .year-head-sub { color: var(--text-muted); font-size: 0.75rem; letter-spacing: 0.12em; }
 
 /* ===== Works: 年カルーセル ===== */
-.works-carousel { margin-bottom: 52px; }
+.works-carousel { --wc-w: 62%; margin-bottom: 52px; }
 .wc-yearnav {
     display: flex;
     align-items: center;
@@ -678,19 +679,31 @@ section {
 .wc-viewport { flex: 1 1 auto; overflow: hidden; }
 .wc-track { display: flex; gap: 20px; transition: transform 0.45s cubic-bezier(0.22, 0.61, 0.36, 1); }
 .wc-card {
-    flex: 0 0 calc((100% - 40px) / 3);
-    background: var(--bg-card);
+    flex: 0 0 var(--wc-w, 62%);
+    cursor: pointer;
+    opacity: 0.32;
+    transform: scale(0.9);
+    transition: opacity 0.45s ease, transform 0.45s ease;
+}
+.wc-card.active { opacity: 1; transform: scale(1); }
+.wc-media {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    background: #12121a;
     border: 1px solid var(--border);
     border-radius: var(--radius);
     overflow: hidden;
-    cursor: pointer;
-    transition: border-color 0.3s, box-shadow 0.3s, transform 0.3s;
+    display: grid;
+    place-items: center;
+    transition: border-color 0.35s, box-shadow 0.35s;
 }
-.wc-card:hover {
-    border-color: var(--accent);
-    box-shadow: 0 4px 30px var(--accent-glow);
-    transform: translateY(-3px);
+.wc-card.active .wc-media {
+    border-color: rgba(255, 68, 68, 0.5);
+    box-shadow: 0 12px 44px rgba(0, 0, 0, 0.55);
 }
+.wc-media img { width: 100%; height: 100%; object-fit: cover; }
+.wc-media .media-placeholder { height: 100%; border-bottom: none; background: #12121a; }
+.wc-title { text-align: center; margin-top: 14px; font-size: 1.15rem; font-weight: 700; }
 .wc-dots { display: flex; gap: 8px; justify-content: center; margin-top: 24px; }
 .wc-dot {
     width: 9px; height: 9px; border-radius: 50%;
@@ -698,8 +711,8 @@ section {
     transition: background 0.2s, transform 0.2s;
 }
 .wc-dot.on { background: var(--accent); transform: scale(1.25); }
-@media (max-width: 1024px) { .wc-card { flex-basis: calc((100% - 20px) / 2); } }
-@media (max-width: 640px) { .wc-card { flex-basis: 100%; } .wc-arrow { width: 40px; height: 40px; } }
+@media (max-width: 900px) { .works-carousel { --wc-w: 74%; } }
+@media (max-width: 560px) { .works-carousel { --wc-w: 86%; } .wc-arrow { width: 38px; height: 38px; } }
 
 .work-card {
     scroll-margin-top: 80px;
