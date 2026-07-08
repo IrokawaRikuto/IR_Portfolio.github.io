@@ -676,11 +676,15 @@ section {
 }
 .wc-arrow:hover:not(:disabled) { background: var(--accent); border-color: var(--accent); color: #fff; }
 .wc-arrow:disabled { opacity: 0.25; cursor: default; }
-.wc-viewport { flex: 1 1 auto; overflow: hidden; }
+.wc-viewport { flex: 1 1 auto; overflow: hidden; touch-action: pan-y; }
+.wc-viewport.dragging { cursor: grabbing; }
 .wc-track { display: flex; gap: 20px; transition: transform 0.45s cubic-bezier(0.22, 0.61, 0.36, 1); }
 .wc-card {
     flex: 0 0 var(--wc-w, 62%);
     cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-user-drag: none;
     opacity: 0.32;
     transform: scale(0.9);
     transition: opacity 0.45s ease, transform 0.45s ease;
@@ -701,7 +705,7 @@ section {
     border-color: rgba(255, 68, 68, 0.5);
     box-shadow: 0 12px 44px rgba(0, 0, 0, 0.55);
 }
-.wc-media img { width: 100%; height: 100%; object-fit: cover; }
+.wc-media img { width: 100%; height: 100%; object-fit: cover; -webkit-user-drag: none; pointer-events: none; }
 .wc-media .media-placeholder { height: 100%; border-bottom: none; background: #12121a; }
 .wc-title { text-align: center; margin-top: 14px; font-size: 1.15rem; font-weight: 700; }
 .wc-dots { display: flex; gap: 8px; justify-content: center; margin-top: 24px; }

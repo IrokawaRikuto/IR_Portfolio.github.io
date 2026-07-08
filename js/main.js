@@ -714,10 +714,52 @@ document.querySelectorAll('.work-card[data-work]').forEach(card => {
     function stopAuto() { if (autoTimer) { clearInterval(autoTimer); autoTimer = null; } }
     function restartAuto() { startAuto(); }
 
+    let suppressClick = false;
     track.addEventListener('click', e => {
+        if (suppressClick) { suppressClick = false; return; }
         const card = e.target.closest('.wc-card');
         if (card && card.dataset.work) openModal(card.dataset.work);
     });
+
+    // ドラッグ / スワイプで横移動（マウス・タッチ共通の Pointer Events）
+    let dragging = false, decided = false, horiz = false, startX = 0, startY = 0, baseT = 0, moved = 0;
+    function currentTranslate() { return centerOffset() - pos * step(); }
+    viewport.addEventListener('pointerdown', e => {
+        if (n <= 1) return;
+        dragging = true; decided = false; horiz = false; moved = 0;
+        startX = e.clientX; startY = e.clientY; baseT = currentTranslate();
+        suppressClick = false;
+        stopAuto();
+    });
+    window.addEventListener('pointermove', e => {
+        if (!dragging) return;
+        const dx = e.clientX - startX, dy = e.clientY - startY;
+        if (!decided) {
+            if (Math.abs(dx) < 6 && Math.abs(dy) < 6) return;
+            decided = true; horiz = Math.abs(dx) > Math.abs(dy);
+            if (!horiz) { dragging = false; place(true); startAuto(); return; } // 縦方向はスクロールに任せる
+            track.style.transition = 'none';
+            viewport.classList.add('dragging');
+        }
+        moved = dx;
+        if (e.cancelable) e.preventDefault();
+        track.style.transform = 'translateX(' + (baseT + dx) + 'px)';
+    }, { passive: false });
+    function endDrag() {
+        if (!dragging) return;
+        dragging = false;
+        viewport.classList.remove('dragging');
+        if (horiz) {
+            const th = Math.max(40, step() * 0.16);
+            if (Math.abs(moved) > th) pos += (moved < 0 ? 1 : -1);
+            if (Math.abs(moved) > 8) suppressClick = true;
+            place(true);
+        }
+        restartAuto();
+    }
+    window.addEventListener('pointerup', endDrag);
+    window.addEventListener('pointercancel', endDrag);
+
     cPrev.addEventListener('click', () => { go(-1); restartAuto(); });
     cNext.addEventListener('click', () => { go(1); restartAuto(); });
     yPrev.addEventListener('click', () => { if (yi > 0) setYear(yi - 1, -1); });
