@@ -635,7 +635,7 @@ section {
 /* ===== Works: 年カルーセル ===== */
 /* カルーセルは画面幅いっぱい（フルブリード）＝コンテナ幅で見切れず端まで表示 */
 .works-carousel {
-    --wc-w: 28%;
+    --wc-w: 56%;
     margin-bottom: 52px;
     width: 100vw;
     margin-left: calc(50% - 50vw);
@@ -768,8 +768,8 @@ section {
     transition: background 0.2s, transform 0.2s;
 }
 .wc-dot.on { background: var(--accent); transform: scale(1.25); }
-@media (max-width: 1024px) { .works-carousel { --wc-w: 56%; } }
-@media (max-width: 600px) { .works-carousel { --wc-w: 82%; } .wc-arrow { width: 38px; height: 38px; } }
+@media (max-width: 1024px) { .works-carousel { --wc-w: 68%; } }
+@media (max-width: 600px) { .works-carousel { --wc-w: 84%; } .wc-arrow { width: 38px; height: 38px; } }
 
 .work-card {
     scroll-margin-top: 80px;
