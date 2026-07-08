@@ -8,7 +8,7 @@
 
 ## 完了済み
 - ダークテーマ（赤アクセント #ff4444）のデザイン
-- セクション: Hero, About, Skills, Works（年カルーセル〔見切れピーク／5秒自動スライド〕＋選択年の4列グリッド。年切替で両方が連動）, Contact, Footer
+- セクション: Hero, About, Skills, Works（年カルーセル〔見切れピーク／5秒自動スライド／ドラッグ・スワイプ〕＋全作品の年見出し付き4列グリッド。年選択はクリックでドロップダウン、作用するのはカルーセルのみ）, Contact, Footer
 - 言語切り替え（JP/EN）: data-ja/data-en属性方式
 - 作品クリックでモーダル表示（動画/スクリーンショット/説明/タグ/受賞/開発環境/DLリンク対応）
 - モーダルURL対応（#work-gammaなどで直接モーダルが開く、面接官間の共有用）
@@ -95,6 +95,7 @@
 - Works 並び替え: ぺったんメイカー / RM Engine を最上段（1・2番目）に。以降 ±9 / SD-MCP / Discord BOT / GAMMA+ / Sand Tetris / ConsoleSTG / GAMMA / CIRCLESTRIKER / 東方春三校（年表2026 tooltip も同順）
 - Works に Discord BOT（2026, Discord/個人制作/制作中）を枠だけ追加（SD-MCP の次、年表2026 tooltip にも追加）。本人のネット名義で制作したもののため、実名ポートフォリオでは個人特定につながる情報（BOT名・コミュニティ名・名義）は載せず「作った機能の技術紹介」程度に留める方針。技術タグ・機能説明・env は後日追記（現状プレースホルダ desc）。private リポジトリ `RMDiscordBOT` だが privacy 配慮もありリンクしない
 - Works に ±9（プラマイナイン）（2026, 戦略カードゲーム, Unity/C#/個人制作/制作中）を追加。ぺったんメイカーの次に配置、年表2026 tooltip にも追加。プロトは Unity/C#、本制作は C++ 予定（env に明記）。GitHub `https://github.com/IrokawaRikuto/puramai9` をリンク（公開リポジトリ）。画像は今後追加。自主制作のため `個人制作`（チーム化したら差し替え予定）
+- Works: ①下グリッドを年フィルタ廃止＝**常に全作品**を年見出し(2026/2025/2024)付き4列で表示（`showGrid` 撤去、`.year-head` 復活）。②年選択を**クリックでドロップダウン**方式に（`.wc-year-btn` クリックで `.wc-year-menu` 開閉→年クリックで `setYear`。旧 `‹ ›`(wc-ybtn/wc-year-prev/next) を廃止）。年選択が作用するのはカルーセルのみ（グリッドは不変）。`buildYearMenu`/`markYearMenu`/`openMenu` 追加、Playwright確認済み（グリッド常時11件、ドロップダウンで2024選択→カルーセルのみ切替）
 - Works カルーセルを任天堂「ピックアップ」風に強化＋年を親コントロール化。①見切れピーク＝中央カードを大きく（`--wc-w` 62%/tablet74%/mobile86%）、左右の隣が見切れて並ぶ。3連トラック（list×3）＋中央コピー基準の `pos` で無限ループ、`transitionend` で座標を[n,2n)へ戻す。非中央は `opacity/scale` で減光。②カード＝スクショ画像(object-fit:cover)＋タイトルのみ（タグ削除）。③5秒ごとに自動で右へ（`AUTO_MS`、hover/タブ非表示で停止、操作で再スタート）。矢印・ドットに加え**ドラッグ／スワイプ**対応（Pointer Events、`touch-action:pan-y` で縦スクロールは温存、閾値超えで1枚送り／未満はスナップ戻し、8px超のドラッグ後は `suppressClick` でモーダル誤発火を抑止）。④年切替（`setYear`）＝カルーセルはフェード＋横スライド、下グリッドは選択年だけ表示にフェード。年号セレクタは切替式（両端で止まる・ループしない）。カルーセルの作品スライドは一年の中で無限ループ（`showGrid`：`.work-card` を年で display 切替＋`.visible` 付与）。⑤年見出し(`.year-head`)は廃止（年はセレクタが示す）。n===1(2025)は単体・自動/矢印無効。Playwright 確認済み（tracks24/dots8/タグ0、年切替でラベル＆グリッド連動、カード→モーダル）
 - Works レイアウト刷新（横一直線の年表を廃止）。①上段＝年カルーセル（`.works-carousel`）：中央の年号＋`‹ ›`で年切替、大矢印で作品を横スライド、下に件数ぶんのドット。`main.js` の `initWorksCarousel` が `workData` を年でグループ化して生成（カードは `.wc-card`、クリックで `openModal`、サムネ/多言語は既存 `.work-media/.work-title/.tag` と data-ja/data-en を流用）。②下段＝`.works-grid` を2列→4列（1024px=3列 / 768px=2列）に変更し、`.year-head`（`grid-column:1/-1`）で 2026/2025/2024 の年見出しを挿入。全作品を年見出し付きで表示。旧 `.timeline` HTML は削除（CSS/JSは無害なため残置）。Playwright でスモーク確認済み（2026=8枚/ドット8、年切替=2025で1枚、カード→モーダル可）
 - モーダルに「ソースコード（GitHub）」リンク欄を追加。`workData[id].repo` にURLを入れるとモーダルに `GitHub` ボタンが出る（`.work-detail-repo-section`、ダウンロード欄と同じ `.has-link` 表示制御・同スタイル）。GAMMA+ に `https://github.com/IrokawaRikuto/Re-GAMMA` を設定（Re-GAMMA=GAMMA+の公開リポジトリ）。private リポジトリ（TestEngine/RMDiscordBOT）は他者が閲覧不可のためリンクしない方針

@@ -567,11 +567,10 @@ document.querySelectorAll('.work-card[data-work]').forEach(card => {
     const yearLabel = document.getElementById('wc-year-label');
     const yearCount = document.getElementById('wc-year-count');
     const dotsWrap = document.getElementById('wc-dots');
-    const yPrev = document.getElementById('wc-year-prev');
-    const yNext = document.getElementById('wc-year-next');
+    const yearBtn = document.getElementById('wc-year-btn');
+    const yearMenu = document.getElementById('wc-year-menu');
     const cPrev = document.getElementById('wc-prev');
     const cNext = document.getElementById('wc-next');
-    const grid = document.querySelector('.works-grid');
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const AUTO_MS = 5000;
 
@@ -662,9 +661,7 @@ document.querySelectorAll('.work-card[data-work]').forEach(card => {
         }
         yearLabel.textContent = years[yi];
         updateCount();
-        // 年号は切替式（両端で止まる。ループしない）
-        yPrev.disabled = yi <= 0;
-        yNext.disabled = yi >= years.length - 1;
+        markYearMenu();
         const single = n <= 1;
         cPrev.disabled = single;
         cNext.disabled = single;
@@ -672,27 +669,28 @@ document.querySelectorAll('.work-card[data-work]').forEach(card => {
         place(false);
     }
 
-    // 下グリッド：選択年の作品だけをフェードで表示
-    function showGrid(year, animate) {
-        if (!grid) return;
-        const apply = () => {
-            Array.prototype.forEach.call(grid.querySelectorAll('.work-card'), card => {
-                const d = workData[card.dataset.work];
-                if (d && String(d.year) === String(year)) { card.style.display = ''; card.classList.add('visible'); }
-                else card.style.display = 'none';
-            });
-        };
-        if (animate && !reduce) {
-            grid.style.opacity = '0';
-            setTimeout(() => { apply(); grid.style.opacity = '1'; }, 260);
-        } else { apply(); }
+    // 年ドロップダウン（クリックで一覧を出して選択）。下グリッドは年に関係なく常に全作品を表示
+    function buildYearMenu() {
+        yearMenu.innerHTML = years.map((y, i) =>
+            '<li role="option" class="wc-year-opt" data-yi="' + i + '">' + y + '<span class="wc-year-opt-n">' + byYear[y].length + '</span></li>'
+        ).join('');
+    }
+    function markYearMenu() {
+        Array.prototype.forEach.call(yearMenu.children, (li, i) => {
+            li.classList.toggle('sel', i === yi);
+            li.setAttribute('aria-selected', i === yi ? 'true' : 'false');
+        });
+    }
+    function openMenu(o) {
+        const open = (o === undefined) ? !yearMenu.classList.contains('open') : o;
+        yearMenu.classList.toggle('open', open);
+        yearBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
     }
 
-    // 年切替：カルーセルはスライド＋フェード、グリッドはフェード
+    // 年切替：カルーセルのみスライド＋フェード（下グリッドは常に全作品なので触らない）
     function setYear(newYi, dir) {
         if (newYi === yi || newYi < 0 || newYi >= years.length) return;
         stopAuto();
-        showGrid(years[newYi], true);
         if (reduce) { yi = newYi; buildYear(); startAuto(); return; }
         viewport.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
         viewport.style.opacity = '0';
@@ -762,8 +760,17 @@ document.querySelectorAll('.work-card[data-work]').forEach(card => {
 
     cPrev.addEventListener('click', () => { go(-1); restartAuto(); });
     cNext.addEventListener('click', () => { go(1); restartAuto(); });
-    yPrev.addEventListener('click', () => { if (yi > 0) setYear(yi - 1, -1); });
-    yNext.addEventListener('click', () => { if (yi < years.length - 1) setYear(yi + 1, 1); });
+    // 年ドロップダウン：ボタンで開閉、項目クリックでその年へ
+    yearBtn.addEventListener('click', e => { e.stopPropagation(); openMenu(); });
+    yearMenu.addEventListener('click', e => {
+        const li = e.target.closest('.wc-year-opt');
+        if (!li) return;
+        e.stopPropagation();
+        const ni = +li.dataset.yi;
+        openMenu(false);
+        if (ni !== yi) setYear(ni, ni > yi ? 1 : -1);
+    });
+    document.addEventListener('click', () => openMenu(false));
     if (carousel) {
         carousel.addEventListener('mouseenter', stopAuto);
         carousel.addEventListener('mouseleave', startAuto);
@@ -772,8 +779,8 @@ document.querySelectorAll('.work-card[data-work]').forEach(card => {
     if (langBtn) langBtn.addEventListener('click', () => updateCount());
     document.addEventListener('visibilitychange', () => { if (document.hidden) stopAuto(); else startAuto(); });
 
+    buildYearMenu();
     buildYear();
-    showGrid(years[0], false);
     startAuto();
 })();
 

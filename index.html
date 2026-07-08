@@ -217,9 +217,12 @@
         <!-- 年カルーセル（年を選ぶと、その年の作品が横にスライド） -->
         <div class="works-carousel">
             <div class="wc-yearnav">
-                <button class="wc-ybtn" id="wc-year-prev" aria-label="前の年">&#8249;</button>
-                <div class="wc-year"><span class="wc-year-label" id="wc-year-label">2026</span><span class="wc-year-count" id="wc-year-count"></span></div>
-                <button class="wc-ybtn" id="wc-year-next" aria-label="次の年">&#8250;</button>
+                <button class="wc-year-btn" id="wc-year-btn" aria-haspopup="listbox" aria-expanded="false">
+                    <span class="wc-year-label" id="wc-year-label">2026</span>
+                    <span class="wc-year-count" id="wc-year-count"></span>
+                    <span class="wc-year-caret" aria-hidden="true">▾</span>
+                </button>
+                <ul class="wc-year-menu" id="wc-year-menu" role="listbox"></ul>
             </div>
             <div class="wc-stage">
                 <button class="wc-arrow" id="wc-prev" aria-label="前の作品">&#8249;</button>
@@ -230,6 +233,8 @@
         </div>
 
         <div class="works-grid">
+
+            <div class="year-head"><h3>2026</h3><span class="year-head-line"></span><span class="year-head-sub" data-ja="3年次" data-en="3rd Year">3年次</span></div>
 
             <!-- 2026: ぺったんメイカー -->
             <article class="work-card" id="work-pettan-maker" data-work="pettan-maker">
@@ -411,6 +416,8 @@
                 </div>
             </article>
 
+            <div class="year-head"><h3>2025</h3><span class="year-head-line"></span><span class="year-head-sub" data-ja="2年次" data-en="2nd Year">2年次</span></div>
+
             <!-- 2025: GAMMA -->
             <article class="work-card" id="work-gamma" data-work="gamma">
                 <div class="work-media">
@@ -432,6 +439,8 @@
                     </p>
                 </div>
             </article>
+
+            <div class="year-head"><h3>2024</h3><span class="year-head-line"></span><span class="year-head-sub" data-ja="1年次" data-en="1st Year">1年次</span></div>
 
             <!-- 2024: CIRCLESTRIKER -->
             <article class="work-card" id="work-circlestriker" data-work="circlestriker">
