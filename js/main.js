@@ -558,10 +558,12 @@ document.querySelectorAll('.work-card[data-work]').forEach(card => {
     }
 });
 
-// ===== Works: 年カルーセル =====
+// ===== Works: 年カルーセル（見切れるピーク／自動スライド／年切替アニメ／下グリッド連動） =====
 (function initWorksCarousel() {
     const track = document.getElementById('wc-track');
     if (!track) return;
+    const viewport = track.parentElement;               // .wc-viewport
+    const carousel = document.querySelector('.works-carousel');
     const yearLabel = document.getElementById('wc-year-label');
     const yearCount = document.getElementById('wc-year-count');
     const dotsWrap = document.getElementById('wc-dots');
@@ -569,6 +571,9 @@ document.querySelectorAll('.work-card[data-work]').forEach(card => {
     const yNext = document.getElementById('wc-year-next');
     const cPrev = document.getElementById('wc-prev');
     const cNext = document.getElementById('wc-next');
+    const grid = document.querySelector('.works-grid');
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const AUTO_MS = 5000;
 
     // Works の表示順（HTMLグリッドの data-work 順）を保ったまま年でグループ化
     const order = ['pettan-maker', 'rm-engine', 'puramai9', 'sd-mcp', 'discord-bot',
@@ -580,88 +585,153 @@ document.querySelectorAll('.work-card[data-work]').forEach(card => {
         (byYear[d.year] = byYear[d.year] || []).push(id);
     });
     const years = Object.keys(byYear).sort((a, b) => b - a); // 新しい順
-    let yi = 0, idx = 0;
+    let yi = 0;      // 年インデックス
+    let pos = 0;     // 3連トラック上の位置（中央コピー基準）
+    let n = 0;       // その年の件数
+    let autoTimer = null;
 
     const esc = s => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     const pair = t => (typeof t === 'object' ? t : { ja: t, en: t });
 
+    // カルーセルカード＝スクショ画像＋タイトル（タグなし）
     function cardHTML(id) {
         const d = workData[id];
         const title = pair(d.title);
         let media;
         if (d.screenshots && d.screenshots.length > 0) {
-            media = '<img class="work-card-thumb" src="' + esc(d.screenshots[0]) + '" alt="' + esc(id) + '" loading="lazy">';
+            media = '<img src="' + esc(d.screenshots[0]) + '" alt="' + esc(id) + '" loading="lazy">';
         } else {
             media = '<div class="media-placeholder" data-ja="準備中…" data-en="Coming soon...">' + (currentLang === 'ja' ? '準備中…' : 'Coming soon...') + '</div>';
         }
-        const tags = (d.tags || []).map(t => {
-            const o = pair(t);
-            const wip = o.ja === '制作中';
-            return '<span class="tag' + (wip ? ' tag-wip' : '') + '" data-ja="' + esc(o.ja) + '" data-en="' + esc(o.en) + '">' + esc(currentLang === 'ja' ? o.ja : o.en) + '</span>';
-        }).join('');
         return '<article class="wc-card" data-work="' + esc(id) + '">'
-            + '<div class="work-media"><span class="work-year">' + esc(d.year) + '</span>' + media
-            + '<div class="work-overlay"><span data-ja="クリックして見る" data-en="Click to View">' + (currentLang === 'ja' ? 'クリックして見る' : 'Click to View') + '</span></div></div>'
-            + '<div class="work-info"><h3 class="work-title" data-ja="' + esc(title.ja) + '" data-en="' + esc(title.en) + '">' + esc(currentLang === 'ja' ? title.ja : title.en) + '</h3>'
-            + '<div class="work-tags">' + tags + '</div></div></article>';
+            + '<div class="wc-media"><span class="work-year">' + esc(d.year) + '</span>' + media + '</div>'
+            + '<h3 class="wc-title" data-ja="' + esc(title.ja) + '" data-en="' + esc(title.en) + '">' + esc(currentLang === 'ja' ? title.ja : title.en) + '</h3>'
+            + '</article>';
     }
 
-    function stepSize() {
-        const c = track.querySelector('.wc-card');
-        if (!c) return 0;
-        const cs = getComputedStyle(track);
-        const gap = parseFloat(cs.columnGap || cs.gap || '0') || 0;
-        return c.offsetWidth + gap;
+    function cardW() { const c = track.querySelector('.wc-card'); return c ? c.offsetWidth : 0; }
+    function gapPx() { const cs = getComputedStyle(track); return parseFloat(cs.columnGap || cs.gap || '0') || 0; }
+    function step() { return cardW() + gapPx(); }
+    function centerOffset() { return (viewport.offsetWidth - cardW()) / 2; }
+
+    function place(animate) {
+        track.style.transition = (animate && !reduce) ? '' : 'none';
+        track.style.transform = 'translateX(' + (centerOffset() - pos * step()) + 'px)';
+        if (!animate || reduce) { void track.offsetWidth; track.style.transition = ''; }
+        markActive();
+        markDots();
     }
-    function visibleCount() {
-        const s = stepSize();
-        return s ? Math.max(1, Math.round(track.parentElement.offsetWidth / s)) : 1;
+    function markActive() {
+        const cards = track.children;
+        const len = cards.length || 1;
+        const active = ((pos % len) + len) % len;
+        for (let i = 0; i < cards.length; i++) cards[i].classList.toggle('active', i === active);
     }
-    function maxIdx() { return Math.max(0, byYear[years[yi]].length - visibleCount()); }
+    function markDots() {
+        if (n < 1) return;
+        const a = ((pos % n) + n) % n;
+        Array.prototype.forEach.call(dotsWrap.children, (d, i) => d.classList.toggle('on', i === a));
+    }
+    // スライド完了後、3連トラックの中央コピー域[n,2n)へ座標を戻して無限ループ化
+    function normalize() {
+        if (n <= 1) return;
+        if (pos >= 2 * n) { pos -= n; place(false); }
+        else if (pos < n) { pos += n; place(false); }
+    }
+    track.addEventListener('transitionend', e => { if (e.propertyName === 'transform') normalize(); });
+
+    function go(delta) { if (n <= 1) return; pos += delta; place(true); }
 
     function updateCount() {
         yearCount.textContent = byYear[years[yi]].length + (currentLang === 'ja' ? ' 作品' : ' works');
     }
-    function layout(instant) {
-        idx = Math.max(0, Math.min(idx, maxIdx()));
-        if (instant) track.style.transition = 'none';
-        track.style.transform = 'translateX(' + (-idx * stepSize()) + 'px)';
-        if (instant) { void track.offsetWidth; track.style.transition = ''; }
-        cPrev.disabled = idx <= 0;
-        cNext.disabled = idx >= maxIdx();
-        Array.prototype.forEach.call(dotsWrap.children, (d, i) => d.classList.toggle('on', i === idx));
-    }
-    function renderYear() {
+
+    function buildYear() {
         const list = byYear[years[yi]];
-        yearLabel.textContent = years[yi];
-        updateCount();
-        track.innerHTML = list.map(cardHTML).join('');
+        n = list.length;
+        // n>1 は3連（見切れ＋無限ループ用）、n===1 は単体
+        const seq = n > 1 ? list.concat(list).concat(list) : list.slice();
+        track.innerHTML = seq.map(cardHTML).join('');
         dotsWrap.innerHTML = '';
-        list.forEach((_, i) => {
+        for (let i = 0; i < n; i++) {
             const b = document.createElement('button');
             b.className = 'wc-dot';
             b.setAttribute('aria-label', (i + 1) + '番目');
-            b.addEventListener('click', () => { idx = Math.min(i, maxIdx()); layout(); });
+            b.addEventListener('click', () => { pos = (n > 1 ? n : 0) + i; place(true); restartAuto(); });
             dotsWrap.appendChild(b);
-        });
+        }
+        yearLabel.textContent = years[yi];
+        updateCount();
         yPrev.disabled = yi <= 0;
         yNext.disabled = yi >= years.length - 1;
-        idx = 0;
-        layout(true);
+        const single = n <= 1;
+        cPrev.disabled = single;
+        cNext.disabled = single;
+        pos = n > 1 ? n : 0;     // 中央コピーの先頭
+        place(false);
     }
+
+    // 下グリッド：選択年の作品だけをフェードで表示
+    function showGrid(year, animate) {
+        if (!grid) return;
+        const apply = () => {
+            Array.prototype.forEach.call(grid.querySelectorAll('.work-card'), card => {
+                const d = workData[card.dataset.work];
+                if (d && String(d.year) === String(year)) { card.style.display = ''; card.classList.add('visible'); }
+                else card.style.display = 'none';
+            });
+        };
+        if (animate && !reduce) {
+            grid.style.opacity = '0';
+            setTimeout(() => { apply(); grid.style.opacity = '1'; }, 260);
+        } else { apply(); }
+    }
+
+    // 年切替：カルーセルはスライド＋フェード、グリッドはフェード
+    function setYear(newYi, dir) {
+        if (newYi === yi || newYi < 0 || newYi >= years.length) return;
+        stopAuto();
+        showGrid(years[newYi], true);
+        if (reduce) { yi = newYi; buildYear(); startAuto(); return; }
+        viewport.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
+        viewport.style.opacity = '0';
+        viewport.style.transform = 'translateX(' + (dir > 0 ? -36 : 36) + 'px)';
+        setTimeout(() => {
+            yi = newYi;
+            buildYear();
+            viewport.style.transition = 'none';
+            viewport.style.transform = 'translateX(' + (dir > 0 ? 36 : -36) + 'px)';
+            void viewport.offsetWidth;
+            viewport.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
+            viewport.style.opacity = '1';
+            viewport.style.transform = 'translateX(0)';
+            startAuto();
+        }, 240);
+    }
+
+    function startAuto() { if (reduce || n <= 1) return; stopAuto(); autoTimer = setInterval(() => go(1), AUTO_MS); }
+    function stopAuto() { if (autoTimer) { clearInterval(autoTimer); autoTimer = null; } }
+    function restartAuto() { startAuto(); }
 
     track.addEventListener('click', e => {
         const card = e.target.closest('.wc-card');
         if (card && card.dataset.work) openModal(card.dataset.work);
     });
-    cPrev.addEventListener('click', () => { idx--; layout(); });
-    cNext.addEventListener('click', () => { idx++; layout(); });
-    yPrev.addEventListener('click', () => { if (yi > 0) { yi--; renderYear(); } });
-    yNext.addEventListener('click', () => { if (yi < years.length - 1) { yi++; renderYear(); } });
-    window.addEventListener('resize', () => layout(true));
+    cPrev.addEventListener('click', () => { go(-1); restartAuto(); });
+    cNext.addEventListener('click', () => { go(1); restartAuto(); });
+    yPrev.addEventListener('click', () => setYear(yi - 1, -1));
+    yNext.addEventListener('click', () => setYear(yi + 1, 1));
+    if (carousel) {
+        carousel.addEventListener('mouseenter', stopAuto);
+        carousel.addEventListener('mouseleave', startAuto);
+    }
+    window.addEventListener('resize', () => place(false));
     if (langBtn) langBtn.addEventListener('click', () => updateCount());
+    document.addEventListener('visibilitychange', () => { if (document.hidden) stopAuto(); else startAuto(); });
 
-    renderYear();
+    buildYear();
+    showGrid(years[0], false);
+    startAuto();
 })();
 
 // ===== メール送信モーダル =====
