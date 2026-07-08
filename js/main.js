@@ -638,10 +638,16 @@ document.querySelectorAll('.work-card[data-work]').forEach(card => {
     // スライド完了後、3連トラックの中央コピー域[n,2n)へ座標を戻して無限ループ化
     function normalize() {
         if (n <= 1) return;
-        if (pos >= 2 * n) { pos -= n; place(false); }
-        else if (pos < n) { pos += n; place(false); }
+        let changed = false;
+        while (pos >= 2 * n) { pos -= n; changed = true; }   // 素早い連続操作で範囲を超えても戻す
+        while (pos < n) { pos += n; changed = true; }
+        if (changed) place(false);
     }
-    track.addEventListener('transitionend', e => { if (e.propertyName === 'transform') normalize(); });
+    // トラック自身の移動(transform)完了時のみ折り返し。カードの scale(=transform) の
+    // バブリングで誤発火すると、スライド中に折り返しが割り込んで逆方向へ高速回転してしまうため e.target を限定
+    track.addEventListener('transitionend', e => {
+        if (e.target === track && e.propertyName === 'transform') normalize();
+    });
 
     function go(delta) { if (n <= 1) return; pos += delta; place(true); }
 
