@@ -138,6 +138,7 @@
 | sand-tetris | Sand Tetris | 2026 | C++, 個人制作 | VS / Claude Code Pro | - | ✅ 2枚 | ✅ SandTetris.zip |
 | console-shooter | ConsoleSTG | 2026 | C++, 個人制作 | VS / Claude Code Pro | - | ✅ 3枚 | ✅ ConsoleSTG.zip |
 | gamma | GAMMA | 2025 | C++, DirectX, 課題制作：チーム | VS / DX11 | ✅ PV | ✅ 1枚 | - |
+| blade-slash | ブレードスラッシュ | 2025 | 課題制作：個人, OpenGL | Nintendo Switch / OpenGL | - | - | - |
 | circlestriker | CIRCLESTRIKER | 2024 | Unity, C#, 課題制作：個人 | Unity / VS Code | - | ✅ ロゴ | - |
 | touhou | 東方春三校 | 2024 | Unity, 課題制作：個人 | Unity | - | ✅ 2枚 | - |
 

@@ -241,6 +241,20 @@ const workData = {
         screenshots: ['images/gamma_screenshot.webp'],
         download: '',
     },
+    'blade-slash': {
+        title: { ja: 'ブレードスラッシュ', en: 'Blade Slash' },
+        year: '2025',
+        tags: [{ ja: '課題制作：個人', en: 'Assignment: Solo' }, 'OpenGL'],
+        award: null,
+        env: 'Nintendo Switch / OpenGL',
+        desc: {
+            ja: 'Nintendo Switch 向けに制作した課題制作のゲーム。OpenGL を用いて実装。詳細な説明・スクリーンショットは後日追記予定。',
+            en: 'A solo assignment game developed for the Nintendo Switch, implemented using OpenGL. A detailed writeup and screenshots will be added later.'
+        },
+        video: { type: 'placeholder', src: '' },
+        screenshots: [],
+        download: '',
+    },
     'gamma-plus': {
         title: { ja: 'GAMMA+', en: 'GAMMA+' },
         year: '2026',
@@ -576,7 +590,7 @@ document.querySelectorAll('.work-card[data-work]').forEach(card => {
 
     // Works の表示順（HTMLグリッドの data-work 順）を保ったまま年でグループ化
     const order = ['pettan-maker', 'rm-engine', 'puramai9', 'sd-mcp', 'discord-bot',
-                   'gamma-plus', 'sand-tetris', 'console-shooter', 'gamma', 'circlestriker', 'touhou'];
+                   'gamma-plus', 'sand-tetris', 'console-shooter', 'gamma', 'blade-slash', 'circlestriker', 'touhou'];
     const byYear = {};
     order.forEach(id => {
         const d = workData[id];
