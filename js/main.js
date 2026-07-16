@@ -808,6 +808,121 @@ document.querySelectorAll('.work-card[data-work]').forEach(card => {
     startAuto();
 })();
 
+// ===== Works 一覧：検索・タグ絞り込み・タイトルのマーキー =====
+(function initWorksGrid() {
+    const grid = document.querySelector('.works-grid');
+    if (!grid) return;
+    const cards = Array.prototype.slice.call(grid.querySelectorAll('.work-card'));
+    const heads = Array.prototype.slice.call(grid.querySelectorAll('.year-head'));
+    const searchInput = document.getElementById('works-search');
+    const filterWrap = document.getElementById('works-filter');
+    const emptyMsg = document.getElementById('works-empty');
+
+    // タイトルを .wt-text でラップ（マーキー用。多言語 data 属性を span 側へ移す）
+    cards.forEach(card => {
+        const title = card.querySelector('.work-title');
+        if (!title || title.querySelector('.wt-text')) return;
+        const span = document.createElement('span');
+        span.className = 'wt-text';
+        ['data-ja', 'data-en'].forEach(a => {
+            if (title.hasAttribute(a)) { span.setAttribute(a, title.getAttribute(a)); title.removeAttribute(a); }
+        });
+        span.textContent = title.textContent.trim();
+        title.textContent = '';
+        title.appendChild(span);
+    });
+
+    // タグ収集（key=ja文字列で一意化）してチップ生成
+    const tagMap = new Map();
+    cards.forEach(card => {
+        const d = workData[card.dataset.work]; if (!d) return;
+        (d.tags || []).forEach(t => {
+            const o = (typeof t === 'object') ? t : { ja: t, en: t };
+            if (!tagMap.has(o.ja)) tagMap.set(o.ja, o);
+        });
+    });
+    const activeTags = new Set();
+    tagMap.forEach(t => {
+        const chip = document.createElement('button');
+        chip.className = 'works-chip';
+        chip.dataset.key = t.ja;
+        chip.setAttribute('data-ja', t.ja);
+        chip.setAttribute('data-en', t.en);
+        chip.textContent = (currentLang === 'ja' ? t.ja : t.en);
+        chip.addEventListener('click', () => {
+            if (activeTags.has(t.ja)) { activeTags.delete(t.ja); chip.classList.remove('active'); }
+            else { activeTags.add(t.ja); chip.classList.add('active'); }
+            apply();
+        });
+        filterWrap.appendChild(chip);
+    });
+
+    function tagKeys(card) {
+        const d = workData[card.dataset.work];
+        return (d.tags || []).map(t => (typeof t === 'object' ? t.ja : t));
+    }
+    function matchesSearch(card, q) {
+        if (!q) return true;
+        const d = workData[card.dataset.work];
+        const hay = [d.title.ja, d.title.en].concat((d.tags || []).map(t => typeof t === 'object' ? (t.ja + ' ' + t.en) : t)).join(' ').toLowerCase();
+        return hay.indexOf(q) !== -1;
+    }
+    function apply() {
+        const q = (searchInput.value || '').trim().toLowerCase();
+        let anyVisible = false;
+        cards.forEach(card => {
+            const keys = tagKeys(card);
+            const tagOk = activeTags.size === 0 || keys.some(k => activeTags.has(k));
+            const show = tagOk && matchesSearch(card, q);
+            card.style.display = show ? '' : 'none';
+            if (show) { card.classList.add('visible'); anyVisible = true; }
+        });
+        // その年に表示カードが無ければ年見出しを隠す
+        heads.forEach(head => {
+            let el = head.nextElementSibling, has = false;
+            while (el && !el.classList.contains('year-head')) {
+                if (el.classList.contains('work-card') && el.style.display !== 'none') { has = true; break; }
+                el = el.nextElementSibling;
+            }
+            head.style.display = has ? '' : 'none';
+        });
+        emptyMsg.hidden = anyVisible;
+    }
+    if (searchInput) searchInput.addEventListener('input', apply);
+
+    // ホバーでタイトルを横スクロール（末尾で1.5秒 → 瞬時に先頭へ → 繰り返し）
+    cards.forEach(card => {
+        const title = card.querySelector('.work-title');
+        const inner = card.querySelector('.wt-text');
+        if (!title || !inner) return;
+        let cancel = null;
+        card.addEventListener('mouseenter', () => {
+            const overflow = inner.scrollWidth - title.clientWidth;
+            if (overflow <= 1) return;
+            title.classList.add('marquee');
+            const dur = Math.max(0.6, overflow / 60);   // 約60px/秒
+            let stopped = false, t1 = 0, t2 = 0;
+            function cycle() {
+                if (stopped) return;
+                inner.style.transition = 'transform ' + dur + 's linear';
+                inner.style.transform = 'translateX(' + (-overflow) + 'px)';
+                t1 = setTimeout(() => {
+                    if (stopped) return;
+                    inner.style.transition = 'none';
+                    inner.style.transform = 'translateX(0)';
+                    void inner.offsetWidth;                 // 瞬時に先頭へ
+                    t2 = setTimeout(cycle, 30);
+                }, dur * 1000 + 1500);                       // 末尾到達後 1.5秒待つ
+            }
+            cycle();
+            cancel = () => { stopped = true; clearTimeout(t1); clearTimeout(t2); title.classList.remove('marquee'); inner.style.transition = 'none'; inner.style.transform = 'translateX(0)'; };
+        });
+        card.addEventListener('mouseleave', () => { if (cancel) { cancel(); cancel = null; } });
+    });
+
+    apply();
+})();
+
 // ===== メール送信モーダル =====
 const emailModal = document.getElementById('email-modal');
 const emailForm = document.getElementById('email-form');
