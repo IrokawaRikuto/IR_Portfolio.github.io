@@ -309,7 +309,7 @@ const workData = {
             en: 'A custom MCP (Model Context Protocol) server that lets the generative AI Claude operate a locally running image generator, "Stable Diffusion" (Forge WebUI), to create images. Written in Python, it works through Forge\'s REST API.\n\nWith a simple natural-language instruction to Claude — for example, "draw a girl standing under cherry blossoms" — Claude converts the request into a prompt (Danbooru tags, etc.) and automatically handles everything from generation to saving. It exposes five tools: image generation (txt2img), connection check, model listing, model switching, and sampler listing, with recommended anime-SDXL defaults built in (1024×1024 / Euler a / steps 28 / Clip skip 2). Mindful of an 8GB VRAM environment, it also implements an "on-demand" approach: Forge is auto-launched only when a generation is requested, and auto-terminates after a period of inactivity. For Claude Desktop, it is also packaged as a one-click extension (.mcpb).\n\nBeyond merely using generative AI, by implementing MCP — the mechanism for extending an AI agent with custom tools — myself, this project shows the ability to extend AI for a purpose and fold it into a production workflow.'
         },
         video: { type: 'placeholder', src: '' },
-        screenshots: [],
+        screenshots: ['images/SDMCP_icon.webp'],
         download: '',
     },
     'rm-engine': {
