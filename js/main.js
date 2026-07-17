@@ -241,6 +241,20 @@ const workData = {
         screenshots: ['images/gamma_screenshot.webp'],
         download: '',
     },
+    'smash-golf-fight': {
+        title: { ja: 'スマッシュゴルファイト', en: 'Smash Golf Fight' },
+        year: '2025',
+        tags: ['C++', 'DirectX'],
+        award: null,
+        env: 'Visual Studio / DirectX11',
+        desc: {
+            ja: 'C++・DirectX で制作したゲーム。詳細な説明・スクリーンショットは後日追記予定。',
+            en: 'A game developed with C++ and DirectX. A detailed writeup and screenshots will be added later.'
+        },
+        video: { type: 'placeholder', src: '' },
+        screenshots: [],
+        download: '',
+    },
     'blade-slash': {
         title: { ja: 'ブレードスラッシュ', en: 'Blade Slash' },
         year: '2025',
@@ -590,7 +604,7 @@ document.querySelectorAll('.work-card[data-work]').forEach(card => {
 
     // Works の表示順（HTMLグリッドの data-work 順）を保ったまま年でグループ化
     const order = ['pettan-maker', 'rm-engine', 'puramai9', 'sd-mcp', 'discord-bot',
-                   'gamma-plus', 'sand-tetris', 'console-shooter', 'gamma', 'blade-slash', 'circlestriker', 'touhou'];
+                   'gamma-plus', 'sand-tetris', 'console-shooter', 'gamma', 'smash-golf-fight', 'blade-slash', 'circlestriker', 'touhou'];
     const byYear = {};
     order.forEach(id => {
         const d = workData[id];
