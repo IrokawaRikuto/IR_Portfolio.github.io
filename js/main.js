@@ -191,11 +191,11 @@ const workData = {
         award: null,
         env: 'Unity / C#（プロトタイプ）→ C++（本制作で予定）',
         desc: {
-            ja: '現在開発中のオリジナル戦略カードゲーム。まずプロトタイプを Unity / C# で制作して遊びの手応えを確かめ、本制作ではより自由度の高い実装を目指して C++ での作り直しを予定している。ルールやカードデザインを練りながら開発を進めている最中の一作で、画面写真などは今後追加予定。',
-            en: 'An original strategy card game currently in development. I first built a prototype in Unity / C# to validate the gameplay, and the full version is planned to be rebuilt in C++ for greater flexibility. The game is actively being designed — refining its rules and card design — with screenshots and more to be added going forward.'
+            ja: '現在開発中のオリジナル戦略カードゲーム。「計算＋心理戦」を軸に、当たり偶奇（コインの偶奇）に手札の合計値を合わせて攻撃先を決め、相手のHPを ±100 の端まで押し切れば勝ちという独自ルールを持つ。まずプロトタイプを Unity / C# で制作して遊びの手応えを確かめ、本制作ではより自由度の高い実装を目指して C++ での作り直しを予定している。掲載画像は現時点の企画書（コンセプト・画面イメージ・ルール）。',
+            en: 'An original strategy card game currently in development. Built around a "calculation + mind game" core: you match the sum of your played cards to the coin\'s odd/even result to decide who takes damage, and win by pushing the opponent\'s HP to either ±100 edge. I first built a prototype in Unity / C# to validate the gameplay, and the full version is planned to be rebuilt in C++ for greater flexibility. The images shown are from the current design deck (concept, screen mockup, and rules).'
         },
         video: { type: 'placeholder', src: '' },
-        screenshots: [],
+        screenshots: ['images/puramai9_Overview.webp', 'images/puramai9_Concept.webp', 'images/puramai9_Screen.webp', 'images/puramai9_Rules.webp'],
         download: '',
         repo: 'https://github.com/IrokawaRikuto/puramai9',
     },

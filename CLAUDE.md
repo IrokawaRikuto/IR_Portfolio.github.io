@@ -132,7 +132,7 @@
 |----|---------|-----|------|----------|------|----|----|
 | pettan-maker | ぺったんメイカー | 2026 | Unity, C#, 課題制作：チーム, 制作中 | Unity / VS | ✅ PV | ✅ 6枚 | - |
 | rm-engine | RM Engine | 2026 | C++, DirectX, 個人制作, 制作中 | VS / DX11 / Claude Code Pro | - | ✅ 6枚 | - |
-| puramai9 | ±9（プラマイナイン） | 2026 | Unity, C#, 個人制作, 制作中 | Unity/C#(proto)→C++(予定) | - | - | GitHub |
+| puramai9 | ±9（プラマイナイン） | 2026 | Unity, C#, 個人制作, 制作中 | Unity/C#(proto)→C++(予定) | - | ✅ 4枚(企画書) | GitHub |
 | sd-mcp | Stable Diffusion MCP | 2026 | MCP, Python, Stable Diffusion, 個人制作 | Python / MCP / Stable Diffusion (Forge WebUI) | - | - | - |
 | discord-bot | Discord BOT | 2026 | Discord, 個人制作, 制作中 | （TBD） | - | - | - |
 | gamma-plus | GAMMA+ | 2026 | C++, DirectX, リメイク, 個人制作 | VS / DX11 / Claude Code Pro | - | - | - |
