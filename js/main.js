@@ -817,6 +817,9 @@ document.querySelectorAll('.work-card[data-work]').forEach(card => {
     const searchInput = document.getElementById('works-search');
     const filterWrap = document.getElementById('works-filter');
     const emptyMsg = document.getElementById('works-empty');
+    const searchBtn = document.getElementById('works-search-btn');
+    const searchModal = document.getElementById('works-search-modal');
+    const searchGo = document.getElementById('works-search-go');
 
     // タイトルを .wt-text でラップ（マーキー用。多言語 data 属性を span 側へ移す）
     cards.forEach(card => {
@@ -842,7 +845,6 @@ document.querySelectorAll('.work-card[data-work]').forEach(card => {
         });
     });
     const activeTags = new Set();
-    const collapsed = new Set();   // 折りたたみ中の年
     tagMap.forEach(t => {
         const chip = document.createElement('button');
         chip.className = 'works-chip';
@@ -858,6 +860,29 @@ document.querySelectorAll('.work-card[data-work]').forEach(card => {
         filterWrap.appendChild(chip);
     });
 
+    // 各年のカードを .year-group でラップ（折りたたみを滑らかに上下スライドさせるため）
+    const groups = [];   // {year, head, group}
+    heads.forEach(head => {
+        const h3 = head.querySelector('h3');
+        const y = h3 ? h3.textContent.trim() : '';
+        head.dataset.year = y;
+        const group = document.createElement('div');
+        group.className = 'year-group';
+        let node = head.nextElementSibling;
+        while (node && !node.classList.contains('year-head')) {
+            const next = node.nextElementSibling;
+            group.appendChild(node);
+            node = next;
+        }
+        head.insertAdjacentElement('afterend', group);
+        groups.push({ year: y, head: head, group: group });
+        // キャレット（表示位置は CSS の order:-1 で年号の左）
+        const caret = document.createElement('span');
+        caret.className = 'year-caret';
+        caret.setAttribute('aria-hidden', 'true');
+        if (h3) h3.insertAdjacentElement('beforebegin', caret); else head.insertBefore(caret, head.firstChild);
+    });
+
     function tagKeys(card) {
         const d = workData[card.dataset.work];
         return (d.tags || []).map(t => (typeof t === 'object' ? t.ja : t));
@@ -869,7 +894,7 @@ document.querySelectorAll('.work-card[data-work]').forEach(card => {
         return hay.indexOf(q) !== -1;
     }
     function apply() {
-        const q = (searchInput.value || '').trim().toLowerCase();
+        const q = (searchInput ? searchInput.value || '' : '').trim().toLowerCase();
         let anyMatch = false;
         const yearMatch = {};
         cards.forEach(card => {
@@ -878,35 +903,65 @@ document.querySelectorAll('.work-card[data-work]').forEach(card => {
             const tagOk = activeTags.size === 0 || keys.some(k => activeTags.has(k));
             const match = tagOk && matchesSearch(card, q);   // 検索・タグの一致
             if (match) { anyMatch = true; yearMatch[String(d.year)] = true; }
-            const show = match && !collapsed.has(String(d.year));  // 折りたたみ年は隠す
-            card.style.display = show ? '' : 'none';
-            if (show) card.classList.add('visible');
+            card.style.display = match ? '' : 'none';        // 折りたたみは group 側で制御
+            if (match) card.classList.add('visible');
         });
-        // 年見出し：その年に一致カードがあれば表示（折りたたみ中でも見出しは残す）＋開閉状態を反映
-        heads.forEach(head => {
-            const y = head.dataset.year;
-            head.style.display = yearMatch[y] ? '' : 'none';
-            head.classList.toggle('collapsed', collapsed.has(y));
+        // 年ごと：一致カードが無ければ見出し＋グループを隠す
+        groups.forEach(g => {
+            const has = !!yearMatch[g.year];
+            g.head.style.display = has ? '' : 'none';
+            g.group.style.display = has ? '' : 'none';
         });
         emptyMsg.hidden = anyMatch;
+        // 検索使用中は丸ボタンを赤くハイライト
+        if (searchBtn) searchBtn.classList.toggle('has-filter', activeTags.size > 0 || q.length > 0);
     }
     if (searchInput) searchInput.addEventListener('input', apply);
 
-    // 年見出し：クリックでその年のカードを折りたたむ（▽/▷）
-    heads.forEach(head => {
-        const h3 = head.querySelector('h3');
-        const y = h3 ? h3.textContent.trim() : '';
-        head.dataset.year = y;
-        const caret = document.createElement('span');
-        caret.className = 'year-caret';
-        caret.setAttribute('aria-hidden', 'true');
-        if (h3) h3.insertAdjacentElement('afterend', caret); else head.appendChild(caret);
-        head.setAttribute('role', 'button');
-        head.addEventListener('click', () => {
-            if (collapsed.has(y)) collapsed.delete(y); else collapsed.add(y);
-            apply();
-        });
+    // 年見出しクリックでその年を折りたたみ（滑らかに上下スライド）
+    function toggleYear(g) {
+        const collapse = !g.head.classList.contains('collapsed');
+        if (collapse) {
+            g.group.style.maxHeight = g.group.scrollHeight + 'px';
+            g.group.getBoundingClientRect();                 // reflow
+            requestAnimationFrame(() => {
+                g.group.style.maxHeight = '0px';
+                g.group.style.opacity = '0';
+                g.group.style.marginBottom = '0px';
+            });
+            g.head.classList.add('collapsed');
+        } else {
+            g.head.classList.remove('collapsed');
+            g.group.style.opacity = '1';
+            g.group.style.marginBottom = '';
+            g.group.style.maxHeight = g.group.scrollHeight + 'px';
+            const done = (e) => {
+                if (e.target !== g.group || e.propertyName !== 'max-height') return;
+                g.group.style.maxHeight = '';                 // 展開後は自然な高さに戻す
+                g.group.removeEventListener('transitionend', done);
+            };
+            g.group.addEventListener('transitionend', done);
+        }
+    }
+    groups.forEach(g => {
+        g.head.setAttribute('role', 'button');
+        g.head.addEventListener('click', () => toggleYear(g));
     });
+
+    // 検索モーダルの開閉
+    if (searchBtn && searchModal) {
+        const openSearch = () => { searchModal.classList.add('active'); setTimeout(() => { if (searchInput) searchInput.focus(); }, 60); };
+        const closeSearch = () => searchModal.classList.remove('active');
+        searchBtn.addEventListener('click', openSearch);
+        const mc = searchModal.querySelector('.modal-close');
+        const mb = searchModal.querySelector('.modal-backdrop');
+        if (mc) mc.addEventListener('click', closeSearch);
+        if (mb) mb.addEventListener('click', closeSearch);
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && searchModal.classList.contains('active')) closeSearch(); });
+    }
+    // 検索欄左の確定ボタン＝Enter と同等（live 適用済みだが明示）
+    if (searchGo) searchGo.addEventListener('click', () => { apply(); if (searchInput) searchInput.focus(); });
+    if (searchInput) searchInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); apply(); } });
 
     // ホバーでタイトルを横スクロール（末尾で1.5秒 → 瞬時に先頭へ → 繰り返し）
     cards.forEach(card => {
