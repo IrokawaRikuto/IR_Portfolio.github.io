@@ -655,7 +655,7 @@ section {
     width: 22px;
     height: 22px;
     object-fit: contain;
-    transform: rotate(-90deg);          /* 用意した検索画像を左に90°回転 */
+    transform: rotate(-45deg);          /* 検索画像を左に45°回転（レンズが左上を向く） */
     opacity: 0.7;
     transition: opacity 0.2s, filter 0.2s;
 }
@@ -706,7 +706,7 @@ section {
     width: 20px;
     height: 20px;
     object-fit: contain;
-    transform: rotate(-90deg);          /* 用意した検索画像を左に90°回転 */
+    transform: rotate(-45deg);          /* 検索画像を左に45°回転（レンズが左上を向く） */
     opacity: 0.75;
     transition: opacity 0.2s;
 }
