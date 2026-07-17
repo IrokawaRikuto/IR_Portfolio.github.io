@@ -605,30 +605,75 @@ section {
 /* ===== Works ===== */
 .works-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
+    grid-template-columns: 1fr;
+    gap: 0;
     transition: opacity 0.28s ease;
 }
+/* 各年のカード群（折りたたみで滑らかに上下スライド） */
+.works-grid .year-group {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px 8px;
+    margin-bottom: 6px;
+    opacity: 1;
+    overflow: hidden;
+    transition: max-height 0.4s ease, opacity 0.3s ease, margin 0.3s ease;
+}
 @media (max-width: 1024px) {
-    .works-grid { grid-template-columns: repeat(3, 1fr); }
+    .works-grid .year-group { grid-template-columns: repeat(3, 1fr); }
 }
 
-/* 検索＋タグ絞り込みバー */
+/* 検索ボタン（丸ボタン）→ 押すと検索モーダルが開く */
 .works-controls {
     display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 14px;
-    margin-bottom: 20px;
+    justify-content: flex-end;
+    margin-bottom: 16px;
 }
+.works-search-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.2s, box-shadow 0.2s, color 0.2s;
+}
+.works-search-btn:hover { border-color: var(--accent); box-shadow: 0 0 12px var(--accent-glow); }
+/* 検索使用中は赤くハイライトし続ける */
+.works-search-btn.has-filter {
+    border-color: var(--accent);
+    background: rgba(255, 68, 68, 0.15);
+    box-shadow: 0 0 12px var(--accent-glow);
+}
+.works-search-btn-icon {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+    transform: rotate(-90deg);          /* 用意した検索画像を左に90°回転 */
+    opacity: 0.7;
+    transition: opacity 0.2s, filter 0.2s;
+}
+.works-search-btn:hover .works-search-btn-icon { opacity: 1; }
+.works-search-btn.has-filter .works-search-btn-icon {
+    opacity: 1;
+    /* 使用中は赤系に着色 */
+    filter: brightness(0) saturate(100%) invert(38%) sepia(93%) saturate(3000%) hue-rotate(340deg) brightness(102%) contrast(105%);
+}
+
+/* 検索モーダル内の中身 */
 .works-filter { display: flex; flex-wrap: wrap; gap: 8px; }
 .works-chip {
     background: var(--bg-card);
     border: 1px solid var(--border);
     color: var(--text-muted);
-    font-size: 0.72rem;
-    padding: 5px 12px;
+    font-size: 0.75rem;
+    padding: 6px 13px;
     border-radius: 20px;
     cursor: pointer;
     letter-spacing: 0.02em;
@@ -636,25 +681,72 @@ section {
 }
 .works-chip:hover { border-color: var(--accent); color: var(--text); }
 .works-chip.active { background: rgba(255, 68, 68, 0.15); border-color: var(--accent); color: var(--accent); }
-.works-search-wrap { position: relative; margin-left: auto; }
-.works-search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 0.8rem; opacity: 0.55; pointer-events: none; }
+.works-search-content { max-width: 520px; width: 92%; }
+.works-search-body { padding: 30px 26px 26px; display: flex; flex-direction: column; gap: 18px; }
+.works-search-field { position: relative; }
+/* 検索欄左の確定ボタン（クリックで Enter と同等） */
+.works-search-go {
+    position: absolute;
+    left: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 34px;
+    height: 34px;
+    border: none;
+    background: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+.works-search-go:hover { background: rgba(255, 68, 68, 0.12); }
+.works-search-go-icon {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    transform: rotate(-90deg);          /* 用意した検索画像を左に90°回転 */
+    opacity: 0.75;
+    transition: opacity 0.2s;
+}
+.works-search-go:hover .works-search-go-icon { opacity: 1; }
 .works-search {
     background: var(--bg-card);
     border: 1px solid var(--border);
     color: var(--text);
-    border-radius: 20px;
-    padding: 8px 14px 8px 32px;
-    font-size: 0.85rem;
-    width: 220px;
-    max-width: 60vw;
+    border-radius: 22px;
+    padding: 11px 16px 11px 46px;
+    font-size: 0.9rem;
+    width: 100%;
     transition: border-color 0.2s;
 }
 .works-search:focus { outline: none; border-color: var(--accent); }
+.works-search-heading { font-size: 0.82rem; color: var(--text-muted); letter-spacing: 0.1em; margin-bottom: -6px; }
 .works-empty { text-align: center; color: var(--text-muted); padding: 28px 0; }
 
-/* 一覧カード＝元の縦カード（画像＋タイトル）から「タグだけ」非表示。タイトルはホバーでマーキー（見切れは …） */
-.works-grid .work-tags { display: none; }
-.works-grid .work-title { overflow: hidden; }
+/* 一覧カード＝サムネのみ角丸の枠、タイトルは枠外の下にキャプション表示（タグ非表示） */
+.works-grid .work-card {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    overflow: visible;
+}
+.works-grid .work-card:hover { box-shadow: none; }
+.works-grid .work-media {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+.works-grid .work-card:hover .work-media {
+    border-color: var(--accent);
+    box-shadow: 0 4px 24px var(--accent-glow);
+}
+.works-grid .work-info { padding: 6px 2px 0; gap: 2px; }
+.works-grid .work-tags,
+.works-grid .work-award { display: none; }
+.works-grid .work-title { overflow: hidden; font-size: 0.95rem; }
 .works-grid .wt-text {
     display: inline-block;
     max-width: 100%;
@@ -678,12 +770,13 @@ section {
 .year-head { cursor: pointer; user-select: none; }
 .year-caret {
     color: var(--accent);
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     line-height: 1;
-    transition: transform 0.2s ease;
+    transition: transform 0.25s ease;
     flex: 0 0 auto;
+    order: -1;                 /* 年号の左に表示 */
 }
-.year-caret::before { content: "▽"; }
+.year-caret::before { content: "▼"; }
 .year-head.collapsed .year-caret { transform: rotate(-90deg); }
 .year-head h3 {
     font-family: "Arial Black", "Helvetica Neue", sans-serif;
@@ -1494,9 +1587,9 @@ footer {
         transform: translateY(-50%);
     }
 
-    .works-grid {
+    .works-grid .year-group {
         grid-template-columns: repeat(2, 1fr);
-        gap: 8px;
+        gap: 12px 6px;
     }
 
     .contact-links {

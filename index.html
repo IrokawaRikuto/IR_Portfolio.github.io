@@ -232,15 +232,13 @@
             <div class="wc-dots" id="wc-dots"></div>
         </div>
 
-        <!-- 検索＋タグ絞り込み -->
+        <!-- 検索ボタン（押すと検索モーダルが開く） -->
         <div class="works-controls">
-            <div class="works-filter" id="works-filter"></div>
-            <div class="works-search-wrap">
-                <span class="works-search-icon" aria-hidden="true">🔍</span>
-                <input type="search" id="works-search" class="works-search" placeholder="作品を検索…" data-placeholder-ja="作品を検索…" data-placeholder-en="Search works…" aria-label="作品を検索" autocomplete="off">
-            </div>
+            <button type="button" class="works-search-btn" id="works-search-btn" aria-label="作品を検索" title="検索">
+                <img class="works-search-btn-icon" src="images/search.png" alt="">
+            </button>
         </div>
-        <p class="works-empty" id="works-empty" hidden data-ja="該当する作品がありません" data-en="No matching works">該当する作品がありません</p>
+        <p class="works-empty" id="works-empty" hidden data-ja="ここには何もないようです…" data-en="There seems to be nothing here…">ここには何もないようです…</p>
 
         <div class="works-grid">
 
@@ -519,6 +517,24 @@
         </div>
     </div>
 </section>
+
+<!-- モーダル（作品検索） -->
+<div id="works-search-modal" class="modal">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content works-search-content">
+        <button class="modal-close" aria-label="閉じる">&times;</button>
+        <div class="modal-body works-search-body">
+            <div class="works-search-field">
+                <button type="button" class="works-search-go" id="works-search-go" aria-label="検索を実行" title="検索">
+                    <img class="works-search-go-icon" src="images/search.png" alt="">
+                </button>
+                <input type="search" id="works-search" class="works-search" placeholder="タイトルで検索…" data-placeholder-ja="タイトルで検索…" data-placeholder-en="Search by title…" aria-label="タイトルで検索" autocomplete="off">
+            </div>
+            <h4 class="works-search-heading" data-ja="タグで検索" data-en="Search by tag">タグで検索</h4>
+            <div class="works-filter" id="works-filter"></div>
+        </div>
+    </div>
+</div>
 
 <!-- モーダル（作品詳細） -->
 <div id="work-modal" class="modal">
