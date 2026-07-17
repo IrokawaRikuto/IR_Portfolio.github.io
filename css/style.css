@@ -605,12 +605,12 @@ section {
 /* ===== Works ===== */
 .works-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 10px;
     transition: opacity 0.28s ease;
 }
 @media (max-width: 1024px) {
-    .works-grid { grid-template-columns: repeat(2, 1fr); }
+    .works-grid { grid-template-columns: repeat(3, 1fr); }
 }
 
 /* 検索＋タグ絞り込みバー */
@@ -652,11 +652,9 @@ section {
 .works-search:focus { outline: none; border-color: var(--accent); }
 .works-empty { text-align: center; color: var(--text-muted); padding: 28px 0; }
 
-/* 一覧カード＝横長・タイトルのみ（ホバーでマーキー、見切れは …） */
-.works-grid .work-media,
+/* 一覧カード＝元の縦カード（画像＋タイトル）から「タグだけ」非表示。タイトルはホバーでマーキー（見切れは …） */
 .works-grid .work-tags { display: none; }
-.works-grid .work-info { padding: 13px 16px; }
-.works-grid .work-title { font-size: 1rem; overflow: hidden; }
+.works-grid .work-title { overflow: hidden; }
 .works-grid .wt-text {
     display: inline-block;
     max-width: 100%;
@@ -677,6 +675,16 @@ section {
     margin: 20px 0 4px;
 }
 .year-head:first-child { margin-top: 0; }
+.year-head { cursor: pointer; user-select: none; }
+.year-caret {
+    color: var(--accent);
+    font-size: 0.8rem;
+    line-height: 1;
+    transition: transform 0.2s ease;
+    flex: 0 0 auto;
+}
+.year-caret::before { content: "▽"; }
+.year-head.collapsed .year-caret { transform: rotate(-90deg); }
 .year-head h3 {
     font-family: "Arial Black", "Helvetica Neue", sans-serif;
     font-size: 1.7rem;
@@ -1487,7 +1495,7 @@ footer {
     }
 
     .works-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
         gap: 8px;
     }
 
