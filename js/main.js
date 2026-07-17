@@ -842,6 +842,7 @@ document.querySelectorAll('.work-card[data-work]').forEach(card => {
         });
     });
     const activeTags = new Set();
+    const collapsed = new Set();   // 折りたたみ中の年
     tagMap.forEach(t => {
         const chip = document.createElement('button');
         chip.className = 'works-chip';
@@ -869,26 +870,43 @@ document.querySelectorAll('.work-card[data-work]').forEach(card => {
     }
     function apply() {
         const q = (searchInput.value || '').trim().toLowerCase();
-        let anyVisible = false;
+        let anyMatch = false;
+        const yearMatch = {};
         cards.forEach(card => {
+            const d = workData[card.dataset.work];
             const keys = tagKeys(card);
             const tagOk = activeTags.size === 0 || keys.some(k => activeTags.has(k));
-            const show = tagOk && matchesSearch(card, q);
+            const match = tagOk && matchesSearch(card, q);   // 検索・タグの一致
+            if (match) { anyMatch = true; yearMatch[String(d.year)] = true; }
+            const show = match && !collapsed.has(String(d.year));  // 折りたたみ年は隠す
             card.style.display = show ? '' : 'none';
-            if (show) { card.classList.add('visible'); anyVisible = true; }
+            if (show) card.classList.add('visible');
         });
-        // その年に表示カードが無ければ年見出しを隠す
+        // 年見出し：その年に一致カードがあれば表示（折りたたみ中でも見出しは残す）＋開閉状態を反映
         heads.forEach(head => {
-            let el = head.nextElementSibling, has = false;
-            while (el && !el.classList.contains('year-head')) {
-                if (el.classList.contains('work-card') && el.style.display !== 'none') { has = true; break; }
-                el = el.nextElementSibling;
-            }
-            head.style.display = has ? '' : 'none';
+            const y = head.dataset.year;
+            head.style.display = yearMatch[y] ? '' : 'none';
+            head.classList.toggle('collapsed', collapsed.has(y));
         });
-        emptyMsg.hidden = anyVisible;
+        emptyMsg.hidden = anyMatch;
     }
     if (searchInput) searchInput.addEventListener('input', apply);
+
+    // 年見出し：クリックでその年のカードを折りたたむ（▽/▷）
+    heads.forEach(head => {
+        const h3 = head.querySelector('h3');
+        const y = h3 ? h3.textContent.trim() : '';
+        head.dataset.year = y;
+        const caret = document.createElement('span');
+        caret.className = 'year-caret';
+        caret.setAttribute('aria-hidden', 'true');
+        if (h3) h3.insertAdjacentElement('afterend', caret); else head.appendChild(caret);
+        head.setAttribute('role', 'button');
+        head.addEventListener('click', () => {
+            if (collapsed.has(y)) collapsed.delete(y); else collapsed.add(y);
+            apply();
+        });
+    });
 
     // ホバーでタイトルを横スクロール（末尾で1.5秒 → 瞬時に先頭へ → 繰り返し）
     cards.forEach(card => {
