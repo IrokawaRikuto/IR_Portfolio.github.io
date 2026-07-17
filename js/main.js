@@ -241,8 +241,8 @@ const workData = {
         screenshots: ['images/gamma_screenshot.webp'],
         download: '',
     },
-    'smash-golf-fight': {
-        title: { ja: 'スマッシュゴルファイト', en: 'Smash Golf Fight' },
+    'blast-ball': {
+        title: { ja: 'ブラストボール', en: 'Blast Ball' },
         year: '2025',
         tags: ['C++', 'DirectX'],
         award: null,
@@ -604,7 +604,7 @@ document.querySelectorAll('.work-card[data-work]').forEach(card => {
 
     // Works の表示順（HTMLグリッドの data-work 順）を保ったまま年でグループ化
     const order = ['pettan-maker', 'rm-engine', 'puramai9', 'sd-mcp', 'discord-bot',
-                   'gamma-plus', 'sand-tetris', 'console-shooter', 'gamma', 'smash-golf-fight', 'blade-slash', 'circlestriker', 'touhou'];
+                   'gamma-plus', 'sand-tetris', 'console-shooter', 'gamma', 'blast-ball', 'blade-slash', 'circlestriker', 'touhou'];
     const byYear = {};
     order.forEach(id => {
         const d = workData[id];
