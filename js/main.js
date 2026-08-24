@@ -338,6 +338,10 @@ const workData = {
         year: '2026',
         tags: ['Unity', 'C#', { ja: '課題制作：チーム', en: 'Assignment: Team' }, { ja: '制作中', en: 'In Development' }],
         award: null,
+        role: {
+            ja: 'マップ、レベルデザイン、敵キャラクター原案、プレイヤー操作、アイテム使用、ラスボス（モデリング・楽曲の監修も担当）',
+            en: 'Map, level design, enemy character concepts, player controls, item usage, final boss (also supervised modeling and music)'
+        },
         env: 'Unity / Visual Studio',
         desc: {
             ja: '敵をつぶしてシールにし、そのシールをからだに貼ることで効果を発動してボスを倒していく3Dアクションゲーム。ステージごとに童話をモチーフにした世界観が用意されており、STAGE1は「不思議の国のアリス」をテーマに、ボスとして「ハートの女王」が登場する。HAL東京の3年次チーム制作（NullPointerGames）として現在開発中。',
@@ -437,6 +441,15 @@ function openModal(workId) {
     // 作品情報：年号
     const yearLabel = currentLang === 'ja' ? '制作年：' : 'Year: ';
     modal.querySelector('.work-detail-year').textContent = yearLabel + data.year;
+
+    // 作品情報：担当（role がある作品のみ表示）
+    const roleEl = modal.querySelector('.work-detail-role');
+    if (data.role) {
+        const roleLabel = currentLang === 'ja' ? '担当：' : 'Role: ';
+        roleEl.textContent = roleLabel + (typeof data.role === 'object' ? data.role[lang] : data.role);
+    } else {
+        roleEl.textContent = '';
+    }
 
     // 作品情報：開発環境
     const envEl = modal.querySelector('.work-detail-env');

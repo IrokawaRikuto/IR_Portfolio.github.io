@@ -75,6 +75,8 @@
 - ミニゲーム: ランキングのセキュリティ強化（`firestore.rules` でスキーマ・型・値域を縛り update/delete 禁止、`game-firebase.js` の `submitScore` でクライアント側にも値域バリデーション、`index.html` に Firebase App Check 用 SDK と `APP_CHECK_SITE_KEY` ゲート組込み）。Firebase Console 側の Rules 公開・App Check Site Key 設定はユーザ作業として残（未完了・予定セクションに記載）
 - About: プロフィール写真追加（`images/profile.webp`、200×260枠、`object-fit: cover` + `object-position: center top` で上寄せクロップ、STARTボタン同等の `1px solid var(--accent)` 赤細枠付き）
 - About: 志望職種に「ゲームシナリオライター」「エンジニア」を追記（表記: 「ゲームプログラマー、ゲームシナリオライター、エンジニア」）
+- About: 「卒業予定」行を追加（学校の次、「2028年3月 卒業見込み」／en: Expected to graduate in March 2028）
+- モーダルに「担当」欄を追加（`workData[id].role = {ja,en}` がある作品のみ `.work-detail-role` に「担当：」形式で表示。制作年の下・開発環境の上。role 無しの作品は空文字で非表示）。ぺったんメイカーに設定＝マップ／レベルデザイン／敵キャラクター原案／プレイヤー操作／アイテム使用／ラスボス（モデリング・楽曲の監修も担当）
 - About: 資格欄の表記整理（J検 → 「情報検定（J検）」と正式名称＋通称併記、ビジネス文書実務検定試験 1級から「（文書部門・速度部門）」のカッコ削除）
 - 全ファイル名を英字に統一（日本語ファイル名を完全廃止）: `IRファビコン.png` → `IR_favicon.png`、`IRファビコン（白背景）.jpg` → `IR_favicon_white.jpg`、`images/東方春三校_*.png` → `Touhou_*.webp`、`images/コンソールシューティング_*.png` → `ConsoleSTG_*.webp`。SNS/クローラのURLエンコード失敗リスクを排除
 - 重い画像7枚をwebp化（合計約10.5MB → 約955KB、9割削減）: profile / PettanMaker_ConceptArt / CircleStrikerLogo / PettanMaker_Logo / Touhou_GamePlay / Touhou_Title / gamma_screenshot。profile.png は 400×520 にリサイズしてから webp 化
