@@ -443,6 +443,7 @@ section {
     line-height: 1.9;
     color: var(--text-muted);
 }
+.about-pr p + p { margin-top: 14px; }
 
 /* ===== Skills ===== */
 .skills-grid {
