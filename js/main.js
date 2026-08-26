@@ -377,6 +377,7 @@ const workData = {
         year: '2026',
         tags: ['C++', { ja: '個人制作', en: 'Personal' }],
         award: null,
+        period: { ja: '1日', en: '1 day' },
         env: 'Visual Studio / Claude Code Pro',
         desc: {
             ja: '「グラディウス」のような横スクロール型シューティングを、コンソール画面上で実装したC++製ゲーム。学内のゲーム発表で1年生のお題が「コンソールゲーム」だったことをきっかけに、自分が1年生の頃に取り組んだ課題を、当時よりも一段踏み込んだ形で作り直したいと考えたのが制作の出発点。「画像素材を一切使わず、コンソールウィンドウだけでどこまでゲームとして成立させられるか」をテーマに、自機・敵・弾・爆発エフェクト・背景の星まで、すべてをASCII文字と色情報のみで表現している。\n\n描画にはWindows APIのWriteConsoleOutputAを採用し、画面全体をCHAR_INFOバッファとして一括転送するダブルバッファ方式を実装。printfベースの描画で発生するちらつきを排除し、80×25の文字画面でも滑らかなスクロールを実現した。さらにフォントサイズを36pxに引き上げた上でSW_MAXIMIZEによる全画面化を行い、「小さなコンソール画面」という印象も払拭している。\n\nゲーム部分は、タイトル → ステージ選択（3面）→ プレイ → リザルトまでを1本のループとして構築。敵は直進型・上下移動型・蛇行型の3種類を実装し、各ステージの最後にはHPゲージ付きのボスが登場する。自機側もパワーアップ最大3段階によるショット数増加、被弾時の無敵時間、残機制、チャージショット中は自機の向きが反転する演出など、操作感と手応えを両立させるための細部まで作り込んだ。\n\n開発にはAI支援ツール（Claude Code）を活用しつつ、自分でもコードを書きながら完成させた。生成されたコードを読み解き、修正・統合していく過程で、Windows APIによるコンソール制御や描画最適化への理解を一段深められた作品となっている。',
@@ -441,6 +442,24 @@ function openModal(workId) {
     // 作品情報：年号
     const yearLabel = currentLang === 'ja' ? '制作年：' : 'Year: ';
     modal.querySelector('.work-detail-year').textContent = yearLabel + data.year;
+
+    // 作品情報：制作期間（period がある作品のみ表示）
+    const periodEl = modal.querySelector('.work-detail-period');
+    if (data.period) {
+        const periodLabel = currentLang === 'ja' ? '制作期間：' : 'Duration: ';
+        periodEl.textContent = periodLabel + (typeof data.period === 'object' ? data.period[lang] : data.period);
+    } else {
+        periodEl.textContent = '';
+    }
+
+    // 作品情報：チーム規模（team がある作品のみ表示。個人制作は未設定で非表示）
+    const teamEl = modal.querySelector('.work-detail-team');
+    if (data.team) {
+        const teamLabel = currentLang === 'ja' ? 'チーム規模：' : 'Team: ';
+        teamEl.textContent = teamLabel + (typeof data.team === 'object' ? data.team[lang] : data.team);
+    } else {
+        teamEl.textContent = '';
+    }
 
     // 作品情報：担当（role がある作品のみ表示）
     const roleEl = modal.querySelector('.work-detail-role');
