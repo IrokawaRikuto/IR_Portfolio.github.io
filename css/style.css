@@ -1043,6 +1043,12 @@ section {
     border: 1px solid rgba(255, 184, 0, 0.5);
 }
 
+.tag-paused {
+    background: rgba(160, 160, 160, 0.15);
+    color: #a0a0a0;
+    border: 1px solid rgba(160, 160, 160, 0.45);
+}
+
 .work-desc {
     display: none;
 }
