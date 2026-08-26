@@ -48,6 +48,8 @@
 - Sand Tetrisの説明文を技術詳細込みの長文に刷新（セルオートマトン物理、最適化手法、AI協業方針）
 - ConsoleSTG（旧称：コンソールシューティング）の説明文を刷新（制作経緯・ASCII描画方針・WriteConsoleOutputAダブルバッファ・ゲーム構成・AI協業方針）
 - ぺったんメイカー（2026, Unity/C#, 課題制作:チーム）追加: PV動画（`videos/PettanMaker_PV.mp4`）、スクリーンショット6枚（Title/ConceptArt/Logo/GamePlay/Sticker/Clear）、説明文（敵をシール化→からだに貼って効果発動でボス撃破、ステージごとに童話モチーフ、STAGE1=不思議の国のアリス／ハートの女王、HAL3年次チーム制作 NullPointerGames）
+- 「休止中」タグ（`.tag-paused` 灰色 #a0a0a0）追加。`workData.tags` に `{ja:'休止中', en:'On Hold'}` を含めると一覧・モーダル両方で灰色表示（モーダル側は `openModal` の tag レンダリングで `t.ja === '休止中'` を判定）。Discord BOT に適用（制作中→休止中に変更、NAS未所持のため）
+- ±9（プラマイナイン）を「制作中」から「企画書」作品に変更: タグ 制作中→企画書、env を `Unity` に、desc を「神ゲー創造主エボリューション応募用に1週間で企画・制作した企画書／結果は一次審査落ち／ルール検証用のテスト版をUnityで制作／この先の開発予定なし」に全面刷新（一覧カード・workData 両方）
 - 「制作中」タグ（`.tag-wip` 黄色ハイライト #ffb800）追加。`workData.tags` に `{ja:'制作中', en:'In Development'}` を含めると Works一覧・モーダル両方で黄色表示。モーダル側は `openModal` の tag レンダリングで `t.ja === '制作中'` を判定して `tag-wip` クラスを付与
 - モーダル説明文の改行対応（white-space: pre-line）
 - CIRCLESTRIKERのロゴをスクリーンショットとして追加
@@ -78,7 +80,7 @@
 - About: 「卒業予定」行を追加（学校の次、「2028年3月 卒業見込み」／en: Expected to graduate in March 2028）
 - About: 志望職種から「ゲームシナリオライター」を削除（現在は「ゲームプログラマー、エンジニア」）
 - About: 自己PRを3段落構成に拡充（`.about-pr` を `<div>` 化し中に `<p>`×3、`.about-pr p + p { margin-top:14px }`）。①志望動機＝生まれたときからゲームが身近／3DSのRPGツクールで創作意欲に火がついた ②現在のスタイル（従来文、冒頭に「現在は」を追加） ③作りたいゲーム＝『Escape from Tarkov』のような探索型ハードコアFPS／『Dark and Darker』のような剣戟アクション／やり込み要素の強い3Dアクション
-- モーダルに「制作期間」「チーム規模」欄を追加（`workData[id].period = {ja,en}` / `team = {ja,en}` がある作品のみ表示。`.work-detail-period` に「制作期間：」、`.work-detail-team` に「チーム規模：」形式。表示順は 制作年 → 制作期間 → チーム規模 → 担当 → 開発環境 → 受賞）。設定済み: ぺったんメイカー=約4ヶ月/10人+α、RM Engine=制作中、±9=1週間（企画書のみ）、SD MCP=2日、Discord BOT=1週間（現在休止中）、GAMMA+=約1ヶ月（原作GAMMAの約半年を含めると約7ヶ月）、Sand Tetris=1日、ConsoleSTG=1日、GAMMA=半年弱/9人、CIRCLESTRIKER=約2ヶ月、東方春三校=約2ヶ月。ブラストボール／ブレードスラッシュは日数未定のため未設定
+- モーダルに「制作期間」「チーム規模」欄を追加（`workData[id].period = {ja,en}` / `team = {ja,en}` がある作品のみ表示。`.work-detail-period` に「制作期間：」、`.work-detail-team` に「チーム規模：」形式。表示順は 制作年 → 制作期間 → チーム規模 → 担当 → 開発環境 → 受賞）。設定済み: ぺったんメイカー=約4ヶ月/10人+α、RM Engine=制作中、±9=1週間（企画書のみ）、SD MCP=2日、Discord BOT=1週間（現在休止中）、GAMMA+=約1ヶ月（原作GAMMAの約4ヶ月を含めると約5ヶ月）、Sand Tetris=1日、ConsoleSTG=1日、GAMMA=約4ヶ月/9人、CIRCLESTRIKER=約2ヶ月、東方春三校=約2ヶ月。ブラストボール／ブレードスラッシュは日数未定のため未設定
 - モーダルに「担当」欄を追加（`workData[id].role = {ja,en}` がある作品のみ `.work-detail-role` に「担当：」形式で表示。制作年の下・開発環境の上。role 無しの作品は空文字で非表示）。ぺったんメイカーに設定＝マップ／レベルデザイン／敵キャラクター原案／プレイヤー操作／アイテム使用／ラスボス（モデリング・楽曲の監修も担当）
 - About: 資格欄の表記整理（J検 → 「情報検定（J検）」と正式名称＋通称併記、ビジネス文書実務検定試験 1級から「（文書部門・速度部門）」のカッコ削除）
 - 全ファイル名を英字に統一（日本語ファイル名を完全廃止）: `IRファビコン.png` → `IR_favicon.png`、`IRファビコン（白背景）.jpg` → `IR_favicon_white.jpg`、`images/東方春三校_*.png` → `Touhou_*.webp`、`images/コンソールシューティング_*.png` → `ConsoleSTG_*.webp`。SNS/クローラのURLエンコード失敗リスクを排除

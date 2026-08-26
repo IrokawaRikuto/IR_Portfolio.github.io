@@ -188,12 +188,12 @@ const workData = {
         title: { ja: '±9（プラマイナイン）', en: '±9 (Plus-Minus Nine)' },
         year: '2026',
         period: { ja: '1週間（企画書のみ）', en: '1 week (concept document only)' },
-        tags: ['Unity', 'C#', { ja: '個人制作', en: 'Personal' }, { ja: '制作中', en: 'In Development' }],
+        tags: ['Unity', 'C#', { ja: '個人制作', en: 'Personal' }, { ja: '企画書', en: 'Design Document' }],
         award: null,
-        env: 'Unity / C#（プロトタイプ）→ C++（本制作で予定）',
+        env: 'Unity',
         desc: {
-            ja: '現在開発中のオリジナル戦略カードゲーム。「計算＋心理戦」を軸に、当たり偶奇（コインの偶奇）に手札の合計値を合わせて攻撃先を決め、相手のHPを ±100 の端まで押し切れば勝ちという独自ルールを持つ。まずプロトタイプを Unity / C# で制作して遊びの手応えを確かめ、本制作ではより自由度の高い実装を目指して C++ での作り直しを予定している。掲載画像は現時点の企画書（コンセプト・画面イメージ・ルール）。',
-            en: 'An original strategy card game currently in development. Built around a "calculation + mind game" core: you match the sum of your played cards to the coin\'s odd/even result to decide who takes damage, and win by pushing the opponent\'s HP to either ±100 edge. I first built a prototype in Unity / C# to validate the gameplay, and the full version is planned to be rebuilt in C++ for greater flexibility. The images shown are from the current design deck (concept, screen mockup, and rules).'
+            ja: '「神ゲー創造主エボリューション」への応募用に、1週間で企画・制作したオリジナル戦略カードゲームの企画書。結果は一次審査落ち。\n\nコンセプトは「計算＋心理戦」。コイントスで決まる「当たり偶奇」に手札の合計値を合わせられるかで攻撃先が変わり、合っていれば相手に、外せば自分にダメージが返る。相手のHPを +100 と −100 のどちらの端に押し切っても勝ちという綱引き構造にすることで、削るか押し上げるかを切り替える2方向の勝ち筋を作った。出すカードでダメージ値を自分で決められるため、強い手ほど外したときのリスクも大きくなる設計になっている。\n\nルールが成立するかを確かめるため、テスト版を Unity で制作して実際に対戦を回しながら数値を調整した。掲載画像は提出した企画書（コンセプト・画面イメージ・1ラウンドの流れとゲームボリューム）。現状は企画書までで、この先の開発予定はない。',
+            en: 'A design document for an original strategy card game, planned and produced in one week for submission to the Kamige Souzoushu Evolution game contest. It did not pass the first round of screening.\n\nThe concept is "calculation plus mind game." A coin toss sets a target parity, and whether the sum of the cards you play matches it decides who takes the damage — match it and the damage goes to your opponent, miss and it comes back to you. Victory comes from pushing the opponent to either the +100 or the −100 end of the HP track, which creates two opposing win conditions and lets players switch between chipping down and pushing up. Because you choose your own damage value through the cards you play, a stronger hand also means a more painful backfire.\n\nTo verify that the rules held up, I built a test version in Unity and tuned the numbers through actual play. The images are from the submitted document (concept, screen mockup, and the round flow and game volume). The project stands at the design document stage, with no further development planned.'
         },
         video: { type: 'placeholder', src: '' },
         screenshots: ['images/puramai9_Overview.webp', 'images/puramai9_Concept.webp', 'images/puramai9_Screen.webp', 'images/puramai9_Rules.webp'],
@@ -233,7 +233,7 @@ const workData = {
     'gamma': {
         title: { ja: 'GAMMA', en: 'GAMMA' },
         year: '2025',
-        period: { ja: '半年弱', en: 'Just under 6 months' },
+        period: { ja: '約4ヶ月', en: 'About 4 months' },
         team: { ja: '9人', en: '9 members' },
         tags: ['C++', 'DirectX', { ja: '課題制作：チーム', en: 'Assignment: Team' }],
         award: null,
@@ -277,7 +277,7 @@ const workData = {
     'gamma-plus': {
         title: { ja: 'GAMMA+', en: 'GAMMA+' },
         year: '2026',
-        period: { ja: '約1ヶ月（原作GAMMAの約半年を含めると約7ヶ月）', en: 'About 1 month (about 7 months including the ~6 months on the original GAMMA)' },
+        period: { ja: '約1ヶ月（原作GAMMAの約4ヶ月を含めると約5ヶ月）', en: 'About 1 month (about 5 months including the ~4 months on the original GAMMA)' },
         tags: ['C++', 'DirectX', { ja: 'リメイク', en: 'Remake' }, { ja: '個人制作', en: 'Personal' }],
         award: null,
         env: 'Visual Studio / DirectX11 / Claude Code Pro',
@@ -294,7 +294,7 @@ const workData = {
         title: { ja: 'Discord BOT', en: 'Discord BOT' },
         year: '2026',
         period: { ja: '1週間（現在休止中）', en: '1 week (currently on hold)' },
-        tags: ['Discord', { ja: '個人制作', en: 'Personal' }, { ja: '制作中', en: 'In Development' }],
+        tags: ['Discord', { ja: '個人制作', en: 'Personal' }, { ja: '休止中', en: 'On Hold' }],
         award: null,
         env: '',
         desc: {
@@ -447,8 +447,10 @@ function openModal(workId) {
     const tagsEl = modal.querySelector('.work-detail-tags');
     tagsEl.innerHTML = data.tags.map(t => {
         const text = typeof t === 'object' ? t[lang] : t;
-        const isWip = typeof t === 'object' && t.ja === '制作中';
-        return '<span class="tag' + (isWip ? ' tag-wip' : '') + '">' + text + '</span>';
+        let cls = '';
+        if (typeof t === 'object' && t.ja === '制作中') cls = ' tag-wip';
+        else if (typeof t === 'object' && t.ja === '休止中') cls = ' tag-paused';
+        return '<span class="tag' + cls + '">' + text + '</span>';
     }).join('');
 
     // 作品情報：年号
