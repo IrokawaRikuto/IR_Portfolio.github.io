@@ -85,6 +85,7 @@
 - モーダルの作品配布欄に「動作環境」「操作方法」を追加（`workData[id].requirements` / `controls` = {ja,en} がある作品のみ表示、`.work-detail-requirements` / `.work-detail-controls`）。同梱READMEとexeのPEヘッダ解析（x64・参照DLLはKERNEL32/USER32のみ＝追加ランタイム不要）をもとに Sand Tetris / ConsoleSTG に設定
 - モーダルに「制作期間」「チーム規模」欄を追加（`workData[id].period = {ja,en}` / `team = {ja,en}` がある作品のみ表示。`.work-detail-period` に「制作期間：」、`.work-detail-team` に「チーム規模：」形式。表示順は 制作年 → 制作期間 → チーム規模 → 担当 → 開発環境 → 受賞）。設定済み: ぺったんメイカー=約4ヶ月/10人+α、RM Engine=制作中、±9=1週間（企画書のみ）、SD MCP=2日、Discord BOT=1週間（現在休止中）、GAMMA+=約1ヶ月（原作GAMMAの約4ヶ月を含めると約5ヶ月）、Sand Tetris=1日、ConsoleSTG=1日、GAMMA=約4ヶ月/9人、CIRCLESTRIKER=約2ヶ月、東方春三校=約2ヶ月。ブラストボール／ブレードスラッシュは日数未定のため未設定
 - モーダルに「担当」欄を追加（`workData[id].role = {ja,en}` がある作品のみ `.work-detail-role` に「担当：」形式で表示。制作年の下・開発環境の上。role 無しの作品は空文字で非表示）。ぺったんメイカーに設定＝マップ／レベルデザイン／敵キャラクター原案／プレイヤー操作／アイテム使用／ラスボス（モデリング・楽曲の監修も担当）
+- About: 受賞歴に年を追記（どちらも1年次＝2024年。「2024年　オリジナルTPS学内コンペ 構成力賞」「2024年　おもしろゲームづくり学内コンテスト 意欲賞」）
 - About: 資格欄の表記整理（J検 → 「情報検定（J検）」と正式名称＋通称併記、ビジネス文書実務検定試験 1級から「（文書部門・速度部門）」のカッコ削除）
 - 全ファイル名を英字に統一（日本語ファイル名を完全廃止）: `IRファビコン.png` → `IR_favicon.png`、`IRファビコン（白背景）.jpg` → `IR_favicon_white.jpg`、`images/東方春三校_*.png` → `Touhou_*.webp`、`images/コンソールシューティング_*.png` → `ConsoleSTG_*.webp`。SNS/クローラのURLエンコード失敗リスクを排除
 - 重い画像7枚をwebp化（合計約10.5MB → 約955KB、9割削減）: profile / PettanMaker_ConceptArt / CircleStrikerLogo / PettanMaker_Logo / Touhou_GamePlay / Touhou_Title / gamma_screenshot。profile.png は 400×520 にリサイズしてから webp 化
@@ -317,7 +318,7 @@
 - PV動画追加: RM Engine / GAMMA+ / Sand Tetris / ConsoleSTG / CIRCLESTRIKER / 東方春三校（現状は静止画のみ。ぺったんメイカー・GAMMA は追加済み）
 - 配布物追加: ぺったんメイカー / GAMMA+ / RM Engine（Sand Tetris と ConsoleSTG は zip 配布済み）
 - GAMMA+ のスクリーンショット追加（紹介文は完了、現状はモーダル動画欄が「準備中…」表示）
-- ミニゲーム使用素材クレジット：一旦非表示にした（`index.html` のゲーム情報・左カラムでコメントアウト。素材一覧が固まったらコメントを外して復活）。※弾幕素材・陰陽玉・SE等にニコニ・コモンズ由来（`nc402378` / `nc10263` 等）が含まれるため、公開状態では出典表記が必要な素材がないか要確認
+- ミニゲーム使用素材クレジット：ゲーム情報・左カラムに復活。現時点で判明分＝自機オプション（陰陽玉）＝ニコニ・コモンズ `nc402378`「霊夢の陰陽玉2」（`assets/game/option_orb.png` 240x840 が一致）、弾幕スプライト＝「東方風弾幕素材 Ver.3」、効果音（`se_decide` / `se_select`）＝出典確認中。判明次第 `index.html` の該当 `<p>`（data-ja/data-en 両方）に追記する
 - ミニゲームの敵キャラ動作（途中）：出現パターン・移動挙動・弾幕密度などの調整継続中
 - ミニゲームの自機・敵・ボスのキャラ素材（東方寄せ）：スプライト描画パイプラインは実装済み。`assets/game/` に `player.png` / `enemy_small.png` / `enemy_medium.png` / `enemy_large.png` / `boss.png` を配置すれば自動でスプライト表示に切替（未配置の間は図形フォールバック）。版権フリーのSTGドット素材 or 東方キャラ素材を入手して差し替え予定
 - Firebase Console 側の手動作業:
