@@ -187,6 +187,7 @@ const workData = {
     'puramai9': {
         title: { ja: '±9（プラマイナイン）', en: '±9 (Plus-Minus Nine)' },
         year: '2026',
+        period: { ja: '1週間（企画書のみ）', en: '1 week (concept document only)' },
         tags: ['Unity', 'C#', { ja: '個人制作', en: 'Personal' }, { ja: '制作中', en: 'In Development' }],
         award: null,
         env: 'Unity / C#（プロトタイプ）→ C++（本制作で予定）',
@@ -202,6 +203,7 @@ const workData = {
     'touhou': {
         title: { ja: '東方春三校', en: 'Touhou Harusankou' },
         year: '2024',
+        period: { ja: '約2ヶ月', en: 'About 2 months' },
         tags: ['Unity', { ja: '課題制作：個人', en: 'Assignment: Solo' }],
         award: { ja: 'おもしろゲームづくり学内コンテスト 意欲賞 受賞', en: 'Fun Game Making In-School Contest — Enthusiasm Award' },
         env: 'Unity',
@@ -216,6 +218,7 @@ const workData = {
     'circlestriker': {
         title: { ja: 'CIRCLESTRIKER', en: 'CIRCLESTRIKER' },
         year: '2024',
+        period: { ja: '約2ヶ月', en: 'About 2 months' },
         tags: ['Unity', 'C#', { ja: '課題制作：個人', en: 'Assignment: Solo' }],
         award: { ja: 'オリジナルTPS学内コンペ 構成力賞 受賞', en: 'Original TPS In-School Competition — Composition Award' },
         env: 'Unity / Visual Studio Code',
@@ -230,6 +233,8 @@ const workData = {
     'gamma': {
         title: { ja: 'GAMMA', en: 'GAMMA' },
         year: '2025',
+        period: { ja: '半年弱', en: 'Just under 6 months' },
+        team: { ja: '9人', en: '9 members' },
         tags: ['C++', 'DirectX', { ja: '課題制作：チーム', en: 'Assignment: Team' }],
         award: null,
         env: 'Visual Studio / DirectX11',
@@ -272,6 +277,7 @@ const workData = {
     'gamma-plus': {
         title: { ja: 'GAMMA+', en: 'GAMMA+' },
         year: '2026',
+        period: { ja: '約1ヶ月（原作GAMMAの約半年を含めると約7ヶ月）', en: 'About 1 month (about 7 months including the ~6 months on the original GAMMA)' },
         tags: ['C++', 'DirectX', { ja: 'リメイク', en: 'Remake' }, { ja: '個人制作', en: 'Personal' }],
         award: null,
         env: 'Visual Studio / DirectX11 / Claude Code Pro',
@@ -287,6 +293,7 @@ const workData = {
     'discord-bot': {
         title: { ja: 'Discord BOT', en: 'Discord BOT' },
         year: '2026',
+        period: { ja: '1週間（現在休止中）', en: '1 week (currently on hold)' },
         tags: ['Discord', { ja: '個人制作', en: 'Personal' }, { ja: '制作中', en: 'In Development' }],
         award: null,
         env: '',
@@ -301,6 +308,7 @@ const workData = {
     'sd-mcp': {
         title: { ja: 'Stable Diffusion MCP', en: 'Stable Diffusion MCP' },
         year: '2026',
+        period: { ja: '2日', en: '2 days' },
         tags: ['MCP', 'Python', 'Stable Diffusion', { ja: '個人制作', en: 'Personal' }],
         award: null,
         env: 'Python / MCP / Stable Diffusion (Forge WebUI)',
@@ -315,6 +323,7 @@ const workData = {
     'rm-engine': {
         title: { ja: 'RM Engine', en: 'RM Engine' },
         year: '2026',
+        period: { ja: '制作中', en: 'In progress' },
         tags: ['C++', 'DirectX', { ja: '個人制作', en: 'Personal' }, { ja: '制作中', en: 'In Development' }],
         award: null,
         env: 'Visual Studio / DirectX11 / Claude Code Pro',
@@ -336,6 +345,8 @@ const workData = {
     'pettan-maker': {
         title: { ja: 'ぺったんメイカー', en: 'Pettan Maker' },
         year: '2026',
+        period: { ja: '約4ヶ月', en: 'About 4 months' },
+        team: { ja: '10人+α', en: '10+ members' },
         tags: ['Unity', 'C#', { ja: '課題制作：チーム', en: 'Assignment: Team' }, { ja: '制作中', en: 'In Development' }],
         award: null,
         role: {
@@ -361,6 +372,7 @@ const workData = {
     'sand-tetris': {
         title: { ja: 'Sand Tetris', en: 'Sand Tetris' },
         year: '2026',
+        period: { ja: '1日', en: '1 day' },
         tags: ['C++', { ja: '個人制作', en: 'Personal' }],
         award: null,
         env: 'Visual Studio / Claude Code Pro',
