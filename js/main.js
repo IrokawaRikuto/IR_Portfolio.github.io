@@ -383,6 +383,8 @@ const workData = {
         video: { type: 'placeholder', src: '' },
         screenshots: ['images/SANDTETRIS_Title.png', 'images/SANDTETRIS_GamePlay.png'],
         download: 'games/SandTetris.zip',
+        requirements: { ja: 'Windows 10 / 11（64bit）／追加のランタイム不要', en: 'Windows 10 / 11 (64-bit); no additional runtime required' },
+        controls: { ja: 'A/←・D/→ 移動、W/↑ 回転、S/↓ ソフトドロップ、Space ハードドロップ、R リスタート、Esc タイトルへ', en: 'A/Left and D/Right to move, W/Up to rotate, S/Down to soft drop, Space to hard drop, R to restart, Esc for title' },
     },
     'console-shooter': {
         title: { ja: 'ConsoleSTG', en: 'ConsoleSTG' },
@@ -398,6 +400,8 @@ const workData = {
         video: { type: 'placeholder', src: '' },
         screenshots: ['images/ConsoleSTG_Title.webp', 'images/ConsoleSTG_StageSelect.webp', 'images/ConsoleSTG_GamePlay.webp'],
         download: 'games/ConsoleSTG.zip',
+        requirements: { ja: 'Windows 10 / 11（64bit）／コンソールアプリ／追加のランタイム不要', en: 'Windows 10 / 11 (64-bit); console application; no additional runtime required' },
+        controls: { ja: '←→↑↓ 移動、Space / Z ショット（押しっぱなしで連射）、Enter 決定、ESC タイトルへ', en: 'Arrow keys to move, Space or Z to shoot (hold to rapid-fire), Enter to confirm, ESC for title' },
     },
 };
 
@@ -504,12 +508,21 @@ function openModal(workId) {
     // 作品配布：ダウンロードURL
     const dlSection = modal.querySelector('.work-detail-download-section');
     const dlLink = modal.querySelector('.work-detail-download');
+    const reqEl = modal.querySelector('.work-detail-requirements');
+    const ctrlEl = modal.querySelector('.work-detail-controls');
     if (data.download) {
         dlSection.classList.add('has-link');
         dlLink.href = data.download;
         dlLink.textContent = 'Download';
+        // 動作環境・操作方法（設定がある作品のみ）
+        const reqLabel = currentLang === 'ja' ? '動作環境：' : 'Requirements: ';
+        reqEl.textContent = data.requirements ? reqLabel + data.requirements[lang] : '';
+        const ctrlLabel = currentLang === 'ja' ? '操作方法：' : 'Controls: ';
+        ctrlEl.textContent = data.controls ? ctrlLabel + data.controls[lang] : '';
     } else {
         dlSection.classList.remove('has-link');
+        reqEl.textContent = '';
+        ctrlEl.textContent = '';
     }
 
     // ソースコード：GitHubリポジトリURL

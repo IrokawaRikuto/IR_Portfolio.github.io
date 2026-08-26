@@ -489,6 +489,18 @@ section {
     border-radius: 4px;
 }
 
+/* 経験年数・習熟度（右寄せ） */
+.skill-level {
+    margin-left: auto;
+    flex-shrink: 0;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    letter-spacing: 0.03em;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    padding: 2px 9px;
+}
+
 /* ===== Timeline ===== */
 .timeline {
     position: relative;
@@ -1241,6 +1253,16 @@ section {
     color: #fff;
     opacity: 1;
 }
+
+/* 配布物の動作環境・操作方法（設定がある作品のみテキストが入る） */
+.work-detail-requirements,
+.work-detail-controls {
+    font-size: 0.78rem;
+    line-height: 1.7;
+    color: var(--text-muted);
+}
+.work-detail-requirements:not(:empty) { margin-top: 10px; }
+.work-detail-controls:not(:empty) { margin-top: 4px; }
 
 .work-detail-right {
     display: flex;
