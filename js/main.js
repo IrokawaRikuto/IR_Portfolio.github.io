@@ -342,6 +342,21 @@ const workData = {
         ],
         download: '',
     },
+    'jump-beat': {
+        title: { ja: 'あがれ！ジャンプビート', en: 'Agare! Jump Beat' },
+        year: '2026',
+        period: { ja: '1週間弱', en: 'Just under a week' },
+        tags: ['Unreal Engine', 'C++', { ja: '課題制作：個人', en: 'Assignment: Solo' }],
+        award: null,
+        env: 'Unreal Engine / C++',
+        desc: {
+            ja: 'ゲームジャム「ぷちコン」への応募用に、1週間弱で制作したタイミングアクションゲーム。\n\nお題が「だん」だったことから「段差」を軸に据え、段差をジャンプで登っていくことをゲームの中心に置いた。ただ登るだけの高さ勝負にはせず、流れている音楽に合わせてジャンプするタイミングゲームとして構成し、曲のリズムに乗れているほど気持ちよく上へ登っていける手触りを狙った。\n\nゲームファイル・スクリーンショットは後日追加予定。',
+            en: 'A timing-based action game built in just under a week for the Puchi-Con game jam.\n\nThe theme was "dan," which I interpreted as 段差 (ledges), making the act of jumping up a series of ledges the core of the game. Rather than a pure height challenge, I structured it as a timing game where you jump in time with the music playing — the better you ride the rhythm, the more smoothly you climb.\n\nGame files and screenshots will be added later.'
+        },
+        video: { type: 'placeholder', src: '' },
+        screenshots: [],
+        download: '',
+    },
     'pettan-maker': {
         title: { ja: 'ぺったんメイカー', en: 'Pettan Maker' },
         year: '2026',
@@ -402,20 +417,6 @@ const workData = {
         download: 'games/ConsoleSTG.zip',
         requirements: { ja: 'Windows 10 / 11（64bit）／コンソールアプリ／追加のランタイム不要', en: 'Windows 10 / 11 (64-bit); console application; no additional runtime required' },
         controls: { ja: '←→↑↓ 移動、Space / Z ショット（押しっぱなしで連射）、Enter 決定、ESC タイトルへ', en: 'Arrow keys to move, Space or Z to shoot (hold to rapid-fire), Enter to confirm, ESC for title' },
-    },
-    'jump-beat': {
-        title: { ja: 'あがれ！ジャンプビート', en: 'Agare! Jump Beat' },
-        year: '2026',
-        tags: [],
-        award: null,
-        env: '',
-        desc: {
-            ja: '詳細な説明・スクリーンショットは後日追記予定。',
-            en: 'A detailed writeup and screenshots will be added later.'
-        },
-        video: { type: 'placeholder', src: '' },
-        screenshots: [],
-        download: '',
     },
 };
 
@@ -676,8 +677,8 @@ document.querySelectorAll('.work-card[data-work]').forEach(card => {
     const AUTO_MS = 5000;
 
     // Works の表示順（HTMLグリッドの data-work 順）を保ったまま年でグループ化
-    const order = ['pettan-maker', 'rm-engine', 'puramai9', 'sd-mcp', 'discord-bot',
-                   'gamma-plus', 'sand-tetris', 'console-shooter', 'jump-beat', 'gamma', 'blast-ball', 'blade-slash', 'circlestriker', 'touhou'];
+    const order = ['jump-beat', 'pettan-maker', 'rm-engine', 'puramai9', 'sd-mcp', 'discord-bot',
+                   'gamma-plus', 'sand-tetris', 'console-shooter', 'gamma', 'blast-ball', 'blade-slash', 'circlestriker', 'touhou'];
     const byYear = {};
     order.forEach(id => {
         const d = workData[id];
