@@ -85,7 +85,9 @@
 - モーダルの作品配布欄に「動作環境」「操作方法」を追加（`workData[id].requirements` / `controls` = {ja,en} がある作品のみ表示、`.work-detail-requirements` / `.work-detail-controls`）。同梱READMEとexeのPEヘッダ解析（x64・参照DLLはKERNEL32/USER32のみ＝追加ランタイム不要）をもとに Sand Tetris / ConsoleSTG に設定
 - モーダルに「制作期間」「チーム規模」欄を追加（`workData[id].period = {ja,en}` / `team = {ja,en}` がある作品のみ表示。`.work-detail-period` に「制作期間：」、`.work-detail-team` に「チーム規模：」形式。表示順は 制作年 → 制作期間 → チーム規模 → 担当 → 開発環境 → 受賞）。設定済み: ぺったんメイカー=約4ヶ月/10人+α、RM Engine=制作中、±9=1週間（企画書のみ）、SD MCP=2日、Discord BOT=1週間（現在休止中）、GAMMA+=約1ヶ月（原作GAMMAの約4ヶ月を含めると約5ヶ月）、Sand Tetris=1日、ConsoleSTG=1日、GAMMA=約4ヶ月/9人、CIRCLESTRIKER=約2ヶ月、東方春三校=約2ヶ月。ブラストボール／ブレードスラッシュは日数未定のため未設定
 - モーダルに「担当」欄を追加（`workData[id].role = {ja,en}` がある作品のみ `.work-detail-role` に「担当：」形式で表示。制作年の下・開発環境の上。role 無しの作品は空文字で非表示）。ぺったんメイカーに設定＝マップ／レベルデザイン／敵キャラクター原案／プレイヤー操作／アイテム使用／ラスボス（モデリング・楽曲の監修も担当）
+- Works に「あがれ！ジャンプビート」（2026）を枠だけ追加（`jump-beat`、2026グループの末尾＝ConsoleSTG の次）。現状は名称のみ判明のため tags は空配列・env 空・desc はプレースホルダ・画像/DL/リポジトリなし。タグ・開発環境・制作期間・説明文は本人からの情報待ち
 - About: 受賞歴に年を追記（どちらも1年次＝2024年。「2024年　オリジナルTPS学内コンペ 構成力賞」「2024年　おもしろゲームづくり学内コンテスト 意欲賞」）
+- About: 資格の取得年月は記載しない方針（本人希望）
 - About: 資格欄の表記整理（J検 → 「情報検定（J検）」と正式名称＋通称併記、ビジネス文書実務検定試験 1級から「（文書部門・速度部門）」のカッコ削除）
 - 全ファイル名を英字に統一（日本語ファイル名を完全廃止）: `IRファビコン.png` → `IR_favicon.png`、`IRファビコン（白背景）.jpg` → `IR_favicon_white.jpg`、`images/東方春三校_*.png` → `Touhou_*.webp`、`images/コンソールシューティング_*.png` → `ConsoleSTG_*.webp`。SNS/クローラのURLエンコード失敗リスクを排除
 - 重い画像7枚をwebp化（合計約10.5MB → 約955KB、9割削減）: profile / PettanMaker_ConceptArt / CircleStrikerLogo / PettanMaker_Logo / Touhou_GamePlay / Touhou_Title / gamma_screenshot。profile.png は 400×520 にリサイズしてから webp 化
@@ -149,6 +151,7 @@
 | gamma-plus | GAMMA+ | 2026 | C++, DirectX, リメイク, 個人制作 | VS / DX11 / Claude Code Pro | - | - | - |
 | sand-tetris | Sand Tetris | 2026 | C++, 個人制作 | VS / Claude Code Pro | - | ✅ 2枚 | ✅ SandTetris.zip |
 | console-shooter | ConsoleSTG | 2026 | C++, 個人制作 | VS / Claude Code Pro | - | ✅ 3枚 | ✅ ConsoleSTG.zip |
+| jump-beat | あがれ！ジャンプビート | 2026 | （TBD） | （TBD） | - | - | - |
 | gamma | GAMMA | 2025 | C++, DirectX, 課題制作：チーム | VS / DX11 | ✅ PV | ✅ 1枚 | - |
 | blast-ball | ブラストボール | 2025 | C++, DirectX | VS / DX11 | - | - | - |
 | blade-slash | ブレードスラッシュ | 2025 | 課題制作：個人, OpenGL | Nintendo Switch / OpenGL | - | - | - |

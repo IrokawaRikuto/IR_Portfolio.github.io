@@ -403,6 +403,20 @@ const workData = {
         requirements: { ja: 'Windows 10 / 11（64bit）／コンソールアプリ／追加のランタイム不要', en: 'Windows 10 / 11 (64-bit); console application; no additional runtime required' },
         controls: { ja: '←→↑↓ 移動、Space / Z ショット（押しっぱなしで連射）、Enter 決定、ESC タイトルへ', en: 'Arrow keys to move, Space or Z to shoot (hold to rapid-fire), Enter to confirm, ESC for title' },
     },
+    'jump-beat': {
+        title: { ja: 'あがれ！ジャンプビート', en: 'Agare! Jump Beat' },
+        year: '2026',
+        tags: [],
+        award: null,
+        env: '',
+        desc: {
+            ja: '詳細な説明・スクリーンショットは後日追記予定。',
+            en: 'A detailed writeup and screenshots will be added later.'
+        },
+        video: { type: 'placeholder', src: '' },
+        screenshots: [],
+        download: '',
+    },
 };
 
 function openModal(workId) {
@@ -663,7 +677,7 @@ document.querySelectorAll('.work-card[data-work]').forEach(card => {
 
     // Works の表示順（HTMLグリッドの data-work 順）を保ったまま年でグループ化
     const order = ['pettan-maker', 'rm-engine', 'puramai9', 'sd-mcp', 'discord-bot',
-                   'gamma-plus', 'sand-tetris', 'console-shooter', 'gamma', 'blast-ball', 'blade-slash', 'circlestriker', 'touhou'];
+                   'gamma-plus', 'sand-tetris', 'console-shooter', 'jump-beat', 'gamma', 'blast-ball', 'blade-slash', 'circlestriker', 'touhou'];
     const byYear = {};
     order.forEach(id => {
         const d = workData[id];
