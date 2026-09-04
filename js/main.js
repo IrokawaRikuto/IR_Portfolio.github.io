@@ -350,8 +350,8 @@ const workData = {
         award: null,
         env: 'Unreal Engine / C++',
         desc: {
-            ja: 'ゲームジャム「ぷちコン」への応募用に、1週間弱で制作したタイミングアクションゲーム。\n\nお題が「だん」だったことから「段差」を軸に据え、段差をジャンプで登っていくことをゲームの中心に置いた。ただ登るだけの高さ勝負にはせず、流れている音楽に合わせてジャンプするタイミングゲームとして構成し、曲のリズムに乗れているほど気持ちよく上へ登っていける手触りを狙った。\n\nゲームファイル・スクリーンショットは後日追加予定。',
-            en: 'A timing-based action game built in just under a week for the Puchi-Con game jam.\n\nThe theme was "dan," which I interpreted as 段差 (ledges), making the act of jumping up a series of ledges the core of the game. Rather than a pure height challenge, I structured it as a timing game where you jump in time with the music playing — the better you ride the rhythm, the more smoothly you climb.\n\nGame files and screenshots will be added later.'
+            ja: 'ゲームジャム「ぷちコン」への応募用に、1週間弱で制作したタイミングアクションゲーム。\n\nお題が「だん」だったことから「段差」を軸に据え、段差をジャンプで登っていくことをゲームの中心に置いた。ただ登るだけの高さ勝負にはせず、流れている音楽に合わせてジャンプするタイミングゲームとして構成し、曲のリズムに乗れているほど気持ちよく上へ登っていける手触りを狙った。\n\nただし、ジャンプするだけでは操作が単調になってしまうため、銃を撃てる要素を追加。裏拍を絡めたリズムの取り方が求められるようになり、操作の難易度も一段引き上げている。\n\nゲームファイル・スクリーンショットは後日追加予定。',
+            en: 'A timing-based action game built in just under a week for the Puchi-Con game jam.\n\nThe theme was "dan," which I interpreted as 段差 (ledges), making the act of jumping up a series of ledges the core of the game. Rather than a pure height challenge, I structured it as a timing game where you jump in time with the music playing — the better you ride the rhythm, the more smoothly you climb.\n\nJumping on its own made the controls feel monotonous, so I added the ability to shoot a gun. That brought off-beat timing into the mix and raised the difficulty of the controls a step further.\n\nGame files and screenshots will be added later.'
         },
         video: { type: 'placeholder', src: '' },
         screenshots: [],
